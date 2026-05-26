@@ -5,6 +5,11 @@ import { supabase } from "../lib/supabase";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+export const metadata = {
+  title: "Login",
+  description: "Log in to your MatrixVerse trading account.",
+};
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

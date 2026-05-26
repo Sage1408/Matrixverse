@@ -8,6 +8,11 @@ import * as XLSX from "xlsx";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
+export const metadata = {
+  title: "Trading Journal",
+  description: "Log and track all your trades. Export as CSV, Excel or PDF.",
+};
+
 export default function Journal() {
   const [user, setUser] = useState(null);
   const [trades, setTrades] = useState([]);

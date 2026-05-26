@@ -5,6 +5,11 @@ import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
 
+export const metadata = {
+  title: "Settings",
+  description: "Manage your MatrixVerse account, profile and preferences.",
+};
+
 export default function Settings() {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("profile");

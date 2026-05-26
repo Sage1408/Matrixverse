@@ -5,6 +5,11 @@ import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
 
+export const metadata = {
+  title: "Search Traders",
+  description: "Find and follow traders on MatrixVerse.",
+};
+
 export default function Search() {
   const [user, setUser] = useState(null);
   const [query, setQuery] = useState("");

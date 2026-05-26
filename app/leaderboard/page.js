@@ -5,6 +5,11 @@ import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
 
+export const metadata = {
+  title: "Leaderboard",
+  description: "Compete with traders worldwide. Rankings by PnL, win rate, RR ratio and more.",
+};
+
 export default function Leaderboard() {
   const [user, setUser] = useState(null);
   const [traders, setTraders] = useState([]);

@@ -5,6 +5,11 @@ import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
 
+export const metadata = {
+  title: "Notifications",
+  description: "Your MatrixVerse notifications — likes, comments, follows and more.",
+};
+
 export default function Notifications() {
   const [user, setUser] = useState(null);
   const [notifications, setNotifications] = useState([]);

@@ -6,6 +6,11 @@ import Pricing from "./components/Pricing";
 import FAQ from "./components/FAQ";
 import Footer from "./components/Footer";
 
+export const metadata = {
+  title: "MatrixVerse — Track. Improve. Dominate the Markets.",
+  description: "Join thousands of traders using MatrixVerse to journal trades, get AI feedback, compete on leaderboards, and build a trading community.",
+};
+
 export default function Home() {
   return (
     <main className="bg-[#0D1117] min-h-screen">

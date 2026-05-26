@@ -10,6 +10,11 @@ import {
   Tooltip, ResponsiveContainer
 } from "recharts";
 
+export const metadata = {
+  title: "Dashboard",
+  description: "Your trading overview — stats, recent trades, psychology score and more.",
+};
+
 export default function Dashboard() {
   const [user, setUser] = useState(null);
   const [trades, setTrades] = useState([]);

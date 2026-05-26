@@ -5,6 +5,11 @@ import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
 
+export const metadata = {
+  title: "AI Trade Analyzer",
+  description: "Get instant AI feedback on your trades. Detect emotional mistakes, bad RR and overtrading patterns.",
+};
+
 export default function AIAnalyzer() {
   const [user, setUser] = useState(null);
   const [trades, setTrades] = useState([]);

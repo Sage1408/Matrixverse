@@ -5,6 +5,12 @@ import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
 
+export const metadata = {
+  title: "Prop Firm Recommendations",
+  description: "Find the right prop firm for your trading style. Compare FTMO, FundedNext, The5ers and more.",
+};
+
+
 export default function PropFirms() {
   const [user, setUser] = useState(null);
   const [activeFilter, setActiveFilter] = useState("all");

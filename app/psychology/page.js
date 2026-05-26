@@ -5,6 +5,11 @@ import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
 
+export const metadata = {
+  title: "Psychology Tracker",
+  description: "Track your trading emotions daily. Detect revenge trading, fear and greed patterns.",
+};
+
 export default function Psychology() {
   const [user, setUser] = useState(null);
   const [checkins, setCheckins] = useState([]);

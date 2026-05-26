@@ -5,6 +5,11 @@ import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
 import MobileNav from "../components/MobileNav";
 
+export const metadata = {
+  title: "Community Feed",
+  description: "Share trade setups, market analysis and connect with traders worldwide.",
+};
+
 export default function Community() {
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
