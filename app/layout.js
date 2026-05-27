@@ -12,10 +12,6 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-<<<<<<< HEAD
-  title: "MatrixVerse",
-  description: "Matrixverse is an all-in-one trading ecosystem with AI analysis, a trading journal, real-time insights, and a community built for smarter market decisions.",
-=======
   title: {
     default: "MatrixVerse — Track. Improve. Dominate the Markets.",
     template: "%s | MatrixVerse",
@@ -67,7 +63,6 @@ export const metadata = {
     index: true,
     follow: true,
   },
->>>>>>> 4c81c21 (Add SEO metadata)
 };
 
 export default function RootLayout({ children }) {
