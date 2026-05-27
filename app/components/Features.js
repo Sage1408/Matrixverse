@@ -1,3 +1,8 @@
+"use client";
+
+import { motion } from "framer-motion";
+import { fadeInUp, staggerContainerFast } from "../lib/animations";
+
 export default function Features() {
   const features = [
     {
@@ -42,44 +47,51 @@ export default function Features() {
     <section id="features" className="bg-[#0D1117] py-24 px-6">
       <div className="max-w-6xl mx-auto">
 
-        {/* SECTION HEADER */}
-        <div className="text-center mb-16">
-          <div className="inline-block bg-[#161B22] border border-[#30363D] text-[#00D4FF] text-xs font-semibold px-4 py-2 rounded-full mb-4">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          variants={staggerContainerFast}
+          className="text-center mb-16"
+        >
+          <motion.div variants={fadeInUp} className="inline-block bg-[#161B22] border border-[#30363D] text-[#00D4FF] text-xs font-semibold px-4 py-2 rounded-full mb-4">
             ⚡ Everything You Need
-          </div>
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+          </motion.div>
+          <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-bold text-white mb-4">
             Built for Serious Traders
-          </h2>
-          <p className="text-[#8B949E] text-lg max-w-2xl mx-auto">
+          </motion.h2>
+          <motion.p variants={fadeInUp} className="text-[#8B949E] text-lg max-w-2xl mx-auto">
             Every tool you need to become a consistently profitable trader — in one powerful platform.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
-        {/* FEATURES GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          variants={staggerContainerFast}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        >
           {features.map((feature, index) => (
-            <div
+            <motion.div
               key={index}
-              className="bg-[#161B22] border border-[#30363D] rounded-2xl p-6 hover:border-[#00D4FF] transition-colors duration-300"
+              variants={fadeInUp}
+              whileHover={{ scale: 1.03, borderColor: feature.color, boxShadow: `0 0 30px ${feature.color}20` }}
+              className="bg-[#161B22] border border-[#30363D] rounded-2xl p-6 transition-colors duration-300"
             >
-              {/* ICON */}
               <div className="text-4xl mb-4">{feature.icon}</div>
-
-              {/* TITLE */}
               <h3
                 className="text-lg font-bold mb-2"
                 style={{ color: feature.color }}
               >
                 {feature.title}
               </h3>
-
-              {/* DESCRIPTION */}
               <p className="text-[#8B949E] text-sm leading-relaxed">
                 {feature.description}
               </p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
       </div>
     </section>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState(null);
@@ -44,24 +45,54 @@ export default function FAQ() {
     <section id="faq" className="bg-[#0D1117] py-24 px-6">
       <div className="max-w-3xl mx-auto">
 
-        {/* HEADER */}
-        <div className="text-center mb-16">
-          <div className="inline-block bg-[#161B22] border border-[#30363D] text-[#00D4FF] text-xs font-semibold px-4 py-2 rounded-full mb-4">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="text-center mb-16"
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="inline-block bg-[#161B22] border border-[#30363D] text-[#00D4FF] text-xs font-semibold px-4 py-2 rounded-full mb-4"
+          >
             ❓ FAQ
-          </div>
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="text-3xl md:text-5xl font-bold text-white mb-4"
+          >
             Common Questions
-          </h2>
-          <p className="text-[#8B949E] text-lg">
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-[#8B949E] text-lg"
+          >
             Everything you need to know before getting started.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
-        {/* FAQ LIST */}
-        <div className="flex flex-col gap-3">
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-50px" }}
+          className="flex flex-col gap-3"
+        >
           {faqs.map((faq, index) => (
-            <div
+            <motion.div
               key={index}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: index * 0.05 }}
               className="bg-[#161B22] border border-[#30363D] rounded-2xl overflow-hidden"
             >
               <button
@@ -69,18 +100,32 @@ export default function FAQ() {
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
               >
                 <span className="text-white font-semibold text-sm">{faq.question}</span>
-                <span className="text-[#00D4FF] text-lg flex-shrink-0">
+                <motion.span
+                  animate={{ rotate: openIndex === index ? 180 : 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-[#00D4FF] text-lg flex-shrink-0 inline-block"
+                >
                   {openIndex === index ? "−" : "+"}
-                </span>
+                </motion.span>
               </button>
-              {openIndex === index && (
-                <div className="px-6 pb-5">
-                  <p className="text-[#8B949E] text-sm leading-relaxed">{faq.answer}</p>
-                </div>
-              )}
-            </div>
+              <AnimatePresence>
+                {openIndex === index && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
+                    <div className="px-6 pb-5">
+                      <p className="text-[#8B949E] text-sm leading-relaxed">{faq.answer}</p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
       </div>
     </section>

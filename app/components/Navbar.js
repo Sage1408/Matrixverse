@@ -2,12 +2,19 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { slideDown } from "../lib/animations";
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 bg-[#0D1117] border-b border-[#30363D]">
+    <motion.nav
+      variants={slideDown}
+      initial="hidden"
+      animate="visible"
+      className="fixed top-0 left-0 w-full z-50 bg-[#0D1117]/80 backdrop-blur-md border-b border-[#30363D]"
+    >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
         {/* LOGO */}
@@ -75,6 +82,6 @@ export default function Navbar() {
           </Link>
         </div>
       )}
-    </nav>
+    </motion.nav>
   );
 }
