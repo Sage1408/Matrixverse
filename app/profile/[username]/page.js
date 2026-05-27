@@ -17,6 +17,10 @@ export default function Profile({ params }) {
   const [activeTab, setActiveTab] = useState("posts");
   const [loading, setLoading] = useState(true);
   const [followLoading, setFollowLoading] = useState(false);
+  const [editingPostId, setEditingPostId] = useState(null);
+  const [editForm, setEditForm] = useState({ content: "", pair_tag: "", post_type: "" });
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [saving, setSaving] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -51,6 +55,34 @@ export default function Profile({ params }) {
         .order("checked_in_at", { ascending: false });
       if (checkinsData) setCheckins(checkinsData);
     }
+  };
+
+  const startEdit = (post) => {
+    setEditingPostId(post.id);
+    setEditForm({ content: post.content, pair_tag: post.pair_tag || "", post_type: post.post_type });
+  };
+
+  const cancelEdit = () => {
+    setEditingPostId(null);
+    setEditForm({ content: "", pair_tag: "", post_type: "" });
+  };
+
+  const saveEdit = async (postId) => {
+    setSaving(true);
+    await supabase.from("posts").update({
+      content: editForm.content,
+      pair_tag: editForm.pair_tag,
+      post_type: editForm.post_type,
+    }).eq("id", postId);
+    setEditingPostId(null);
+    await loadProfileData();
+    setSaving(false);
+  };
+
+  const executeDelete = async (postId) => {
+    await supabase.from("posts").delete().eq("id", postId);
+    setDeleteConfirm(null);
+    await loadProfileData();
   };
 
   const loadFollowData = async (user) => {
@@ -279,18 +311,68 @@ export default function Profile({ params }) {
                       {post.pair_tag && (
                         <span className="bg-[#00D4FF20] text-[#00D4FF] text-xs font-bold px-2 py-1 rounded-full">{post.pair_tag}</span>
                       )}
-                      <span className="text-xs font-bold px-2 py-1 rounded-full" style={{ backgroundColor: getPostTypeColor(post.post_type) + "20", color: getPostTypeColor(post.post_type) }}>
-                        {post.post_type}
-                      </span>
+                      {!editingPostId && (
+                        <span className="text-xs font-bold px-2 py-1 rounded-full" style={{ backgroundColor: getPostTypeColor(post.post_type) + "20", color: getPostTypeColor(post.post_type) }}>
+                          {post.post_type}
+                        </span>
+                      )}
                     </div>
                   </div>
-                  <p className="text-[#C9D1D9] text-sm leading-relaxed mb-3">{post.content}</p>
+
+                  {editingPostId === post.id ? (
+                    <div className="flex flex-col gap-3 mb-3">
+                      <textarea
+                        value={editForm.content}
+                        onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
+                        className="w-full bg-[#0D1117] border border-[#30363D] text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#00D4FF] resize-none"
+                        rows={3}
+                      />
+                      <div className="grid grid-cols-2 gap-3">
+                        <select value={editForm.pair_tag} onChange={(e) => setEditForm({ ...editForm, pair_tag: e.target.value })} className="bg-[#0D1117] border border-[#30363D] text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#00D4FF]">
+                          <option value="">No pair</option>
+                          {["EURUSD","GBPUSD","USDJPY","XAUUSD","USDCAD","AUDUSD","NZDUSD","USDCHF","GBPJPY","EURJPY","BTCUSD","ETHUSD"].map(p => (
+                            <option key={p} value={p}>{p}</option>
+                          ))}
+                        </select>
+                        <select value={editForm.post_type} onChange={(e) => setEditForm({ ...editForm, post_type: e.target.value })} className="bg-[#0D1117] border border-[#30363D] text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#00D4FF]">
+                          {["Trade Setup","Market Analysis","Profit Update","Psychology","Educational","Meme"].map(t => (
+                            <option key={t} value={t}>{t}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="flex gap-2 justify-end">
+                        <button onClick={cancelEdit} className="border border-[#30363D] text-[#8B949E] text-xs font-bold px-4 py-2 rounded-full hover:border-white hover:text-white transition-colors">Cancel</button>
+                        <button onClick={() => saveEdit(post.id)} disabled={saving || !editForm.content.trim()} className="bg-[#00D4FF] text-[#0D1117] text-xs font-bold px-4 py-2 rounded-full hover:bg-[#00b8d9] transition-colors disabled:opacity-50">
+                          {saving ? "Saving..." : "Save"}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-[#C9D1D9] text-sm leading-relaxed mb-3">{post.content}</p>
+                  )}
+
                   {post.image_url && (
                     <img src={post.image_url} alt="chart" className="w-full rounded-xl border border-[#30363D] mb-3" />
                   )}
-                  <div className="flex items-center gap-4 pt-3 border-t border-[#30363D]">
-                    <span className="text-[#8B949E] text-xs">❤️ {post.likes || 0} likes</span>
-                    <a href="/community" className="text-[#00D4FF] text-xs hover:underline">View in Community</a>
+
+                  <div className="flex items-center justify-between pt-3 border-t border-[#30363D]">
+                    <div className="flex items-center gap-4">
+                      <span className="text-[#8B949E] text-xs">❤️ {post.likes || 0} likes</span>
+                      <a href="/community" className="text-[#00D4FF] text-xs hover:underline">View in Community</a>
+                    </div>
+                    {isOwnProfile && editingPostId !== post.id && (
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => startEdit(post)} className="text-[#8B949E] hover:text-[#00D4FF] text-xs transition-colors">Edit</button>
+                        {deleteConfirm === post.id ? (
+                          <div className="flex items-center gap-1">
+                            <button onClick={() => executeDelete(post.id)} className="text-[#FF4757] text-xs font-bold hover:underline">Delete</button>
+                            <button onClick={() => setDeleteConfirm(null)} className="text-[#8B949E] text-xs hover:text-white">Cancel</button>
+                          </div>
+                        ) : (
+                          <button onClick={() => setDeleteConfirm(post.id)} className="text-[#8B949E] hover:text-[#FF4757] text-xs transition-colors">Delete</button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))
