@@ -103,6 +103,28 @@ export default function Profile({ params }) {
     ? (trades.reduce((sum, t) => sum + (t.rr_ratio || 0), 0) / trades.length).toFixed(2)
     : 0;
 
+  const getSession = (ts) => {
+    const hour = new Date(ts).getUTCHours();
+    if (hour >= 0 && hour < 8) return "Asian";
+    if (hour >= 8 && hour < 17) return "London";
+    return "New York";
+  };
+
+  const calcWinRateBy = (key) => {
+    const groups = {};
+    trades.forEach(t => {
+      const k = key === "session" ? getSession(t.traded_at) : t[key] || "Unknown";
+      if (!groups[k]) groups[k] = { total: 0, wins: 0 };
+      groups[k].total++;
+      if (t.pnl > 0) groups[k].wins++;
+    });
+    return Object.entries(groups).sort((a, b) => b[1].total - a[1].total);
+  };
+
+  const byPair = calcWinRateBy("pair");
+  const byStrategy = calcWinRateBy("strategy");
+  const bySession = calcWinRateBy("session");
+
   const calcPsychScore = () => {
     if (checkins.length === 0) return null;
     const last7 = checkins.slice(0, 7);
@@ -356,32 +378,72 @@ export default function Profile({ params }) {
               </div>
             </div>
 
-            {trades.length > 0 && (
-              <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-5">
-                <h3 className="text-white font-bold mb-4">Strategy Breakdown</h3>
-                <div className="flex flex-col gap-3">
-                  {Object.entries(
-                    trades.reduce((acc, t) => {
-                      const s = t.strategy || "Unknown";
-                      acc[s] = (acc[s] || 0) + 1;
-                      return acc;
-                    }, {})
-                  ).map(([strategy, count], i) => (
-                    <div key={i} className="flex items-center justify-between">
-                      <span className="text-[#C9D1D9] text-sm">{strategy}</span>
-                      <div className="flex items-center gap-2">
-                        <div className="w-24 h-2 bg-[#30363D] rounded-full overflow-hidden">
-                          <div className="h-full bg-[#00D4FF] rounded-full" style={{ width: (count / trades.length * 100) + "%" }} />
+            {trades.length > 0 ? (
+              <>
+                <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-5">
+                  <h3 className="text-white font-bold mb-4">Win Rate by Pair</h3>
+                  <div className="flex flex-col gap-3">
+                    {byPair.map(([pair, data]) => {
+                      const rate = Math.round((data.wins / data.total) * 100);
+                      return (
+                        <div key={pair} className="flex items-center gap-3">
+                          <span className="text-[#00D4FF] font-bold text-sm w-20">{pair}</span>
+                          <div className="flex-1 h-3 bg-[#30363D] rounded-full overflow-hidden flex">
+                            <div className="h-full bg-[#00FF88] rounded-l-full" style={{ width: rate + "%" }} />
+                            {rate < 100 && <div className="h-full bg-[#FF4757] rounded-r-full" style={{ width: (100 - rate) + "%" }} />}
+                          </div>
+                          <span className="text-[#C9D1D9] text-xs font-bold w-14 text-right">{rate}%</span>
+                          <span className="text-[#8B949E] text-xs w-16 text-right">{data.wins}/{data.total}</span>
                         </div>
-                        <span className="text-[#8B949E] text-xs">{count}</span>
-                      </div>
-                    </div>
-                  ))}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
 
-            {trades.length === 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-5">
+                    <h3 className="text-white font-bold mb-4">Win Rate by Session</h3>
+                    <div className="flex flex-col gap-3">
+                      {bySession.map(([session, data]) => {
+                        const rate = Math.round((data.wins / data.total) * 100);
+                        const colors = { Asian: "#00D4FF", London: "#7C3AED", "New York": "#FF6B35" };
+                        return (
+                          <div key={session} className="flex items-center gap-3">
+                            <span className="text-sm w-20 font-semibold" style={{ color: colors[session] || "#8B949E" }}>{session}</span>
+                            <div className="flex-1 h-3 bg-[#30363D] rounded-full overflow-hidden flex">
+                              <div className="h-full bg-[#00FF88] rounded-l-full" style={{ width: rate + "%" }} />
+                              {rate < 100 && <div className="h-full bg-[#FF4757] rounded-r-full" style={{ width: (100 - rate) + "%" }} />}
+                            </div>
+                            <span className="text-[#C9D1D9] text-xs font-bold w-14 text-right">{rate}%</span>
+                            <span className="text-[#8B949E] text-xs w-16 text-right">{data.wins}/{data.total}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-5">
+                    <h3 className="text-white font-bold mb-4">Win Rate by Strategy</h3>
+                    <div className="flex flex-col gap-3">
+                      {byStrategy.map(([strategy, data]) => {
+                        const rate = Math.round((data.wins / data.total) * 100);
+                        return (
+                          <div key={strategy} className="flex items-center gap-3">
+                            <span className="text-[#C9D1D9] text-sm w-24 truncate">{strategy}</span>
+                            <div className="flex-1 h-3 bg-[#30363D] rounded-full overflow-hidden flex">
+                              <div className="h-full bg-[#00FF88] rounded-l-full" style={{ width: rate + "%" }} />
+                              {rate < 100 && <div className="h-full bg-[#FF4757] rounded-r-full" style={{ width: (100 - rate) + "%" }} />}
+                            </div>
+                            <span className="text-[#C9D1D9] text-xs font-bold w-14 text-right">{rate}%</span>
+                            <span className="text-[#8B949E] text-xs w-16 text-right">{data.wins}/{data.total}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
               <div className="text-center py-10 bg-[#161B22] border border-[#30363D] rounded-2xl">
                 <div className="text-4xl mb-3">📈</div>
                 <p className="text-[#8B949E] text-sm">No stats yet. Log some trades first!</p>
