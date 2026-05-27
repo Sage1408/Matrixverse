@@ -75,6 +75,17 @@ export default function CommunityClient() {
       is_read: false,
       link,
     }]);
+
+    fetch("/api/send-push", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        user_id: toUserId,
+        title: "MatrixVerse",
+        body: message,
+        url: link || "/",
+      }),
+    }).catch(() => {});
   };
 
   const handleSubmit = async (e) => {
