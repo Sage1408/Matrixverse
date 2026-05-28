@@ -22,9 +22,8 @@ export default function PushProvider({ children }) {
       try {
         const registration = await navigator.serviceWorker.register("/sw.js");
         const existing = await registration.pushManager.getSubscription();
-        if (existing) return;
 
-        const subscription = await registration.pushManager.subscribe({
+        const subscription = existing || await registration.pushManager.subscribe({
           userVisibleOnly: true,
           applicationServerKey: PUBLIC_VAPID_KEY,
         });
