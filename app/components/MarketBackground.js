@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { motion, useScroll, useTransform } from "framer-motion"
 
 function generateCandles(count) {
@@ -53,16 +53,11 @@ function CandleLayer({ candles, offset, speed, startY, opacity, reverse }) {
 }
 
 function LineLayer({ points }) {
-  const { scrollY } = useScroll()
-  const y = useTransform(scrollY, [0, 600], [0, -120])
-  const fade = useTransform(scrollY, [0, 500], [0.25, 0.05])
-
   return (
-    <motion.svg
-      className="absolute top-20 left-0 w-full h-full"
+    <svg
+      className="w-full h-full"
       viewBox="0 0 960 200"
       preserveAspectRatio="none"
-      style={{ y, opacity: fade }}
     >
       <defs>
         <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
@@ -86,21 +81,17 @@ function LineLayer({ points }) {
           transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
         />
       </g>
-    </motion.svg>
+    </svg>
   )
 }
 
 function TickerTape() {
-  const { scrollY } = useScroll()
-  const y = useTransform(scrollY, [0, 600], [0, 80])
   const pairs = ["EURUSD","GBPUSD","XAUUSD","BTCUSD","ETHUSD","USDJPY","GBPJPY","AUDUSD"]
 
   return (
-    <motion.div
-      className="absolute bottom-0 left-0 right-0 h-10 flex items-center overflow-hidden border-t border-[var(--border)]"
+    <div className="h-10 flex items-center overflow-hidden border-t border-[var(--border)] bg-[var(--bg-primary)]/80 backdrop-blur-sm"
       style={{
         background: "linear-gradient(90deg, transparent, rgba(0,212,255,0.06), transparent)",
-        y,
       }}
     >
       <motion.div
@@ -118,7 +109,7 @@ function TickerTape() {
           )
         })}
       </motion.div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -137,11 +128,24 @@ export default function MarketBackground() {
   }, [])
 
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" style={{ opacity: mainOpacity }}>
-      <CandleLayer candles={candles} offset={offset} speed={0.3} startY={150} opacity={0.12} />
-      <LineLayer points={linePoints} />
-      <CandleLayer candles={candles} offset={offset} speed={0.6} startY={-150} opacity={0.08} reverse />
-      <TickerTape />
-    </div>
+    <>
+      {/* Candlesticks — scroll away */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none select-none" style={{ opacity: mainOpacity }}>
+        <CandleLayer candles={candles} offset={offset} speed={0.3} startY={150} opacity={0.12} />
+        <CandleLayer candles={candles} offset={offset} speed={0.6} startY={-150} opacity={0.08} reverse />
+      </div>
+
+      {/* Line chart — fixed on screen */}
+      <div className="fixed inset-0 pointer-events-none select-none overflow-hidden" style={{ zIndex: 1 }}>
+        <div className="absolute top-1/4 left-0 w-full h-64 opacity-20">
+          <LineLayer points={linePoints} />
+        </div>
+      </div>
+
+      {/* Ticker tape — fixed at bottom */}
+      <div className="fixed bottom-0 left-0 right-0 pointer-events-none select-none" style={{ zIndex: 50 }}>
+        <TickerTape />
+      </div>
+    </>
   )
 }
