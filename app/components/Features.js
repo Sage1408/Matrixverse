@@ -44,7 +44,7 @@ export default function Features() {
   ];
 
   return (
-    <section id="features" className="bg-[#0D1117] py-24 px-6">
+    <section id="features" className="bg-[var(--bg-primary)] py-24 px-6">
       <div className="max-w-6xl mx-auto">
 
         <motion.div
@@ -54,13 +54,13 @@ export default function Features() {
           variants={staggerContainerFast}
           className="text-center mb-16"
         >
-          <motion.div variants={fadeInUp} className="inline-block bg-[#161B22] border border-[#30363D] text-[#00D4FF] text-xs font-semibold px-4 py-2 rounded-full mb-4">
+          <motion.div variants={fadeInUp} className="inline-block bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--accent-blue)] text-xs font-semibold px-4 py-2 rounded-full mb-4">
             ⚡ Everything You Need
           </motion.div>
-          <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-bold text-white mb-4">
+          <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-bold text-[var(--text-primary)] mb-4">
             Built for Serious Traders
           </motion.h2>
-          <motion.p variants={fadeInUp} className="text-[#8B949E] text-lg max-w-2xl mx-auto">
+          <motion.p variants={fadeInUp} className="text-[var(--text-muted)] text-lg max-w-2xl mx-auto">
             Every tool you need to become a consistently profitable trader — in one powerful platform.
           </motion.p>
         </motion.div>
@@ -77,7 +77,7 @@ export default function Features() {
               key={index}
               variants={fadeInUp}
               whileHover={{ scale: 1.03, borderColor: feature.color, boxShadow: `0 0 30px ${feature.color}20` }}
-              className="bg-[#161B22] border border-[#30363D] rounded-2xl p-6 transition-colors duration-300"
+              className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 transition-colors duration-300"
             >
               <div className="text-4xl mb-4">{feature.icon}</div>
               <h3
@@ -86,7 +86,7 @@ export default function Features() {
               >
                 {feature.title}
               </h3>
-              <p className="text-[#8B949E] text-sm leading-relaxed">
+              <p className="text-[var(--text-muted)] text-sm leading-relaxed">
                 {feature.description}
               </p>
             </motion.div>

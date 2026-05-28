@@ -1,6 +1,8 @@
 "use client";
 
 import MobileNav from "../../components/MobileNav";
+import ThemeToggle from "../../components/ThemeToggle"
+import { Skeleton, SkeletonCard, SkeletonText, SkeletonProfile } from "../../components/Skeleton"
 import { use, useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
@@ -21,6 +23,7 @@ export default function Profile({ params }) {
   const [editForm, setEditForm] = useState({ content: "", pair_tag: "", post_type: "" });
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [badgesData, setBadgesData] = useState({ earned: [], all: [] });
   const router = useRouter();
 
   useEffect(() => {
@@ -30,10 +33,25 @@ export default function Profile({ params }) {
       setCurrentUser(user);
       await loadProfileData();
       await loadFollowData(user);
+      await fetchBadges(user);
       setLoading(false);
     };
     init();
   }, [username]);
+
+  const fetchBadges = async (user) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    try {
+      const res = await fetch("/api/badges/list", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const data = await res.json();
+      if (data.earned) setBadgesData(data);
+    } catch (e) {
+      // silently fail
+    }
+  };
 
   const loadProfileData = async () => {
     const { data: postsData } = await supabase
@@ -193,50 +211,54 @@ export default function Profile({ params }) {
   const isOwnProfile = currentUser?.user_metadata?.username === username;
 
   if (loading) return (
-    <main className="bg-[#0D1117] min-h-screen flex items-center justify-center">
-      <p className="text-[#8B949E]">Loading profile...</p>
+    <main className="bg-[var(--bg-primary)] min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-3xl px-6 space-y-6">
+        <SkeletonProfile />
+        <SkeletonCard />
+      </div>
     </main>
   );
 
   return (
-    <main className="bg-[#0D1117] min-h-screen">
+    <main className="bg-[var(--bg-primary)] min-h-screen">
 
-      <nav className="bg-[#161B22] border-b border-[#30363D] px-6 py-4 flex items-center justify-between">
-        <a href="/dashboard" className="text-[#00D4FF] font-bold text-xl">MatrixVerse</a>
+      <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
+        <a href="/dashboard" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
         <div className="flex items-center gap-4">
-          <a href="/dashboard" className="text-[#8B949E] hover:text-white text-sm">Dashboard</a>
-          <a href="/community" className="text-[#8B949E] hover:text-white text-sm">Community</a>
-          <a href="/leaderboard" className="text-[#8B949E] hover:text-white text-sm">Leaderboard</a>
+          <ThemeToggle />
+          <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
+          <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Community</a>
+          <a href="/leaderboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Leaderboard</a>
           {isOwnProfile && (
-            <a href="/settings" className="text-[#8B949E] hover:text-white text-sm">Settings</a>
+            <a href="/settings" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Settings</a>
           )}
         </div>
       </nav>
 
       <div className="max-w-3xl mx-auto px-6 py-10 pb-20">
 
-        <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-6 mb-6">
+        <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 mb-6">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-[#00D4FF] flex items-center justify-center text-[#0D1117] font-bold text-2xl">
+              <div className="w-16 h-16 rounded-full bg-[var(--accent-blue)] flex items-center justify-center text-[var(--bg-primary)] font-bold text-2xl">
                 {username?.charAt(0).toUpperCase()}
               </div>
               <div>
-                <h1 className="text-white font-bold text-xl">@{username}</h1>
-                <p className="text-[#8B949E] text-sm mt-0.5">MatrixVerse Trader</p>
+                <h1 className="text-[var(--text-primary)] font-bold text-xl">@{username}</h1>
+                <p className="text-[var(--text-muted)] text-sm mt-0.5">MatrixVerse Trader</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="bg-[#00D4FF20] text-[#00D4FF] text-xs font-bold px-2 py-0.5 rounded-full">Trader</span>
+                  <span className="bg-[var(--accent-blue-bg)] text-[var(--accent-blue)] text-xs font-bold px-2 py-0.5 rounded-full">Trader</span>
                   {score && score >= 75 && (
-                    <span className="bg-[#00FF8820] text-[#00FF88] text-xs font-bold px-2 py-0.5 rounded-full">Strong Mindset</span>
+                    <span className="bg-[var(--accent-green-bg)] text-[var(--accent-green)] text-xs font-bold px-2 py-0.5 rounded-full">Strong Mindset</span>
                   )}
                   {trades.length >= 10 && (
-                    <span className="bg-[#FFD70020] text-[#FFD700] text-xs font-bold px-2 py-0.5 rounded-full">Active Trader</span>
+                    <span className="bg-[var(--accent-gold-bg)] text-[var(--accent-gold)] text-xs font-bold px-2 py-0.5 rounded-full">Active Trader</span>
                   )}
                 </div>
               </div>
             </div>
             {isOwnProfile ? (
-              <a href="/settings" className="border border-[#30363D] text-[#8B949E] text-xs font-semibold px-4 py-2 rounded-full hover:border-white hover:text-white transition-colors">
+              <a href="/settings" className="border border-[var(--border)] text-[var(--text-muted)] text-xs font-semibold px-4 py-2 rounded-full hover:border-[var(--hover-border)] hover:text-[var(--text-primary)] transition-colors">
                 Edit Profile
               </a>
             ) : (
@@ -245,8 +267,8 @@ export default function Profile({ params }) {
                 disabled={followLoading}
                 className={"text-xs font-bold px-5 py-2 rounded-full transition-colors disabled:opacity-50 " + (
                   isFollowing
-                    ? "border border-[#30363D] text-[#8B949E] hover:border-[#FF4757] hover:text-[#FF4757]"
-                    : "bg-[#00D4FF] text-[#0D1117] hover:bg-[#00b8d9]"
+                    ? "border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-red)] hover:text-[var(--accent-red)]"
+                    : "bg-[var(--accent-blue)] text-[var(--bg-primary)] hover:bg-[var(--accent-blue-hover)]"
                 )}
               >
                 {followLoading ? "..." : isFollowing ? "Following ✓" : "Follow"}
@@ -254,7 +276,7 @@ export default function Profile({ params }) {
             )}
           </div>
 
-          <div className="grid grid-cols-3 md:grid-cols-5 gap-3 pt-4 border-t border-[#30363D]">
+          <div className="grid grid-cols-3 md:grid-cols-5 gap-3 pt-4 border-t border-[var(--border)]">
             {[
               { label: "Trades", value: trades.length, color: "#00D4FF" },
               { label: "Win Rate", value: winRate + "%", color: "#00FF88" },
@@ -264,11 +286,29 @@ export default function Profile({ params }) {
             ].map((stat, i) => (
               <div key={i} className="text-center">
                 <div className="font-bold text-lg" style={{ color: stat.color }}>{stat.value}</div>
-                <div className="text-[#8B949E] text-xs">{stat.label}</div>
+                <div className="text-[var(--text-muted)] text-xs">{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
+
+        {/* Badges Section */}
+        {badgesData.all?.length > 0 && (
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 mb-6">
+            <h3 className="text-[var(--text-primary)] font-bold mb-4">🏅 Achievements</h3>
+            <div className="grid grid-cols-4 md:grid-cols-6 gap-3">
+              {badgesData.all?.map(badge => {
+                const earned = badgesData.earned?.find(b => b.id === badge.id)
+                return (
+                  <div key={badge.id} className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${earned ? "bg-[var(--accent-blue-bg)]" : "opacity-30"}`}>
+                    <span className="text-2xl">{badge.icon}</span>
+                    <span className="text-[10px] font-semibold text-center leading-tight text-[var(--text-muted)]">{badge.name}</span>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="flex gap-2 mb-6">
           {[
@@ -281,8 +321,8 @@ export default function Profile({ params }) {
               onClick={() => setActiveTab(tab.key)}
               className={"px-4 py-2 rounded-full text-sm font-semibold transition-colors " + (
                 activeTab === tab.key
-                  ? "bg-[#00D4FF] text-[#0D1117]"
-                  : "border border-[#30363D] text-[#8B949E] hover:border-[#00D4FF] hover:text-[#00D4FF]"
+                  ? "bg-[var(--accent-blue)] text-[var(--bg-primary)]"
+                  : "border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-blue)] hover:text-[var(--accent-blue)]"
               )}
             >
               {tab.label}
@@ -293,23 +333,23 @@ export default function Profile({ params }) {
         {activeTab === "posts" && (
           <div className="flex flex-col gap-4">
             {posts.length === 0 ? (
-              <div className="text-center py-16 bg-[#161B22] border border-[#30363D] rounded-2xl">
+              <div className="text-center py-16 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl">
                 <div className="text-4xl mb-3">📝</div>
-                <p className="text-[#8B949E] text-sm">No posts yet</p>
+                <p className="text-[var(--text-muted)] text-sm">No posts yet</p>
                 {isOwnProfile && (
-                  <a href="/community" className="inline-block mt-4 bg-[#00D4FF] text-[#0D1117] font-bold px-5 py-2 rounded-full text-xs hover:bg-[#00b8d9] transition-colors">
+                  <a href="/community" className="inline-block mt-4 bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold px-5 py-2 rounded-full text-xs hover:bg-[var(--accent-blue-hover)] transition-colors">
                     Create First Post
                   </a>
                 )}
               </div>
             ) : (
               posts.map((post) => (
-                <div key={post.id} className="bg-[#161B22] border border-[#30363D] rounded-2xl p-5">
+                <div key={post.id} className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-5">
                   <div className="flex items-center justify-between mb-3">
-                    <div className="text-[#8B949E] text-xs">{getTimeAgo(post.created_at)}</div>
+                    <div className="text-[var(--text-muted)] text-xs">{getTimeAgo(post.created_at)}</div>
                     <div className="flex items-center gap-2">
                       {post.pair_tag && (
-                        <span className="bg-[#00D4FF20] text-[#00D4FF] text-xs font-bold px-2 py-1 rounded-full">{post.pair_tag}</span>
+                        <span className="bg-[var(--accent-blue-bg)] text-[var(--accent-blue)] text-xs font-bold px-2 py-1 rounded-full">{post.pair_tag}</span>
                       )}
                       {!editingPostId && (
                         <span className="text-xs font-bold px-2 py-1 rounded-full" style={{ backgroundColor: getPostTypeColor(post.post_type) + "20", color: getPostTypeColor(post.post_type) }}>
@@ -324,52 +364,52 @@ export default function Profile({ params }) {
                       <textarea
                         value={editForm.content}
                         onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
-                        className="w-full bg-[#0D1117] border border-[#30363D] text-white rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#00D4FF] resize-none"
+                        className="w-full bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent-blue)] resize-none"
                         rows={3}
                       />
                       <div className="grid grid-cols-2 gap-3">
-                        <select value={editForm.pair_tag} onChange={(e) => setEditForm({ ...editForm, pair_tag: e.target.value })} className="bg-[#0D1117] border border-[#30363D] text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#00D4FF]">
+                        <select value={editForm.pair_tag} onChange={(e) => setEditForm({ ...editForm, pair_tag: e.target.value })} className="bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--accent-blue)]">
                           <option value="">No pair</option>
                           {["EURUSD","GBPUSD","USDJPY","XAUUSD","USDCAD","AUDUSD","NZDUSD","USDCHF","GBPJPY","EURJPY","BTCUSD","ETHUSD"].map(p => (
                             <option key={p} value={p}>{p}</option>
                           ))}
                         </select>
-                        <select value={editForm.post_type} onChange={(e) => setEditForm({ ...editForm, post_type: e.target.value })} className="bg-[#0D1117] border border-[#30363D] text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#00D4FF]">
+                        <select value={editForm.post_type} onChange={(e) => setEditForm({ ...editForm, post_type: e.target.value })} className="bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--accent-blue)]">
                           {["Trade Setup","Market Analysis","Profit Update","Psychology","Educational","Meme"].map(t => (
                             <option key={t} value={t}>{t}</option>
                           ))}
                         </select>
                       </div>
                       <div className="flex gap-2 justify-end">
-                        <button onClick={cancelEdit} className="border border-[#30363D] text-[#8B949E] text-xs font-bold px-4 py-2 rounded-full hover:border-white hover:text-white transition-colors">Cancel</button>
-                        <button onClick={() => saveEdit(post.id)} disabled={saving || !editForm.content.trim()} className="bg-[#00D4FF] text-[#0D1117] text-xs font-bold px-4 py-2 rounded-full hover:bg-[#00b8d9] transition-colors disabled:opacity-50">
+                        <button onClick={cancelEdit} className="border border-[var(--border)] text-[var(--text-muted)] text-xs font-bold px-4 py-2 rounded-full hover:border-[var(--hover-border)] hover:text-[var(--text-primary)] transition-colors">Cancel</button>
+                        <button onClick={() => saveEdit(post.id)} disabled={saving || !editForm.content.trim()} className="bg-[var(--accent-blue)] text-[var(--bg-primary)] text-xs font-bold px-4 py-2 rounded-full hover:bg-[var(--accent-blue-hover)] transition-colors disabled:opacity-50">
                           {saving ? "Saving..." : "Save"}
                         </button>
                       </div>
                     </div>
                   ) : (
-                    <p className="text-[#C9D1D9] text-sm leading-relaxed mb-3">{post.content}</p>
+                    <p className="text-[var(--text-secondary)] text-sm leading-relaxed mb-3">{post.content}</p>
                   )}
 
                   {post.image_url && (
-                    <img src={post.image_url} alt="chart" className="w-full rounded-xl border border-[#30363D] mb-3" />
+                    <img src={post.image_url} alt="chart" className="w-full rounded-xl border border-[var(--border)] mb-3" />
                   )}
 
-                  <div className="flex items-center justify-between pt-3 border-t border-[#30363D]">
+                  <div className="flex items-center justify-between pt-3 border-t border-[var(--border)]">
                     <div className="flex items-center gap-4">
-                      <span className="text-[#8B949E] text-xs">❤️ {post.likes || 0} likes</span>
-                      <a href="/community" className="text-[#00D4FF] text-xs hover:underline">View in Community</a>
+                      <span className="text-[var(--text-muted)] text-xs">❤️ {post.likes || 0} likes</span>
+                      <a href="/community" className="text-[var(--accent-blue)] text-xs hover:underline">View in Community</a>
                     </div>
                     {isOwnProfile && editingPostId !== post.id && (
                       <div className="flex items-center gap-2">
-                        <button onClick={() => startEdit(post)} className="text-[#8B949E] hover:text-[#00D4FF] text-xs transition-colors">Edit</button>
+                        <button onClick={() => startEdit(post)} className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-xs transition-colors">Edit</button>
                         {deleteConfirm === post.id ? (
                           <div className="flex items-center gap-1">
-                            <button onClick={() => executeDelete(post.id)} className="text-[#FF4757] text-xs font-bold hover:underline">Delete</button>
-                            <button onClick={() => setDeleteConfirm(null)} className="text-[#8B949E] text-xs hover:text-white">Cancel</button>
+                            <button onClick={() => executeDelete(post.id)} className="text-[var(--accent-red)] text-xs font-bold hover:underline">Delete</button>
+                            <button onClick={() => setDeleteConfirm(null)} className="text-[var(--text-muted)] text-xs hover:text-[var(--text-primary)]">Cancel</button>
                           </div>
                         ) : (
-                          <button onClick={() => setDeleteConfirm(post.id)} className="text-[#8B949E] hover:text-[#FF4757] text-xs transition-colors">Delete</button>
+                          <button onClick={() => setDeleteConfirm(post.id)} className="text-[var(--text-muted)] hover:text-[var(--accent-red)] text-xs transition-colors">Delete</button>
                         )}
                       </div>
                     )}
@@ -381,13 +421,13 @@ export default function Profile({ params }) {
         )}
 
         {activeTab === "trades" && (
-          <div className="bg-[#161B22] border border-[#30363D] rounded-2xl overflow-hidden">
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl overflow-hidden">
             {trades.length === 0 ? (
               <div className="text-center py-16">
                 <div className="text-4xl mb-3">📊</div>
-                <p className="text-[#8B949E] text-sm">No trades logged yet</p>
+                <p className="text-[var(--text-muted)] text-sm">No trades logged yet</p>
                 {isOwnProfile && (
-                  <a href="/journal" className="inline-block mt-4 bg-[#00D4FF] text-[#0D1117] font-bold px-5 py-2 rounded-full text-xs">
+                  <a href="/journal" className="inline-block mt-4 bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold px-5 py-2 rounded-full text-xs">
                     Log First Trade
                   </a>
                 )}
@@ -396,27 +436,27 @@ export default function Profile({ params }) {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#30363D]">
+                    <tr className="border-b border-[var(--border)]">
                       {["Pair","Dir","PnL","RR","Strategy","Date"].map(h => (
-                        <th key={h} className="text-[#8B949E] text-xs px-4 py-3 text-left">{h}</th>
+                        <th key={h} className="text-[var(--text-muted)] text-xs px-4 py-3 text-left">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {trades.map((trade, i) => (
-                      <tr key={i} className="border-b border-[#30363D] hover:bg-[#1A2332]">
-                        <td className="px-4 py-3 text-[#00D4FF] font-bold text-sm">{trade.pair}</td>
+                      <tr key={i} className="border-b border-[var(--border)] hover:bg-[var(--bg-tertiary)]">
+                        <td className="px-4 py-3 text-[var(--accent-blue)] font-bold text-sm">{trade.pair}</td>
                         <td className="px-4 py-3">
-                          <span className={"text-xs font-bold px-2 py-0.5 rounded-full " + (trade.direction === "buy" ? "bg-[#00FF8820] text-[#00FF88]" : "bg-[#FF475720] text-[#FF4757]")}>
+                          <span className={"text-xs font-bold px-2 py-0.5 rounded-full " + (trade.direction === "buy" ? "bg-[var(--accent-green-bg)] text-[var(--accent-green)]" : "bg-[var(--accent-red-bg)] text-[var(--accent-red)]")}>
                             {trade.direction?.toUpperCase()}
                           </span>
                         </td>
                         <td className="px-4 py-3 font-bold text-sm" style={{ color: trade.pnl >= 0 ? "#00FF88" : "#FF4757" }}>
                           {trade.pnl >= 0 ? "+" : ""}${trade.pnl}
                         </td>
-                        <td className="px-4 py-3 text-[#FFD700] text-sm">{trade.rr_ratio ? trade.rr_ratio + "R" : "-"}</td>
-                        <td className="px-4 py-3 text-[#8B949E] text-sm">{trade.strategy || "-"}</td>
-                        <td className="px-4 py-3 text-[#8B949E] text-xs">{new Date(trade.traded_at).toLocaleDateString()}</td>
+                        <td className="px-4 py-3 text-[var(--accent-gold)] text-sm">{trade.rr_ratio ? trade.rr_ratio + "R" : "-"}</td>
+                        <td className="px-4 py-3 text-[var(--text-muted)] text-sm">{trade.strategy || "-"}</td>
+                        <td className="px-4 py-3 text-[var(--text-muted)] text-xs">{new Date(trade.traded_at).toLocaleDateString()}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -435,25 +475,25 @@ export default function Profile({ params }) {
                 { label: "Losses", value: losses, color: "#FF4757", icon: "❌" },
                 { label: "Win Rate", value: winRate + "%", color: "#FFD700", icon: "🎯" },
               ].map((stat, i) => (
-                <div key={i} className="bg-[#161B22] border border-[#30363D] rounded-2xl p-4 text-center">
+                <div key={i} className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-4 text-center">
                   <div className="text-2xl mb-1">{stat.icon}</div>
                   <div className="font-bold text-xl" style={{ color: stat.color }}>{stat.value}</div>
-                  <div className="text-[#8B949E] text-xs">{stat.label}</div>
+                  <div className="text-[var(--text-muted)] text-xs">{stat.label}</div>
                 </div>
               ))}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-5 text-center">
-                <p className="text-[#8B949E] text-xs mb-2">Net PnL</p>
+              <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-5 text-center">
+                <p className="text-[var(--text-muted)] text-xs mb-2">Net PnL</p>
                 <div className="font-bold text-2xl" style={{ color: parseFloat(netPnL) >= 0 ? "#00FF88" : "#FF4757" }}>${netPnL}</div>
               </div>
-              <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-5 text-center">
-                <p className="text-[#8B949E] text-xs mb-2">Avg RR Ratio</p>
-                <div className="font-bold text-2xl text-[#FFD700]">{avgRR}R</div>
+              <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-5 text-center">
+                <p className="text-[var(--text-muted)] text-xs mb-2">Avg RR Ratio</p>
+                <div className="font-bold text-2xl text-[var(--accent-gold)]">{avgRR}R</div>
               </div>
-              <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-5 text-center">
-                <p className="text-[#8B949E] text-xs mb-2">Psychology Score</p>
+              <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-5 text-center">
+                <p className="text-[var(--text-muted)] text-xs mb-2">Psychology Score</p>
                 <div className="font-bold text-2xl" style={{ color: score ? (score >= 75 ? "#00FF88" : score >= 50 ? "#FFD700" : "#FF4757") : "#8B949E" }}>
                   {score || "--"}
                 </div>
@@ -462,20 +502,20 @@ export default function Profile({ params }) {
 
             {trades.length > 0 ? (
               <>
-                <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-5">
-                  <h3 className="text-white font-bold mb-4">Win Rate by Pair</h3>
+                <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-5">
+                  <h3 className="text-[var(--text-primary)] font-bold mb-4">Win Rate by Pair</h3>
                   <div className="flex flex-col gap-3">
                     {byPair.map(([pair, data]) => {
                       const rate = Math.round((data.wins / data.total) * 100);
                       return (
                         <div key={pair} className="flex items-center gap-3">
-                          <span className="text-[#00D4FF] font-bold text-sm w-20">{pair}</span>
-                          <div className="flex-1 h-3 bg-[#30363D] rounded-full overflow-hidden flex">
-                            <div className="h-full bg-[#00FF88] rounded-l-full" style={{ width: rate + "%" }} />
-                            {rate < 100 && <div className="h-full bg-[#FF4757] rounded-r-full" style={{ width: (100 - rate) + "%" }} />}
+                          <span className="text-[var(--accent-blue)] font-bold text-sm w-20">{pair}</span>
+                          <div className="flex-1 h-3 bg-[var(--border)] rounded-full overflow-hidden flex">
+                            <div className="h-full bg-[var(--accent-green)] rounded-l-full" style={{ width: rate + "%" }} />
+                            {rate < 100 && <div className="h-full bg-[var(--accent-red)] rounded-r-full" style={{ width: (100 - rate) + "%" }} />}
                           </div>
-                          <span className="text-[#C9D1D9] text-xs font-bold w-14 text-right">{rate}%</span>
-                          <span className="text-[#8B949E] text-xs w-16 text-right">{data.wins}/{data.total}</span>
+                          <span className="text-[var(--text-secondary)] text-xs font-bold w-14 text-right">{rate}%</span>
+                          <span className="text-[var(--text-muted)] text-xs w-16 text-right">{data.wins}/{data.total}</span>
                         </div>
                       );
                     })}
@@ -483,8 +523,8 @@ export default function Profile({ params }) {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-5">
-                    <h3 className="text-white font-bold mb-4">Win Rate by Session</h3>
+                  <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-5">
+                    <h3 className="text-[var(--text-primary)] font-bold mb-4">Win Rate by Session</h3>
                     <div className="flex flex-col gap-3">
                       {bySession.map(([session, data]) => {
                         const rate = Math.round((data.wins / data.total) * 100);
@@ -492,32 +532,32 @@ export default function Profile({ params }) {
                         return (
                           <div key={session} className="flex items-center gap-3">
                             <span className="text-sm w-20 font-semibold" style={{ color: colors[session] || "#8B949E" }}>{session}</span>
-                            <div className="flex-1 h-3 bg-[#30363D] rounded-full overflow-hidden flex">
-                              <div className="h-full bg-[#00FF88] rounded-l-full" style={{ width: rate + "%" }} />
-                              {rate < 100 && <div className="h-full bg-[#FF4757] rounded-r-full" style={{ width: (100 - rate) + "%" }} />}
+                            <div className="flex-1 h-3 bg-[var(--border)] rounded-full overflow-hidden flex">
+                              <div className="h-full bg-[var(--accent-green)] rounded-l-full" style={{ width: rate + "%" }} />
+                              {rate < 100 && <div className="h-full bg-[var(--accent-red)] rounded-r-full" style={{ width: (100 - rate) + "%" }} />}
                             </div>
-                            <span className="text-[#C9D1D9] text-xs font-bold w-14 text-right">{rate}%</span>
-                            <span className="text-[#8B949E] text-xs w-16 text-right">{data.wins}/{data.total}</span>
+                            <span className="text-[var(--text-secondary)] text-xs font-bold w-14 text-right">{rate}%</span>
+                            <span className="text-[var(--text-muted)] text-xs w-16 text-right">{data.wins}/{data.total}</span>
                           </div>
                         );
                       })}
                     </div>
                   </div>
 
-                  <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-5">
-                    <h3 className="text-white font-bold mb-4">Win Rate by Strategy</h3>
+                  <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-5">
+                    <h3 className="text-[var(--text-primary)] font-bold mb-4">Win Rate by Strategy</h3>
                     <div className="flex flex-col gap-3">
                       {byStrategy.map(([strategy, data]) => {
                         const rate = Math.round((data.wins / data.total) * 100);
                         return (
                           <div key={strategy} className="flex items-center gap-3">
-                            <span className="text-[#C9D1D9] text-sm w-24 truncate">{strategy}</span>
-                            <div className="flex-1 h-3 bg-[#30363D] rounded-full overflow-hidden flex">
-                              <div className="h-full bg-[#00FF88] rounded-l-full" style={{ width: rate + "%" }} />
-                              {rate < 100 && <div className="h-full bg-[#FF4757] rounded-r-full" style={{ width: (100 - rate) + "%" }} />}
+                            <span className="text-[var(--text-secondary)] text-sm w-24 truncate">{strategy}</span>
+                            <div className="flex-1 h-3 bg-[var(--border)] rounded-full overflow-hidden flex">
+                              <div className="h-full bg-[var(--accent-green)] rounded-l-full" style={{ width: rate + "%" }} />
+                              {rate < 100 && <div className="h-full bg-[var(--accent-red)] rounded-r-full" style={{ width: (100 - rate) + "%" }} />}
                             </div>
-                            <span className="text-[#C9D1D9] text-xs font-bold w-14 text-right">{rate}%</span>
-                            <span className="text-[#8B949E] text-xs w-16 text-right">{data.wins}/{data.total}</span>
+                            <span className="text-[var(--text-secondary)] text-xs font-bold w-14 text-right">{rate}%</span>
+                            <span className="text-[var(--text-muted)] text-xs w-16 text-right">{data.wins}/{data.total}</span>
                           </div>
                         );
                       })}
@@ -526,9 +566,9 @@ export default function Profile({ params }) {
                 </div>
               </>
             ) : (
-              <div className="text-center py-10 bg-[#161B22] border border-[#30363D] rounded-2xl">
+              <div className="text-center py-10 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl">
                 <div className="text-4xl mb-3">📈</div>
-                <p className="text-[#8B949E] text-sm">No stats yet. Log some trades first!</p>
+                <p className="text-[var(--text-muted)] text-sm">No stats yet. Log some trades first!</p>
               </div>
             )}
           </div>

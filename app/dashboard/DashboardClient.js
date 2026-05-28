@@ -5,6 +5,8 @@ import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
 import NotificationBell from "../components/NotificationBell";
 import MobileNav from "../components/MobileNav";
+import ThemeToggle from "../components/ThemeToggle"
+import { Skeleton, SkeletonCard, SkeletonText } from "../components/Skeleton"
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer
@@ -19,6 +21,9 @@ export default function DashboardClient() {
   const [stopLossPips, setStopLossPips] = useState("");
   const [pipValue, setPipValue] = useState("10");
   const [lotSize, setLotSize] = useState(null);
+  const [streak, setStreak] = useState(0);
+  const [badgeNotification, setBadgeNotification] = useState(null);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -26,6 +31,9 @@ export default function DashboardClient() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/login"); return; }
       setUser(user);
+      if (!localStorage.getItem("matrixverse-onboarded")) {
+        setShowOnboarding(true);
+      }
       fetchTrades(user.id);
       fetchCheckins(user.id);
     };
@@ -44,6 +52,26 @@ export default function DashboardClient() {
       .from("checkins").select("*").eq("user_id", userId)
       .order("checked_in_at", { ascending: false });
     if (data) setCheckins(data);
+  };
+
+  const handleCheckin = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    try {
+      const res = await fetch("/api/checkin/streak", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const data = await res.json();
+      if (data.streak) setStreak(data.streak);
+      if (data.newBadges?.length > 0) {
+        setBadgeNotification(data.newBadges);
+        setTimeout(() => setBadgeNotification(null), 5000);
+      }
+      fetchCheckins(user.id);
+    } catch (e) {
+      // silently fail
+    }
   };
 
   const handleLogout = async () => {
@@ -125,28 +153,33 @@ export default function DashboardClient() {
     : null;
 
   if (!user) return (
-    <main className="bg-[#0D1117] min-h-screen flex items-center justify-center">
-      <p className="text-[#8B949E]">Loading...</p>
+    <main className="bg-[var(--bg-primary)] min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-4xl px-6 space-y-6">
+        <SkeletonText lines={2} />
+        <SkeletonCard />
+        <SkeletonCard />
+      </div>
     </main>
   );
 
   return (
-    <main className="bg-[#0D1117] min-h-screen">
+    <main className="bg-[var(--bg-primary)] min-h-screen">
 
-      <nav className="bg-[#161B22] border-b border-[#30363D] px-6 py-4 flex items-center justify-between">
-        <div className="text-[#00D4FF] font-bold text-xl">MatrixVerse</div>
+      <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
+        <div className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</div>
         <div className="hidden md:flex items-center gap-6">
-          <a href="/journal" className="text-[#8B949E] hover:text-white text-sm">Journal</a>
-          <a href="/psychology" className="text-[#8B949E] hover:text-white text-sm">Psychology</a>
-          <a href="/community" className="text-[#8B949E] hover:text-white text-sm">Community</a>
-          <a href="/leaderboard" className="text-[#8B949E] hover:text-white text-sm">Leaderboard</a>
+          <ThemeToggle />
+          <a href="/journal" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Journal</a>
+          <a href="/psychology" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Psychology</a>
+          <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Community</a>
+          <a href="/leaderboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Leaderboard</a>
         </div>
         <div className="flex items-center gap-4">
           <NotificationBell userId={user.id} />
-          <a href={"/profile/" + username} className="text-[#00D4FF] text-sm font-semibold hover:underline">
+          <a href={"/profile/" + username} className="text-[var(--accent-blue)] text-sm font-semibold hover:underline">
             @{username}
           </a>
-          <button onClick={handleLogout} className="text-[#FF4757] text-sm hover:underline hidden md:block">
+          <button onClick={handleLogout} className="text-[var(--accent-red)] text-sm hover:underline hidden md:block">
             Logout
           </button>
         </div>
@@ -155,11 +188,11 @@ export default function DashboardClient() {
       <div className="max-w-7xl mx-auto px-6 py-10 pb-24">
 
         <div className="mb-8">
-          <h1 className="text-white font-bold text-3xl mb-1">
+          <h1 className="text-[var(--text-primary)] font-bold text-3xl mb-1">
             Welcome back,{" "}
-            <a href={"/profile/" + username} className="text-[#00D4FF] hover:underline">{username}</a>{" "}👋
+            <a href={"/profile/" + username} className="text-[var(--accent-blue)] hover:underline">{username}</a>{" "}👋
           </h1>
-          <p className="text-[#8B949E] text-sm">Here is your trading overview</p>
+          <p className="text-[var(--text-muted)] text-sm">Here is your trading overview</p>
         </div>
 
         {/* STATS ROW */}
@@ -170,24 +203,24 @@ export default function DashboardClient() {
             { label: "Total Check-ins", value: checkins.length, color: "#FFD700", icon: "🔥" },
             { label: "Net PnL", value: "$" + netPnL, color: parseFloat(netPnL) >= 0 ? "#00FF88" : "#FF4757", icon: "💰" },
           ].map((stat, i) => (
-            <div key={i} className="bg-[#161B22] border border-[#30363D] rounded-2xl p-5">
+            <div key={i} className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-5">
               <div className="text-2xl mb-2">{stat.icon}</div>
-              <div className="text-[#8B949E] text-xs mb-1">{stat.label}</div>
+              <div className="text-[var(--text-muted)] text-xs mb-1">{stat.label}</div>
               <div className="font-bold text-xl" style={{ color: stat.color }}>{stat.value}</div>
             </div>
           ))}
         </div>
 
         {/* PNL CHART */}
-        <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-6 mb-6">
+        <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-white font-bold text-lg">PnL Chart</h2>
-            <span className="text-[#8B949E] text-xs">Cumulative performance</span>
+            <h2 className="text-[var(--text-primary)] font-bold text-lg">PnL Chart</h2>
+            <span className="text-[var(--text-muted)] text-xs">Cumulative performance</span>
           </div>
           {trades.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 text-center">
               <div className="text-4xl mb-3">📈</div>
-              <p className="text-[#8B949E] text-sm">Log trades to see your PnL chart</p>
+              <p className="text-[var(--text-muted)] text-sm">Log trades to see your PnL chart</p>
             </div>
           ) : (
             <ResponsiveContainer width="100%" height={200}>
@@ -230,31 +263,31 @@ export default function DashboardClient() {
         {/* RECENT TRADES + PSYCHOLOGY */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
 
-          <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-6">
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-white font-bold text-lg">Recent Trades</h2>
-              <a href="/journal" className="text-[#00D4FF] text-xs hover:underline">View All</a>
+              <h2 className="text-[var(--text-primary)] font-bold text-lg">Recent Trades</h2>
+              <a href="/journal" className="text-[var(--accent-blue)] text-xs hover:underline">View All</a>
             </div>
             {trades.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-center">
                 <div className="text-4xl mb-3">📓</div>
-                <p className="text-[#8B949E] text-sm">No trades logged yet</p>
-                <a href="/journal" className="mt-4 bg-[#00D4FF] text-[#0D1117] font-bold px-5 py-2 rounded-full text-xs hover:bg-[#00b8d9] transition-colors">
+                <p className="text-[var(--text-muted)] text-sm">No trades logged yet</p>
+                <a href="/journal" className="mt-4 bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold px-5 py-2 rounded-full text-xs hover:bg-[var(--accent-blue-hover)] transition-colors">
                   Log Your First Trade
                 </a>
               </div>
             ) : (
               <div className="flex flex-col gap-3">
                 {[...trades].reverse().slice(0, 5).map((trade, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 bg-[#0D1117] rounded-xl">
+                  <div key={i} className="flex items-center justify-between p-3 bg-[var(--bg-primary)] rounded-xl">
                     <div className="flex items-center gap-3">
-                      <span className="text-[#00D4FF] font-bold text-sm">{trade.pair}</span>
-                      <span className={"text-xs font-bold px-2 py-0.5 rounded-full " + (trade.direction === "buy" ? "bg-[#00FF8820] text-[#00FF88]" : "bg-[#FF475720] text-[#FF4757]")}>
+                      <span className="text-[var(--accent-blue)] font-bold text-sm">{trade.pair}</span>
+                      <span className={"text-xs font-bold px-2 py-0.5 rounded-full " + (trade.direction === "buy" ? "bg-[var(--accent-green-bg)] text-[var(--accent-green)]" : "bg-[var(--accent-red-bg)] text-[var(--accent-red)]")}>
                         {trade.direction?.toUpperCase()}
                       </span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="text-[#8B949E] text-xs">{trade.rr_ratio ? trade.rr_ratio + "R" : "-"}</span>
+                      <span className="text-[var(--text-muted)] text-xs">{trade.rr_ratio ? trade.rr_ratio + "R" : "-"}</span>
                       <span className="font-bold text-sm" style={{ color: trade.pnl >= 0 ? "#00FF88" : "#FF4757" }}>
                         {trade.pnl >= 0 ? "+" : ""}${trade.pnl}
                       </span>
@@ -265,10 +298,10 @@ export default function DashboardClient() {
             )}
           </div>
 
-          <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-6">
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-white font-bold text-lg">Psychology Score</h2>
-              <span className="text-[#8B949E] text-xs">Last 7 days</span>
+              <h2 className="text-[var(--text-primary)] font-bold text-lg">Psychology Score</h2>
+              <span className="text-[var(--text-muted)] text-xs">Last 7 days</span>
             </div>
             <div className="flex flex-col items-center justify-center py-4">
               <div
@@ -279,7 +312,7 @@ export default function DashboardClient() {
                   {psychScore || "--"}
                 </span>
               </div>
-              <p className="text-[#8B949E] text-sm text-center mb-4">
+              <p className="text-[var(--text-muted)] text-sm text-center mb-4">
                 {psychScore
                   ? psychScore >= 75 ? "🟢 Trading mindset is strong"
                   : psychScore >= 50 ? "🟡 Be cautious today"
@@ -287,12 +320,30 @@ export default function DashboardClient() {
                   : "Complete your daily check-in"}
               </p>
               {!checkedInToday ? (
-                <a href="/psychology" className="border border-[#00D4FF] text-[#00D4FF] font-semibold px-5 py-2 rounded-full text-xs hover:bg-[#00D4FF] hover:text-[#0D1117] transition-colors">
+                <button
+                  onClick={handleCheckin}
+                  className="border border-[var(--accent-blue)] text-[var(--accent-blue)] font-semibold px-5 py-2 rounded-full text-xs hover:bg-[var(--accent-blue)] hover:text-[var(--bg-primary)] transition-colors"
+                >
                   Daily Check-In
-                </a>
+                </button>
               ) : (
-                <div className="bg-[#00FF8820] border border-[#00FF88] text-[#00FF88] text-xs font-bold px-4 py-2 rounded-full">
-                  ✓ Checked In Today
+                <div className="flex flex-col items-center gap-2">
+                  <div className="bg-[var(--accent-green-bg)] border border-[var(--accent-green)] text-[var(--accent-green)] text-xs font-bold px-4 py-2 rounded-full">
+                    ✓ Checked In Today
+                  </div>
+                  {streak > 0 && (
+                    <span className="text-[var(--accent-gold)] text-xs font-semibold">🔥 {streak}-day streak</span>
+                  )}
+                </div>
+              )}
+              {badgeNotification && (
+                <div className="mt-3 flex flex-col gap-2 w-full">
+                  {badgeNotification.map((b, i) => (
+                    <div key={i} className="bg-[var(--accent-gold-bg)] border border-[var(--accent-gold)] rounded-xl px-3 py-2 text-center animate-pulse">
+                      <span className="text-sm">{b.badge_icon}</span>
+                      <span className="text-[var(--accent-gold)] text-xs font-bold ml-1">New Badge: {b.badge_name}</span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -304,45 +355,45 @@ export default function DashboardClient() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
 
           {/* RISK CALCULATOR */}
-          <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-6">
-            <h2 className="text-white font-bold text-lg mb-4">⚡ Risk Calculator</h2>
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6">
+            <h2 className="text-[var(--text-primary)] font-bold text-lg mb-4">⚡ Risk Calculator</h2>
             <div className="flex flex-col gap-3">
               <div>
-                <label className="text-[#8B949E] text-xs mb-1 block">Account Balance ($)</label>
+                <label className="text-[var(--text-muted)] text-xs mb-1 block">Account Balance ($)</label>
                 <input
                   type="number"
                   placeholder="e.g. 1000"
                   value={riskBalance}
                   onChange={(e) => setRiskBalance(e.target.value)}
-                  className="w-full bg-[#0D1117] border border-[#30363D] text-white placeholder-[#8B949E] rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[#00D4FF]"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[#8B949E] rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[var(--accent-blue)]"
                 />
               </div>
               <div>
-                <label className="text-[#8B949E] text-xs mb-1 block">Risk Percentage (%)</label>
+                <label className="text-[var(--text-muted)] text-xs mb-1 block">Risk Percentage (%)</label>
                 <input
                   type="number"
                   placeholder="e.g. 1"
                   value={riskPercent}
                   onChange={(e) => setRiskPercent(e.target.value)}
-                  className="w-full bg-[#0D1117] border border-[#30363D] text-white placeholder-[#8B949E] rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[#00D4FF]"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[#8B949E] rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[var(--accent-blue)]"
                 />
               </div>
               <div>
-                <label className="text-[#8B949E] text-xs mb-1 block">Stop Loss (pips)</label>
+                <label className="text-[var(--text-muted)] text-xs mb-1 block">Stop Loss (pips)</label>
                 <input
                   type="number"
                   placeholder="e.g. 20"
                   value={stopLossPips}
                   onChange={(e) => setStopLossPips(e.target.value)}
-                  className="w-full bg-[#0D1117] border border-[#30363D] text-white placeholder-[#8B949E] rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[#00D4FF]"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[#8B949E] rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[var(--accent-blue)]"
                 />
               </div>
               <div>
-                <label className="text-[#8B949E] text-xs mb-1 block">Pip Value ($) — standard lot</label>
+                <label className="text-[var(--text-muted)] text-xs mb-1 block">Pip Value ($) — standard lot</label>
                 <select
                   value={pipValue}
                   onChange={(e) => setPipValue(e.target.value)}
-                  className="w-full bg-[#0D1117] border border-[#30363D] text-white rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[#00D4FF]"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[var(--accent-blue)]"
                 >
                   <option value="10">$10 — Major pairs (EURUSD etc)</option>
                   <option value="9">$9 — GBPUSD</option>
@@ -352,15 +403,15 @@ export default function DashboardClient() {
               </div>
               <button
                 onClick={calculateLotSize}
-                className="bg-[#00D4FF] text-[#0D1117] font-bold py-2 rounded-full text-sm hover:bg-[#00b8d9] transition-colors"
+                className="bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold py-2 rounded-full text-sm hover:bg-[var(--accent-blue-hover)] transition-colors"
               >
                 Calculate Lot Size
               </button>
               {lotSize && (
-                <div className="bg-[#0D1117] border border-[#00D4FF] rounded-xl p-4 text-center">
-                  <p className="text-[#8B949E] text-xs mb-1">Recommended Lot Size</p>
-                  <p className="text-[#00D4FF] font-bold text-2xl">{lotSize}</p>
-                  <p className="text-[#8B949E] text-xs mt-1">
+                <div className="bg-[var(--bg-primary)] border border-[var(--accent-blue)] rounded-xl p-4 text-center">
+                  <p className="text-[var(--text-muted)] text-xs mb-1">Recommended Lot Size</p>
+                  <p className="text-[var(--accent-blue)] font-bold text-2xl">{lotSize}</p>
+                  <p className="text-[var(--text-muted)] text-xs mt-1">
                     Risk: ${((parseFloat(riskBalance) * parseFloat(riskPercent)) / 100).toFixed(2)}
                   </p>
                 </div>
@@ -369,43 +420,46 @@ export default function DashboardClient() {
           </div>
 
           {/* WEEKLY RECAP */}
-          <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-6">
-            <h2 className="text-white font-bold text-lg mb-4">📅 Weekly Recap</h2>
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6">
+            <h2 className="text-[var(--text-primary)] font-bold text-lg mb-4">📅 Weekly Recap</h2>
             {weeklyTrades.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <div className="text-4xl mb-3">📅</div>
-                <p className="text-[#8B949E] text-sm">No trades this week yet</p>
+                <p className="text-[var(--text-muted)] text-sm">No trades this week yet</p>
               </div>
             ) : (
               <div className="flex flex-col gap-4">
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-[#0D1117] rounded-xl p-3 text-center">
-                    <p className="text-[#8B949E] text-xs mb-1">Trades This Week</p>
-                    <p className="text-white font-bold text-xl">{weeklyTrades.length}</p>
+                  <div className="bg-[var(--bg-primary)] rounded-xl p-3 text-center">
+                    <p className="text-[var(--text-muted)] text-xs mb-1">Trades This Week</p>
+                    <p className="text-[var(--text-primary)] font-bold text-xl">{weeklyTrades.length}</p>
                   </div>
-                  <div className="bg-[#0D1117] rounded-xl p-3 text-center">
-                    <p className="text-[#8B949E] text-xs mb-1">Weekly PnL</p>
+                  <div className="bg-[var(--bg-primary)] rounded-xl p-3 text-center">
+                    <p className="text-[var(--text-muted)] text-xs mb-1">Weekly PnL</p>
                     <p className="font-bold text-xl" style={{ color: parseFloat(weeklyPnL) >= 0 ? "#00FF88" : "#FF4757" }}>
                       {parseFloat(weeklyPnL) >= 0 ? "+" : ""}${weeklyPnL}
                     </p>
                   </div>
                 </div>
                 {bestTrade && (
-                  <div className="bg-[#00FF8820] border border-[#00FF8840] rounded-xl p-3">
-                    <p className="text-[#00FF88] text-xs font-bold mb-1">🏆 Best Trade</p>
-                    <p className="text-white text-sm">{bestTrade.pair} {bestTrade.direction?.toUpperCase()}</p>
-                    <p className="text-[#00FF88] font-bold">+${bestTrade.pnl}</p>
+                  <div className="bg-[var(--accent-green-bg)] border border-[var(--accent-green-border)] rounded-xl p-3">
+                    <p className="text-[var(--accent-green)] text-xs font-bold mb-1">🏆 Best Trade</p>
+                    <p className="text-[var(--text-primary)] text-sm">{bestTrade.pair} {bestTrade.direction?.toUpperCase()}</p>
+                    <p className="text-[var(--accent-green)] font-bold">+${bestTrade.pnl}</p>
                   </div>
                 )}
                 {worstTrade && worstTrade.pnl < 0 && (
-                  <div className="bg-[#FF475720] border border-[#FF475740] rounded-xl p-3">
-                    <p className="text-[#FF4757] text-xs font-bold mb-1">⚠️ Worst Trade</p>
-                    <p className="text-white text-sm">{worstTrade.pair} {worstTrade.direction?.toUpperCase()}</p>
-                    <p className="text-[#FF4757] font-bold">${worstTrade.pnl}</p>
+                  <div className="bg-[var(--accent-red-bg)] border border-[var(--accent-red-border)] rounded-xl p-3">
+                    <p className="text-[var(--accent-red)] text-xs font-bold mb-1">⚠️ Worst Trade</p>
+                    <p className="text-[var(--text-primary)] text-sm">{worstTrade.pair} {worstTrade.direction?.toUpperCase()}</p>
+                    <p className="text-[var(--accent-red)] font-bold">${worstTrade.pnl}</p>
                   </div>
                 )}
               </div>
             )}
+            <div className="mt-4">
+              <ReportGenerator trades={trades} />
+            </div>
           </div>
 
         </div>
@@ -413,34 +467,37 @@ export default function DashboardClient() {
         {/* BOTTOM ROW */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-          <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-6 text-center">
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 text-center">
             <div className="text-4xl mb-2">🔥</div>
-            <div className="text-white font-bold text-3xl mb-1">{checkins.length}</div>
-            <div className="text-[#8B949E] text-sm">Total Check-ins</div>
-            <p className="text-[#8B949E] text-xs mt-2">Keep checking in daily!</p>
+            <div className="text-[var(--text-primary)] font-bold text-3xl mb-1">{checkins.length}</div>
+            <div className="text-[var(--text-muted)] text-sm">Total Check-ins</div>
+            {streak > 0 && (
+              <p className="text-[var(--accent-gold)] text-xs font-bold mt-1">📅 {streak}-day streak</p>
+            )}
+            <p className="text-[var(--text-muted)] text-xs mt-2">Keep checking in daily!</p>
           </div>
 
-          <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-6">
-            <h2 className="text-white font-bold text-lg mb-4">Prop Firms</h2>
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6">
+            <h2 className="text-[var(--text-primary)] font-bold text-lg mb-4">Prop Firms</h2>
             <div className="flex flex-col items-center justify-center py-4 text-center">
               <div className="text-3xl mb-2">🎯</div>
-              <p className="text-[#8B949E] text-sm">Find the right prop firm</p>
-              <a href="/prop-firms" className="mt-3 border border-[#FFD700] text-[#FFD700] text-xs font-semibold px-4 py-2 rounded-full hover:bg-[#FFD700] hover:text-[#0D1117] transition-colors">
+              <p className="text-[var(--text-muted)] text-sm">Find the right prop firm</p>
+              <a href="/prop-firms" className="mt-3 border border-[var(--accent-gold)] text-[var(--accent-gold)] text-xs font-semibold px-4 py-2 rounded-full hover:bg-[var(--accent-gold)] hover:text-[var(--bg-primary)] transition-colors">
                 View Prop Firms
               </a>
             </div>
           </div>
 
-          <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-6">
-            <h2 className="text-white font-bold text-lg mb-4">Quick Links</h2>
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6">
+            <h2 className="text-[var(--text-primary)] font-bold text-lg mb-4">Quick Links</h2>
             <div className="flex flex-col gap-3">
-              <a href="/journal" className="text-[#8B949E] hover:text-[#00D4FF] text-sm transition-colors">📓 Trading Journal</a>
-              <a href="/ai-analyzer" className="text-[#8B949E] hover:text-[#00D4FF] text-sm transition-colors">🤖 AI Analyzer</a>
-              <a href="/community" className="text-[#8B949E] hover:text-[#00D4FF] text-sm transition-colors">👥 Community</a>
-              <a href="/leaderboard" className="text-[#8B949E] hover:text-[#00D4FF] text-sm transition-colors">🏆 Leaderboard</a>
-              <a href="/psychology" className="text-[#8B949E] hover:text-[#00D4FF] text-sm transition-colors">🧠 Psychology</a>
-              <a href="/search" className="text-[#8B949E] hover:text-[#00D4FF] text-sm transition-colors">🔍 Search Traders</a>
-              <a href={"/profile/" + username} className="text-[#8B949E] hover:text-[#00D4FF] text-sm transition-colors">👤 My Profile</a>
+              <a href="/journal" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">📓 Trading Journal</a>
+              <a href="/ai-analyzer" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🤖 AI Analyzer</a>
+              <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">👥 Community</a>
+              <a href="/leaderboard" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🏆 Leaderboard</a>
+              <a href="/psychology" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🧠 Psychology</a>
+              <a href="/search" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🔍 Search Traders</a>
+              <a href={"/profile/" + username} className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">👤 My Profile</a>
             </div>
           </div>
 
@@ -448,6 +505,9 @@ export default function DashboardClient() {
       </div>
 
       <MobileNav username={username} />
+      {showOnboarding && (
+        <OnboardingWizard onComplete={() => setShowOnboarding(false)} />
+      )}
     </main>
   );
 }

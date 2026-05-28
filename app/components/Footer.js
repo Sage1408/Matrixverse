@@ -7,7 +7,7 @@ import { fadeInUp, staggerContainerFast } from "../lib/animations";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#0D1117] border-t border-[#30363D] py-16 px-6">
+    <footer className="bg-[var(--bg-primary)] border-t border-[var(--border)] py-16 px-6">
       <motion.div
         initial="hidden"
         whileInView="visible"
@@ -17,8 +17,8 @@ export default function Footer() {
       >
         <motion.div variants={fadeInUp} className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
           <div className="col-span-1">
-            <div className="text-[#00D4FF] font-bold text-2xl mb-3">MatrixVerse</div>
-            <p className="text-[#8B949E] text-sm leading-relaxed mb-4">
+            <div className="text-[var(--accent-blue)] font-bold text-2xl mb-3">MatrixVerse</div>
+            <p className="text-[var(--text-muted)] text-sm leading-relaxed mb-4">
               The all-in-one platform for serious traders. Track, improve, and dominate the markets.
             </p>
             <div className="flex gap-4">
@@ -34,7 +34,7 @@ export default function Footer() {
                   href={social.href}
                   target="_blank"
                   whileHover={{ scale: 1.3, color: social.hoverColor }}
-                  className="text-[#8B949E] transition-colors"
+                  className="text-[var(--text-muted)] transition-colors"
                 >
                   <social.icon size={18} />
                 </motion.a>
@@ -43,40 +43,40 @@ export default function Footer() {
           </div>
 
           <div>
-            <div className="text-white font-semibold text-sm mb-4">Product</div>
+            <div className="text-[var(--text-primary)] font-semibold text-sm mb-4">Product</div>
             <div className="flex flex-col gap-2">
-              <Link href="#features" className="text-[#8B949E] hover:text-white text-sm transition-colors">Features</Link>
-              <Link href="#pricing" className="text-[#8B949E] hover:text-white text-sm transition-colors">Pricing</Link>
-              <Link href="#faq" className="text-[#8B949E] hover:text-white text-sm transition-colors">FAQ</Link>
-              <Link href="/dashboard" className="text-[#8B949E] hover:text-white text-sm transition-colors">Dashboard</Link>
+              <Link href="#features" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm transition-colors">Features</Link>
+              <Link href="#pricing" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm transition-colors">Pricing</Link>
+              <Link href="#faq" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm transition-colors">FAQ</Link>
+              <Link href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm transition-colors">Dashboard</Link>
             </div>
           </div>
 
           <div>
-            <div className="text-white font-semibold text-sm mb-4">Community</div>
+            <div className="text-[var(--text-primary)] font-semibold text-sm mb-4">Community</div>
             <div className="flex flex-col gap-2">
-              <Link href="/community" className="text-[#8B949E] hover:text-white text-sm transition-colors">Feed</Link>
-              <Link href="/leaderboard" className="text-[#8B949E] hover:text-white text-sm transition-colors">Leaderboard</Link>
-              <Link href="/prop-firms" className="text-[#8B949E] hover:text-white text-sm transition-colors">Prop Firms</Link>
-              <Link href="/psychology" className="text-[#8B949E] hover:text-white text-sm transition-colors">Psychology</Link>
+              <Link href="/community" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm transition-colors">Feed</Link>
+              <Link href="/leaderboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm transition-colors">Leaderboard</Link>
+              <Link href="/prop-firms" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm transition-colors">Prop Firms</Link>
+              <Link href="/psychology" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm transition-colors">Psychology</Link>
             </div>
           </div>
 
           <div>
-            <div className="text-white font-semibold text-sm mb-4">Legal</div>
+            <div className="text-[var(--text-primary)] font-semibold text-sm mb-4">Legal</div>
             <div className="flex flex-col gap-2">
-              <Link href="/privacy" className="text-[#8B949E] hover:text-white text-sm transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="text-[#8B949E] hover:text-white text-sm transition-colors">Terms of Service</Link>
-              <Link href="/cookies" className="text-[#8B949E] hover:text-white text-sm transition-colors">Cookie Policy</Link>
+              <Link href="/privacy" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm transition-colors">Terms of Service</Link>
+              <Link href="/cookies" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm transition-colors">Cookie Policy</Link>
             </div>
           </div>
         </motion.div>
 
-        <motion.div variants={fadeInUp} className="border-t border-[#30363D] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-[#8B949E] text-sm">
+        <motion.div variants={fadeInUp} className="border-t border-[var(--border)] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-[var(--text-muted)] text-sm">
             © 2025 MatrixVerse. All rights reserved.
           </p>
-          <p className="text-[#8B949E] text-sm">
+          <p className="text-[var(--text-muted)] text-sm">
             Built for traders. By traders. 🚀
           </p>
         </motion.div>

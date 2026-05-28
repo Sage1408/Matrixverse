@@ -26,7 +26,7 @@ export default function Pricing() {
   ];
 
   return (
-    <section id="pricing" className="bg-[#0D1117] py-24 px-6">
+    <section id="pricing" className="bg-[var(--bg-primary)] py-24 px-6">
       <div className="max-w-5xl mx-auto">
 
         <motion.div
@@ -36,13 +36,13 @@ export default function Pricing() {
           variants={staggerContainer}
           className="text-center mb-16"
         >
-          <motion.div variants={fadeInUp} className="inline-block bg-[#161B22] border border-[#30363D] text-[#00D4FF] text-xs font-semibold px-4 py-2 rounded-full mb-4">
+          <motion.div variants={fadeInUp} className="inline-block bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--accent-blue)] text-xs font-semibold px-4 py-2 rounded-full mb-4">
             💎 Simple Pricing
           </motion.div>
-          <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-bold text-white mb-4">
+          <motion.h2 variants={fadeInUp} className="text-3xl md:text-5xl font-bold text-[var(--text-primary)] mb-4">
             Start Free. Upgrade When Ready.
           </motion.h2>
-          <motion.p variants={fadeInUp} className="text-[#8B949E] text-lg max-w-2xl mx-auto">
+          <motion.p variants={fadeInUp} className="text-[var(--text-muted)] text-lg max-w-2xl mx-auto">
             No hidden fees. Cancel anytime. Built for traders at every level.
           </motion.p>
         </motion.div>
@@ -57,24 +57,24 @@ export default function Pricing() {
           <motion.div
             variants={fadeInUp}
             whileHover={{ scale: 1.02 }}
-            className="bg-[#161B22] border border-[#30363D] rounded-2xl p-8 flex flex-col"
+            className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-8 flex flex-col"
           >
             <div className="mb-6">
-              <div className="text-[#8B949E] text-sm font-semibold mb-2">FREE PLAN</div>
-              <div className="text-4xl font-bold text-white mb-1">$0</div>
-              <div className="text-[#8B949E] text-sm">Forever free. No credit card needed.</div>
+              <div className="text-[var(--text-muted)] text-sm font-semibold mb-2">FREE PLAN</div>
+              <div className="text-4xl font-bold text-[var(--text-primary)] mb-1">$0</div>
+              <div className="text-[var(--text-muted)] text-sm">Forever free. No credit card needed.</div>
             </div>
 
             <div className="flex flex-col gap-3 flex-1 mb-8">
               {free.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
-                  <span className="text-[#00FF88] mt-0.5">✓</span>
-                  <span className="text-[#C9D1D9] text-sm">{item}</span>
+                  <span className="text-[var(--accent-green)] mt-0.5">✓</span>
+                  <span className="text-[var(--text-secondary)] text-sm">{item}</span>
                 </div>
               ))}
             </div>
 
-            <a href="/register" className="w-full border border-[#30363D] text-white font-semibold py-3 rounded-full text-sm text-center hover:border-[#00D4FF] hover:text-[#00D4FF] hover:scale-105 transition-all duration-200">
+            <a href="/register" className="w-full border border-[var(--border)] text-[var(--text-primary)] font-semibold py-3 rounded-full text-sm text-center hover:border-[var(--accent-blue)] hover:text-[var(--accent-blue)] hover:scale-105 transition-all duration-200">
               Get Started Free
             </a>
           </motion.div>
@@ -82,31 +82,31 @@ export default function Pricing() {
           <motion.div
             variants={fadeInUp}
             whileHover={{ scale: 1.02 }}
-            className="bg-[#161B22] border-2 border-[#00D4FF] rounded-2xl p-8 flex flex-col relative"
+            className="bg-[var(--bg-secondary)] border-2 border-[var(--accent-blue)] rounded-2xl p-8 flex flex-col relative"
           >
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#00D4FF] text-[#0D1117] text-xs font-bold px-4 py-1.5 rounded-full">
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[var(--accent-blue)] text-[var(--bg-primary)] text-xs font-bold px-4 py-1.5 rounded-full">
               MOST POPULAR
             </div>
 
             <div className="mb-6">
-              <div className="text-[#00D4FF] text-sm font-semibold mb-2">PREMIUM PLAN</div>
+              <div className="text-[var(--accent-blue)] text-sm font-semibold mb-2">PREMIUM PLAN</div>
               <div className="flex items-end gap-2 mb-1">
-                <div className="text-4xl font-bold text-white">$19</div>
-                <div className="text-[#8B949E] text-sm mb-1">/month</div>
+                <div className="text-4xl font-bold text-[var(--text-primary)]">$19</div>
+                <div className="text-[var(--text-muted)] text-sm mb-1">/month</div>
               </div>
-              <div className="text-[#8B949E] text-sm">Or $149/year — save 35%</div>
+              <div className="text-[var(--text-muted)] text-sm">Or $149/year — save 35%</div>
             </div>
 
             <div className="flex flex-col gap-3 flex-1 mb-8">
               {premium.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
-                  <span className="text-[#00D4FF] mt-0.5">✓</span>
-                  <span className="text-[#C9D1D9] text-sm">{item}</span>
+                  <span className="text-[var(--accent-blue)] mt-0.5">✓</span>
+                  <span className="text-[var(--text-secondary)] text-sm">{item}</span>
                 </div>
               ))}
             </div>
 
-            <a href="/register" className="w-full bg-[#00D4FF] text-[#0D1117] font-bold py-3 rounded-full text-sm text-center hover:bg-[#00b8d9] hover:scale-105 transition-all duration-200">
+            <a href="/register" className="w-full bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold py-3 rounded-full text-sm text-center hover:bg-[var(--accent-blue-hover)] hover:scale-105 transition-all duration-200">
               Start 7-Day Free Trial
             </a>
           </motion.div>
@@ -117,7 +117,7 @@ export default function Pricing() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.6, duration: 0.5 }}
-          className="text-center text-[#8B949E] text-sm mt-8"
+          className="text-center text-[var(--text-muted)] text-sm mt-8"
         >
           🔒 Secure payments via Stripe and Paystack. Cancel anytime.
         </motion.p>

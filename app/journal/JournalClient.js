@@ -1,6 +1,8 @@
 "use client";
 
 import MobileNav from "../components/MobileNav";
+import ThemeToggle from "../components/ThemeToggle"
+import { Skeleton, SkeletonCard, SkeletonText } from "../components/Skeleton"
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
@@ -214,24 +216,29 @@ export default function JournalClient() {
     doc.save("matrixverse_trades.pdf");
   };
 
-  const inputClass = "w-full bg-[#0D1117] border border-[#30363D] text-white placeholder-[#8B949E] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#00D4FF] transition-colors";
-  const labelClass = "text-[#8B949E] text-xs mb-1 block";
+  const inputClass = "w-full bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[#8B949E] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors";
+  const labelClass = "text-[var(--text-muted)] text-xs mb-1 block";
 
   if (!user) return (
-    <main className="bg-[#0D1117] min-h-screen flex items-center justify-center">
-      <p className="text-[#8B949E]">Loading...</p>
+    <main className="bg-[var(--bg-primary)] min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-4xl px-6 space-y-6">
+        <SkeletonText lines={2} />
+        <SkeletonCard />
+        <SkeletonCard />
+      </div>
     </main>
   );
 
   return (
-    <main className="bg-[#0D1117] min-h-screen">
+    <main className="bg-[var(--bg-primary)] min-h-screen">
 
       {/* NAVBAR */}
-      <nav className="bg-[#161B22] border-b border-[#30363D] px-6 py-4 flex items-center justify-between">
-        <a href="/dashboard" className="text-[#00D4FF] font-bold text-xl">MatrixVerse</a>
+      <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
+        <a href="/dashboard" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
         <div className="flex items-center gap-4">
-          <a href="/dashboard" className="text-[#8B949E] hover:text-white text-sm">Dashboard</a>
-          <a href="/community" className="text-[#8B949E] hover:text-white text-sm">Community</a>
+          <ThemeToggle />
+          <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
+          <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Community</a>
         </div>
       </nav>
 
@@ -240,12 +247,12 @@ export default function JournalClient() {
         {/* HEADER */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-white font-bold text-3xl mb-1">Trading Journal</h1>
-            <p className="text-[#8B949E] text-sm">Log and track all your trades</p>
+            <h1 className="text-[var(--text-primary)] font-bold text-3xl mb-1">Trading Journal</h1>
+            <p className="text-[var(--text-muted)] text-sm">Log and track all your trades</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="bg-[#00D4FF] text-[#0D1117] font-bold px-6 py-3 rounded-full text-sm hover:bg-[#00b8d9] transition-colors"
+            className="bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold px-6 py-3 rounded-full text-sm hover:bg-[var(--accent-blue-hover)] transition-colors"
           >
             + Add Trade
           </button>
@@ -263,16 +270,16 @@ export default function JournalClient() {
               color: trades.reduce((sum, t) => sum + (t.pnl || 0), 0) >= 0 ? "#00FF88" : "#FF4757"
             },
           ].map((stat, index) => (
-            <div key={index} className="bg-[#161B22] border border-[#30363D] rounded-2xl p-4">
-              <div className="text-[#8B949E] text-xs mb-1">{stat.label}</div>
+            <div key={index} className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-4">
+              <div className="text-[var(--text-muted)] text-xs mb-1">{stat.label}</div>
               <div className="font-bold text-xl" style={{ color: stat.color }}>{stat.value}</div>
             </div>
           ))}
         </div>
 
         {/* EXPORT ROW */}
-        <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-4 mb-6">
-          <p className="text-[#8B949E] text-xs mb-3">Export trades by date range</p>
+        <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-4 mb-6">
+          <p className="text-[var(--text-muted)] text-xs mb-3">Export trades by date range</p>
           <div className="flex flex-wrap items-center gap-3">
             <div>
               <label className={labelClass}>From</label>
@@ -280,7 +287,7 @@ export default function JournalClient() {
                 type="date"
                 value={exportFrom}
                 onChange={(e) => setExportFrom(e.target.value)}
-                className="bg-[#0D1117] border border-[#30363D] text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#00D4FF]"
+                className="bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--accent-blue)]"
               />
             </div>
             <div>
@@ -289,17 +296,17 @@ export default function JournalClient() {
                 type="date"
                 value={exportTo}
                 onChange={(e) => setExportTo(e.target.value)}
-                className="bg-[#0D1117] border border-[#30363D] text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#00D4FF]"
+                className="bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--accent-blue)]"
               />
             </div>
             <div className="flex gap-2 mt-4">
-              <button onClick={exportCSV} className="bg-[#00FF8820] border border-[#00FF88] text-[#00FF88] text-xs font-bold px-4 py-2 rounded-full hover:bg-[#00FF88] hover:text-[#0D1117] transition-colors">
+              <button onClick={exportCSV} className="bg-[var(--accent-green-bg)] border border-[var(--accent-green)] text-[var(--accent-green)] text-xs font-bold px-4 py-2 rounded-full hover:bg-[var(--accent-green)] hover:text-[var(--bg-primary)] transition-colors">
                 CSV
               </button>
-              <button onClick={exportExcel} className="bg-[#7C3AED20] border border-[#7C3AED] text-[#7C3AED] text-xs font-bold px-4 py-2 rounded-full hover:bg-[#7C3AED] hover:text-white transition-colors">
+              <button onClick={exportExcel} className="bg-[#7C3AED20] border border-[#7C3AED] text-[var(--accent-purple)] text-xs font-bold px-4 py-2 rounded-full hover:bg-[var(--accent-purple)] hover:text-[var(--text-primary)] transition-colors">
                 Excel
               </button>
-              <button onClick={exportPDF} className="bg-[#FF475720] border border-[#FF4757] text-[#FF4757] text-xs font-bold px-4 py-2 rounded-full hover:bg-[#FF4757] hover:text-white transition-colors">
+              <button onClick={exportPDF} className="bg-[var(--accent-red-bg)] border border-[var(--accent-red)] text-[var(--accent-red)] text-xs font-bold px-4 py-2 rounded-full hover:bg-[var(--accent-red)] hover:text-[var(--text-primary)] transition-colors">
                 PDF
               </button>
             </div>
@@ -307,17 +314,17 @@ export default function JournalClient() {
         </div>
 
         {/* TRADES LIST */}
-        <div className="bg-[#161B22] border border-[#30363D] rounded-2xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#30363D]">
-            <h2 className="text-white font-bold">All Trades</h2>
+        <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-[var(--border)]">
+            <h2 className="text-[var(--text-primary)] font-bold">All Trades</h2>
           </div>
           {trades.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <div className="text-4xl mb-3">📓</div>
-              <p className="text-[#8B949E] text-sm">No trades logged yet</p>
+              <p className="text-[var(--text-muted)] text-sm">No trades logged yet</p>
               <button
                 onClick={() => setShowModal(true)}
-                className="mt-4 bg-[#00D4FF] text-[#0D1117] font-bold px-5 py-2 rounded-full text-xs hover:bg-[#00b8d9] transition-colors"
+                className="mt-4 bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold px-5 py-2 rounded-full text-xs hover:bg-[var(--accent-blue-hover)] transition-colors"
               >
                 Log Your First Trade
               </button>
@@ -326,40 +333,40 @@ export default function JournalClient() {
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-[#30363D]">
+                  <tr className="border-b border-[var(--border)]">
                     {["Pair","Direction","Lot","Entry","SL","TP","RR","PnL","Strategy","Screenshot","Date"].map((h) => (
-                      <th key={h} className="text-[#8B949E] text-xs font-semibold px-4 py-3 text-left">{h}</th>
+                      <th key={h} className="text-[var(--text-muted)] text-xs font-semibold px-4 py-3 text-left">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {trades.map((trade, index) => (
-                    <tr key={index} className="border-b border-[#30363D] hover:bg-[#1A2332] transition-colors">
-                      <td className="px-4 py-3 text-[#00D4FF] font-bold text-sm">{trade.pair}</td>
+                    <tr key={index} className="border-b border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors">
+                      <td className="px-4 py-3 text-[var(--accent-blue)] font-bold text-sm">{trade.pair}</td>
                       <td className="px-4 py-3">
-                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${trade.direction === "buy" ? "bg-[#00FF8820] text-[#00FF88]" : "bg-[#FF475720] text-[#FF4757]"}`}>
+                        <span className={`text-xs font-bold px-2 py-1 rounded-full ${trade.direction === "buy" ? "bg-[var(--accent-green-bg)] text-[var(--accent-green)]" : "bg-[var(--accent-red-bg)] text-[var(--accent-red)]"}`}>
                           {trade.direction?.toUpperCase()}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-[#C9D1D9] text-sm">{trade.lot_size}</td>
-                      <td className="px-4 py-3 text-[#C9D1D9] text-sm">{trade.entry_price}</td>
-                      <td className="px-4 py-3 text-[#FF4757] text-sm">{trade.stop_loss}</td>
-                      <td className="px-4 py-3 text-[#00FF88] text-sm">{trade.take_profit}</td>
-                      <td className="px-4 py-3 text-[#FFD700] text-sm">{trade.rr_ratio ? `${trade.rr_ratio}R` : "-"}</td>
+                      <td className="px-4 py-3 text-[var(--text-secondary)] text-sm">{trade.lot_size}</td>
+                      <td className="px-4 py-3 text-[var(--text-secondary)] text-sm">{trade.entry_price}</td>
+                      <td className="px-4 py-3 text-[var(--accent-red)] text-sm">{trade.stop_loss}</td>
+                      <td className="px-4 py-3 text-[var(--accent-green)] text-sm">{trade.take_profit}</td>
+                      <td className="px-4 py-3 text-[var(--accent-gold)] text-sm">{trade.rr_ratio ? `${trade.rr_ratio}R` : "-"}</td>
                       <td className="px-4 py-3 font-bold text-sm" style={{ color: trade.pnl >= 0 ? "#00FF88" : "#FF4757" }}>
                         {trade.pnl >= 0 ? "+" : ""}${trade.pnl}
                       </td>
-                      <td className="px-4 py-3 text-[#8B949E] text-sm">{trade.strategy || "-"}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)] text-sm">{trade.strategy || "-"}</td>
                       <td className="px-4 py-3">
                         {trade.screenshot_url ? (
-                          <a href={trade.screenshot_url} target="_blank" className="text-[#00D4FF] text-xs hover:underline">
+                          <a href={trade.screenshot_url} target="_blank" className="text-[var(--accent-blue)] text-xs hover:underline">
                             View 📸
                           </a>
                         ) : (
-                          <span className="text-[#8B949E] text-xs">None</span>
+                          <span className="text-[var(--text-muted)] text-xs">None</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-[#8B949E] text-xs">{new Date(trade.traded_at).toLocaleDateString()}</td>
+                      <td className="px-4 py-3 text-[var(--text-muted)] text-xs">{new Date(trade.traded_at).toLocaleDateString()}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -372,10 +379,10 @@ export default function JournalClient() {
       {/* ADD TRADE MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 px-4">
-          <div className="bg-[#161B22] border border-[#30363D] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#30363D]">
-              <h2 className="text-white font-bold text-lg">Log New Trade</h2>
-              <button onClick={() => setShowModal(false)} className="text-[#8B949E] hover:text-white text-xl">✕</button>
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+              <h2 className="text-[var(--text-primary)] font-bold text-lg">Log New Trade</h2>
+              <button onClick={() => setShowModal(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-xl">✕</button>
             </div>
             <form onSubmit={handleSubmit} className="px-6 py-6 flex flex-col gap-4">
 
@@ -427,7 +434,7 @@ export default function JournalClient() {
                 </div>
                 <div>
                   <label className={labelClass}>RR Ratio (auto)</label>
-                  <div className="w-full bg-[#0D1117] border border-[#30363D] rounded-xl px-4 py-3 text-sm text-[#FFD700] font-bold">
+                  <div className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm text-[var(--accent-gold)] font-bold">
                     {calculateRR() ? `${calculateRR()}R` : "Fill entry, SL, TP"}
                   </div>
                 </div>
@@ -476,10 +483,10 @@ export default function JournalClient() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => setScreenshot(e.target.files[0])}
-                  className="w-full bg-[#0D1117] border border-[#30363D] text-[#8B949E] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#00D4FF] transition-colors file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[#00D4FF] file:text-[#0D1117] hover:file:bg-[#00b8d9]"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-muted)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[var(--accent-blue)] file:text-[var(--bg-primary)] hover:file:bg-[#00b8d9]"
                 />
                 {screenshot && (
-                  <p className="text-[#00FF88] text-xs mt-1">✓ {screenshot.name} selected</p>
+                  <p className="text-[var(--accent-green)] text-xs mt-1">✓ {screenshot.name} selected</p>
                 )}
               </div>
 
@@ -489,10 +496,10 @@ export default function JournalClient() {
               </div>
 
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setShowModal(false)} className="flex-1 border border-[#30363D] text-[#8B949E] font-semibold py-3 rounded-full text-sm hover:border-white hover:text-white transition-colors">
+                <button type="button" onClick={() => setShowModal(false)} className="flex-1 border border-[var(--border)] text-[var(--text-muted)] font-semibold py-3 rounded-full text-sm hover:border-[var(--hover-border)] hover:text-[var(--text-primary)] transition-colors">
                   Cancel
                 </button>
-                <button type="submit" disabled={loading} className="flex-1 bg-[#00D4FF] text-[#0D1117] font-bold py-3 rounded-full text-sm hover:bg-[#00b8d9] transition-colors disabled:opacity-50">
+                <button type="submit" disabled={loading} className="flex-1 bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold py-3 rounded-full text-sm hover:bg-[var(--accent-blue-hover)] transition-colors disabled:opacity-50">
                   {loading ? "Saving..." : "Save Trade"}
                 </button>
               </div>

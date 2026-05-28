@@ -1,6 +1,8 @@
 "use client";
 
 import MobileNav from "../components/MobileNav";
+import ThemeToggle from "../components/ThemeToggle"
+import { Skeleton, SkeletonCard, SkeletonText } from "../components/Skeleton"
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
@@ -127,8 +129,8 @@ export default function SettingsClient() {
     setLoading(false);
   };
 
-  const inputClass = "w-full bg-[#0D1117] border border-[#30363D] text-white placeholder-[#8B949E] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#00D4FF] transition-colors";
-  const labelClass = "text-[#8B949E] text-xs mb-1 block";
+  const inputClass = "w-full bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[#8B949E] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors";
+  const labelClass = "text-[var(--text-muted)] text-xs mb-1 block";
 
   const tabs = [
     { key: "profile", label: "👤 Profile" },
@@ -139,36 +141,41 @@ export default function SettingsClient() {
   ];
 
   if (!user) return (
-    <main className="bg-[#0D1117] min-h-screen flex items-center justify-center">
-      <p className="text-[#8B949E]">Loading...</p>
+    <main className="bg-[var(--bg-primary)] min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-4xl px-6 space-y-6">
+        <SkeletonText lines={2} />
+        <SkeletonCard />
+        <SkeletonCard />
+      </div>
     </main>
   );
 
   return (
-    <main className="bg-[#0D1117] min-h-screen">
+    <main className="bg-[var(--bg-primary)] min-h-screen">
 
-      <nav className="bg-[#161B22] border-b border-[#30363D] px-6 py-4 flex items-center justify-between">
-        <a href="/dashboard" className="text-[#00D4FF] font-bold text-xl">MatrixVerse</a>
+      <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
+        <a href="/dashboard" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
         <div className="flex items-center gap-4">
-          <a href="/dashboard" className="text-[#8B949E] hover:text-white text-sm">Dashboard</a>
-          <a href={profileUrl} className="text-[#8B949E] hover:text-white text-sm">Profile</a>
+          <ThemeToggle />
+          <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
+          <a href={profileUrl} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Profile</a>
         </div>
       </nav>
 
       <div className="max-w-4xl mx-auto px-6 py-10 pb-20">
 
         <div className="mb-8">
-          <h1 className="text-white font-bold text-3xl mb-1">Settings</h1>
-          <p className="text-[#8B949E] text-sm">Manage your account and preferences</p>
+          <h1 className="text-[var(--text-primary)] font-bold text-3xl mb-1">Settings</h1>
+          <p className="text-[var(--text-muted)] text-sm">Manage your account and preferences</p>
         </div>
 
         {message && (
-          <div className="bg-[#00FF8820] border border-[#00FF88] text-[#00FF88] text-sm px-4 py-3 rounded-xl mb-6">
+          <div className="bg-[var(--accent-green-bg)] border border-[var(--accent-green)] text-[var(--accent-green)] text-sm px-4 py-3 rounded-xl mb-6">
             {message}
           </div>
         )}
         {error && (
-          <div className="bg-[#FF475720] border border-[#FF4757] text-[#FF4757] text-sm px-4 py-3 rounded-xl mb-6">
+          <div className="bg-[var(--accent-red-bg)] border border-[var(--accent-red)] text-[var(--accent-red)] text-sm px-4 py-3 rounded-xl mb-6">
             {error}
           </div>
         )}
@@ -182,8 +189,8 @@ export default function SettingsClient() {
                 onClick={() => setActiveTab(tab.key)}
                 className={"px-4 py-3 rounded-xl text-sm font-semibold text-left whitespace-nowrap transition-colors " + (
                   activeTab === tab.key
-                    ? "bg-[#00D4FF] text-[#0D1117]"
-                    : "bg-[#161B22] border border-[#30363D] text-[#8B949E] hover:text-white hover:border-[#00D4FF]"
+                    ? "bg-[var(--accent-blue)] text-[var(--bg-primary)]"
+                    : "bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--accent-blue)]"
                 )}
               >
                 {tab.label}
@@ -191,19 +198,19 @@ export default function SettingsClient() {
             ))}
           </div>
 
-          <div className="flex-1 bg-[#161B22] border border-[#30363D] rounded-2xl p-6">
+          <div className="flex-1 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6">
 
             {activeTab === "profile" && (
               <div className="flex flex-col gap-5">
-                <h2 className="text-white font-bold text-lg">Profile Settings</h2>
+                <h2 className="text-[var(--text-primary)] font-bold text-lg">Profile Settings</h2>
 
-                <div className="flex items-center gap-4 p-4 bg-[#0D1117] rounded-xl">
-                  <div className="w-14 h-14 rounded-full bg-[#00D4FF] flex items-center justify-center text-[#0D1117] font-bold text-xl">
+                <div className="flex items-center gap-4 p-4 bg-[var(--bg-primary)] rounded-xl">
+                  <div className="w-14 h-14 rounded-full bg-[var(--accent-blue)] flex items-center justify-center text-[var(--bg-primary)] font-bold text-xl">
                     {profile.username?.charAt(0).toUpperCase() || "?"}
                   </div>
                   <div>
-                    <p className="text-white font-semibold">@{profile.username}</p>
-                    <p className="text-[#8B949E] text-xs">Avatar uses your username initial</p>
+                    <p className="text-[var(--text-primary)] font-semibold">@{profile.username}</p>
+                    <p className="text-[var(--text-muted)] text-xs">Avatar uses your username initial</p>
                   </div>
                 </div>
 
@@ -220,7 +227,7 @@ export default function SettingsClient() {
                 <div>
                   <label className={labelClass}>Bio (140 characters max)</label>
                   <textarea value={profile.bio} onChange={(e) => setProfile({ ...profile, bio: e.target.value })} maxLength={140} rows={3} className={inputClass} placeholder="Tell traders about yourself..." />
-                  <p className="text-[#8B949E] text-xs mt-1">{profile.bio.length}/140</p>
+                  <p className="text-[var(--text-muted)] text-xs mt-1">{profile.bio.length}/140</p>
                 </div>
 
                 <div>
@@ -242,7 +249,7 @@ export default function SettingsClient() {
                   </select>
                 </div>
 
-                <button onClick={saveProfile} disabled={loading} className="bg-[#00D4FF] text-[#0D1117] font-bold py-3 rounded-full text-sm hover:bg-[#00b8d9] transition-colors disabled:opacity-50">
+                <button onClick={saveProfile} disabled={loading} className="bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold py-3 rounded-full text-sm hover:bg-[var(--accent-blue-hover)] transition-colors disabled:opacity-50">
                   {loading ? "Saving..." : "Save Profile"}
                 </button>
               </div>
@@ -250,15 +257,15 @@ export default function SettingsClient() {
 
             {activeTab === "account" && (
               <div className="flex flex-col gap-5">
-                <h2 className="text-white font-bold text-lg">Account Settings</h2>
+                <h2 className="text-[var(--text-primary)] font-bold text-lg">Account Settings</h2>
 
-                <div className="p-4 bg-[#0D1117] rounded-xl">
-                  <p className="text-[#8B949E] text-xs mb-1">Logged in as</p>
-                  <p className="text-white font-semibold">{user.email}</p>
+                <div className="p-4 bg-[var(--bg-primary)] rounded-xl">
+                  <p className="text-[var(--text-muted)] text-xs mb-1">Logged in as</p>
+                  <p className="text-[var(--text-primary)] font-semibold">{user.email}</p>
                 </div>
 
-                <div className="border-t border-[#30363D] pt-5">
-                  <h3 className="text-white font-semibold mb-4">Change Password</h3>
+                <div className="border-t border-[var(--border)] pt-5">
+                  <h3 className="text-[var(--text-primary)] font-semibold mb-4">Change Password</h3>
                   <div className="flex flex-col gap-4">
                     <div>
                       <label className={labelClass}>New Password</label>
@@ -268,30 +275,30 @@ export default function SettingsClient() {
                       <label className={labelClass}>Confirm New Password</label>
                       <input type="password" value={passwords.confirm_password} onChange={(e) => setPasswords({ ...passwords, confirm_password: e.target.value })} className={inputClass} placeholder="Repeat new password" />
                     </div>
-                    <button onClick={changePassword} disabled={loading} className="bg-[#7C3AED] text-white font-bold py-3 rounded-full text-sm hover:bg-[#6d28d9] transition-colors disabled:opacity-50">
+                    <button onClick={changePassword} disabled={loading} className="bg-[var(--accent-purple)] text-[var(--text-primary)] font-bold py-3 rounded-full text-sm hover:bg-[var(--accent-purple-hover)] transition-colors disabled:opacity-50">
                       {loading ? "Updating..." : "Change Password"}
                     </button>
                   </div>
                 </div>
 
-                <div className="border-t border-[#30363D] pt-5">
-                  <h3 className="text-white font-semibold mb-2">Current Plan</h3>
-                  <div className="flex items-center justify-between p-4 bg-[#0D1117] rounded-xl">
+                <div className="border-t border-[var(--border)] pt-5">
+                  <h3 className="text-[var(--text-primary)] font-semibold mb-2">Current Plan</h3>
+                  <div className="flex items-center justify-between p-4 bg-[var(--bg-primary)] rounded-xl">
                     <div>
-                      <p className="text-white font-bold">Free Plan</p>
-                      <p className="text-[#8B949E] text-xs">Basic features included</p>
+                      <p className="text-[var(--text-primary)] font-bold">Free Plan</p>
+                      <p className="text-[var(--text-muted)] text-xs">Basic features included</p>
                     </div>
-                    <a href="/pricing" className="bg-[#00D4FF] text-[#0D1117] font-bold px-4 py-2 rounded-full text-xs hover:bg-[#00b8d9] transition-colors">
+                    <a href="/pricing" className="bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold px-4 py-2 rounded-full text-xs hover:bg-[var(--accent-blue-hover)] transition-colors">
                       Upgrade
                     </a>
                   </div>
                 </div>
 
-                <div className="border-t border-[#30363D] pt-5">
-                  <h3 className="text-[#FF4757] font-semibold mb-2">Danger Zone</h3>
+                <div className="border-t border-[var(--border)] pt-5">
+                  <h3 className="text-[var(--accent-red)] font-semibold mb-2">Danger Zone</h3>
                   <button
                     onClick={() => showMsg("Please contact support to delete your account.", true)}
-                    className="border border-[#FF4757] text-[#FF4757] font-semibold py-2 px-5 rounded-full text-sm hover:bg-[#FF4757] hover:text-white transition-colors"
+                    className="border border-[var(--accent-red)] text-[var(--accent-red)] font-semibold py-2 px-5 rounded-full text-sm hover:bg-[var(--accent-red)] hover:text-[var(--text-primary)] transition-colors"
                   >
                     Delete Account
                   </button>
@@ -301,8 +308,8 @@ export default function SettingsClient() {
 
             {activeTab === "notifications" && (
               <div className="flex flex-col gap-5">
-                <h2 className="text-white font-bold text-lg">Notification Preferences</h2>
-                <p className="text-[#8B949E] text-sm">Choose which notifications you want to receive.</p>
+                <h2 className="text-[var(--text-primary)] font-bold text-lg">Notification Preferences</h2>
+                <p className="text-[var(--text-muted)] text-sm">Choose which notifications you want to receive.</p>
 
                 {[
                   { key: "streak_reminders", label: "Streak Reminders", desc: "Remind you if you have not logged a trade today" },
@@ -311,21 +318,21 @@ export default function SettingsClient() {
                   { key: "leaderboard_updates", label: "Leaderboard Updates", desc: "When your rank changes on the leaderboard" },
                   { key: "ai_analysis_ready", label: "AI Analysis Ready", desc: "When your trade analysis is complete" },
                 ].map((item) => (
-                  <div key={item.key} className="flex items-center justify-between p-4 bg-[#0D1117] rounded-xl">
+                  <div key={item.key} className="flex items-center justify-between p-4 bg-[var(--bg-primary)] rounded-xl">
                     <div>
-                      <p className="text-white text-sm font-semibold">{item.label}</p>
-                      <p className="text-[#8B949E] text-xs mt-0.5">{item.desc}</p>
+                      <p className="text-[var(--text-primary)] text-sm font-semibold">{item.label}</p>
+                      <p className="text-[var(--text-muted)] text-xs mt-0.5">{item.desc}</p>
                     </div>
                     <button
                       onClick={() => setNotifications({ ...notifications, [item.key]: !notifications[item.key] })}
-                      className={"w-12 h-6 rounded-full transition-colors relative " + (notifications[item.key] ? "bg-[#00D4FF]" : "bg-[#30363D]")}
+                      className={"w-12 h-6 rounded-full transition-colors relative " + (notifications[item.key] ? "bg-[var(--accent-blue)]" : "bg-[var(--border)]")}
                     >
                       <div className={"w-5 h-5 bg-white rounded-full absolute top-0.5 transition-all " + (notifications[item.key] ? "left-6" : "left-0.5")} />
                     </button>
                   </div>
                 ))}
 
-                <button onClick={() => showMsg("Notification preferences saved!")} className="bg-[#00D4FF] text-[#0D1117] font-bold py-3 rounded-full text-sm hover:bg-[#00b8d9] transition-colors">
+                <button onClick={() => showMsg("Notification preferences saved!")} className="bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold py-3 rounded-full text-sm hover:bg-[var(--accent-blue-hover)] transition-colors">
                   Save Preferences
                 </button>
               </div>
@@ -333,8 +340,8 @@ export default function SettingsClient() {
 
             {activeTab === "trading" && (
               <div className="flex flex-col gap-5">
-                <h2 className="text-white font-bold text-lg">Trading Defaults</h2>
-                <p className="text-[#8B949E] text-sm">These defaults pre-fill your trade journal form.</p>
+                <h2 className="text-[var(--text-primary)] font-bold text-lg">Trading Defaults</h2>
+                <p className="text-[var(--text-muted)] text-sm">These defaults pre-fill your trade journal form.</p>
 
                 <div>
                   <label className={labelClass}>Default Lot Size</label>
@@ -344,7 +351,7 @@ export default function SettingsClient() {
                 <div>
                   <label className={labelClass}>Max Daily Trades (overtrading detection)</label>
                   <input type="number" value={trading.max_daily_trades} onChange={(e) => setTrading({ ...trading, max_daily_trades: e.target.value })} className={inputClass} placeholder="5" />
-                  <p className="text-[#8B949E] text-xs mt-1">You will be warned if you exceed this number of trades in a day</p>
+                  <p className="text-[var(--text-muted)] text-xs mt-1">You will be warned if you exceed this number of trades in a day</p>
                 </div>
 
                 <div>
@@ -356,7 +363,7 @@ export default function SettingsClient() {
                   </select>
                 </div>
 
-                <button onClick={() => showMsg("Trading defaults saved!")} className="bg-[#00D4FF] text-[#0D1117] font-bold py-3 rounded-full text-sm hover:bg-[#00b8d9] transition-colors">
+                <button onClick={() => showMsg("Trading defaults saved!")} className="bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold py-3 rounded-full text-sm hover:bg-[var(--accent-blue-hover)] transition-colors">
                   Save Defaults
                 </button>
               </div>
@@ -364,36 +371,36 @@ export default function SettingsClient() {
 
             {activeTab === "data" && (
               <div className="flex flex-col gap-5">
-                <h2 className="text-white font-bold text-lg">Data Management</h2>
-                <p className="text-[#8B949E] text-sm">Export or manage your trading data.</p>
+                <h2 className="text-[var(--text-primary)] font-bold text-lg">Data Management</h2>
+                <p className="text-[var(--text-muted)] text-sm">Export or manage your trading data.</p>
 
                 <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between p-4 bg-[#0D1117] rounded-xl">
+                  <div className="flex items-center justify-between p-4 bg-[var(--bg-primary)] rounded-xl">
                     <div>
-                      <p className="text-white text-sm font-semibold">Export All Trades</p>
-                      <p className="text-[#8B949E] text-xs mt-0.5">Download your complete trade history as CSV</p>
+                      <p className="text-[var(--text-primary)] text-sm font-semibold">Export All Trades</p>
+                      <p className="text-[var(--text-muted)] text-xs mt-0.5">Download your complete trade history as CSV</p>
                     </div>
-                    <button onClick={exportTrades} className="bg-[#00FF8820] border border-[#00FF88] text-[#00FF88] text-xs font-bold px-4 py-2 rounded-full hover:bg-[#00FF88] hover:text-[#0D1117] transition-colors">
+                    <button onClick={exportTrades} className="bg-[var(--accent-green-bg)] border border-[var(--accent-green)] text-[var(--accent-green)] text-xs font-bold px-4 py-2 rounded-full hover:bg-[var(--accent-green)] hover:text-[var(--bg-primary)] transition-colors">
                       Export CSV
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 bg-[#0D1117] rounded-xl">
+                  <div className="flex items-center justify-between p-4 bg-[var(--bg-primary)] rounded-xl">
                     <div>
-                      <p className="text-white text-sm font-semibold">Export as PDF or Excel</p>
-                      <p className="text-[#8B949E] text-xs mt-0.5">Available from the journal page with date filters</p>
+                      <p className="text-[var(--text-primary)] text-sm font-semibold">Export as PDF or Excel</p>
+                      <p className="text-[var(--text-muted)] text-xs mt-0.5">Available from the journal page with date filters</p>
                     </div>
-                    <a href="/journal" className="bg-[#7C3AED20] border border-[#7C3AED] text-[#7C3AED] text-xs font-bold px-4 py-2 rounded-full hover:bg-[#7C3AED] hover:text-white transition-colors">
+                    <a href="/journal" className="bg-[#7C3AED20] border border-[#7C3AED] text-[var(--accent-purple)] text-xs font-bold px-4 py-2 rounded-full hover:bg-[var(--accent-purple)] hover:text-[var(--text-primary)] transition-colors">
                       Open Journal
                     </a>
                   </div>
 
-                  <div className="flex items-center justify-between p-4 bg-[#0D1117] rounded-xl border border-[#FF475740]">
+                  <div className="flex items-center justify-between p-4 bg-[var(--bg-primary)] rounded-xl border border-[var(--accent-red-border)]">
                     <div>
-                      <p className="text-[#FF4757] text-sm font-semibold">Delete All Trades</p>
-                      <p className="text-[#8B949E] text-xs mt-0.5">Permanently remove all your trade records</p>
+                      <p className="text-[var(--accent-red)] text-sm font-semibold">Delete All Trades</p>
+                      <p className="text-[var(--text-muted)] text-xs mt-0.5">Permanently remove all your trade records</p>
                     </div>
-                    <button onClick={deleteAllTrades} disabled={loading} className="bg-[#FF475720] border border-[#FF4757] text-[#FF4757] text-xs font-bold px-4 py-2 rounded-full hover:bg-[#FF4757] hover:text-white transition-colors disabled:opacity-50">
+                    <button onClick={deleteAllTrades} disabled={loading} className="bg-[var(--accent-red-bg)] border border-[var(--accent-red)] text-[var(--accent-red)] text-xs font-bold px-4 py-2 rounded-full hover:bg-[var(--accent-red)] hover:text-[var(--text-primary)] transition-colors disabled:opacity-50">
                       Delete All
                     </button>
                   </div>

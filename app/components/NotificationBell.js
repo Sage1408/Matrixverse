@@ -106,7 +106,7 @@ useEffect(() => {
     setOpen(!open);
     if (!open) fetchNotifications();
   }}
-  className="relative text-[#8B949E] hover:text-white transition-colors p-2"
+  className="relative text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors p-2"
 >
   <span className="text-2xl">🔔</span>
 
@@ -117,8 +117,8 @@ useEffect(() => {
         -top-1
         -right-1
         z-10
-        bg-[#FF4757]
-        text-white
+        bg-[var(--accent-red)]
+        text-[var(--text-primary)]
         font-bold
         rounded-full
         flex
@@ -138,23 +138,23 @@ useEffect(() => {
 </button>
 
       {open && (
-        <div className="absolute right-0 top-10 w-80 bg-[#161B22] border border-[#30363D] rounded-2xl shadow-2xl z-50 overflow-hidden">
+        <div className="absolute right-0 top-10 w-80 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl shadow-2xl z-50 overflow-hidden">
 
-          <div className="flex items-center justify-between px-4 py-3 border-b border-[#30363D]">
-            <span className="text-white font-bold text-sm">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border)]">
+            <span className="text-[var(--text-primary)] font-bold text-sm">
               Notifications {unreadCount > 0 && (
-                <span className="bg-[#FF4757] text-white text-xs font-bold px-1.5 py-0.5 rounded-full ml-1">
+                <span className="bg-[var(--accent-red)] text-[var(--text-primary)] text-xs font-bold px-1.5 py-0.5 rounded-full ml-1">
                   {unreadCount}
                 </span>
               )}
             </span>
             <div className="flex items-center gap-3">
               {unreadCount > 0 && (
-                <button onClick={markAllRead} className="text-[#00D4FF] text-xs hover:underline">
+                <button onClick={markAllRead} className="text-[var(--accent-blue)] text-xs hover:underline">
                   Mark all read
                 </button>
               )}
-              <button onClick={() => setOpen(false)} className="text-[#8B949E] hover:text-white text-sm font-bold">
+              <button onClick={() => setOpen(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm font-bold">
                 x
               </button>
             </div>
@@ -164,30 +164,30 @@ useEffect(() => {
             {notifications.length === 0 ? (
               <div className="text-center py-8">
                 <div className="text-3xl mb-2">🔔</div>
-                <p className="text-[#8B949E] text-sm">No notifications yet</p>
+                <p className="text-[var(--text-muted)] text-sm">No notifications yet</p>
               </div>
             ) : (
               notifications.map((notif) => (
                 <div
                   key={notif.id}
                   onClick={() => markOneRead(notif.id, notif.link)}
-                  className={"flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-[#1A2332] transition-colors border-b border-[#30363D] " + (!notif.is_read ? "bg-[#00D4FF08]" : "")}
+                  className={"flex items-start gap-3 px-4 py-3 cursor-pointer hover:bg-[var(--bg-tertiary)] transition-colors border-b border-[var(--border)] " + (!notif.is_read ? "bg-[#00D4FF08]" : "")}
                 >
                   <span className="text-lg flex-shrink-0">{getTypeIcon(notif.type)}</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[#C9D1D9] text-xs leading-relaxed">{notif.message}</p>
-                    <p className="text-[#8B949E] text-xs mt-0.5">{getTimeAgo(notif.created_at)}</p>
+                    <p className="text-[var(--text-secondary)] text-xs leading-relaxed">{notif.message}</p>
+                    <p className="text-[var(--text-muted)] text-xs mt-0.5">{getTimeAgo(notif.created_at)}</p>
                   </div>
                   {!notif.is_read && (
-                    <div className="w-2 h-2 bg-[#00D4FF] rounded-full flex-shrink-0 mt-1"></div>
+                    <div className="w-2 h-2 bg-[var(--accent-blue)] rounded-full flex-shrink-0 mt-1"></div>
                   )}
                 </div>
               ))
             )}
           </div>
 
-          <div className="px-4 py-3 border-t border-[#30363D]">
-            <a href="/notifications" className="text-[#00D4FF] text-xs hover:underline block text-center">
+          <div className="px-4 py-3 border-t border-[var(--border)]">
+            <a href="/notifications" className="text-[var(--accent-blue)] text-xs hover:underline block text-center">
               View all notifications
             </a>
           </div>

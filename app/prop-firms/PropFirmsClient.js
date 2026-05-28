@@ -1,6 +1,8 @@
 "use client";
 
 import MobileNav from "../components/MobileNav";
+import ThemeToggle from "../components/ThemeToggle"
+import { Skeleton, SkeletonCard, SkeletonText } from "../components/Skeleton"
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
@@ -203,42 +205,47 @@ export default function PropFirmsClient() {
   };
 
   if (!user) return (
-    <main className="bg-[#0D1117] min-h-screen flex items-center justify-center">
-      <p className="text-[#8B949E]">Loading...</p>
+    <main className="bg-[var(--bg-primary)] min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-4xl px-6 space-y-6">
+        <SkeletonText lines={2} />
+        <SkeletonCard />
+        <SkeletonCard />
+      </div>
     </main>
   );
 
   const filteredFirms = getFilteredFirms();
 
   return (
-    <main className="bg-[#0D1117] min-h-screen">
+    <main className="bg-[var(--bg-primary)] min-h-screen">
 
-      <nav className="bg-[#161B22] border-b border-[#30363D] px-6 py-4 flex items-center justify-between">
-        <a href="/dashboard" className="text-[#00D4FF] font-bold text-xl">MatrixVerse</a>
+      <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
+        <a href="/dashboard" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
         <div className="flex items-center gap-4">
-          <a href="/dashboard" className="text-[#8B949E] hover:text-white text-sm">Dashboard</a>
-          <a href="/journal" className="text-[#8B949E] hover:text-white text-sm">Journal</a>
-          <a href="/community" className="text-[#8B949E] hover:text-white text-sm">Community</a>
+          <ThemeToggle />
+          <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
+          <a href="/journal" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Journal</a>
+          <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Community</a>
         </div>
       </nav>
 
       <div className="max-w-6xl mx-auto px-6 py-10 pb-20">
 
         <div className="text-center mb-10">
-          <h1 className="text-white font-bold text-3xl mb-2">Prop Firm Recommendations</h1>
-          <p className="text-[#8B949E] text-sm max-w-xl mx-auto">
+          <h1 className="text-[var(--text-primary)] font-bold text-3xl mb-2">Prop Firm Recommendations</h1>
+          <p className="text-[var(--text-muted)] text-sm max-w-xl mx-auto">
             Find the right prop firm for your trading style. Compare rules, splits and prices side by side.
           </p>
         </div>
 
         <div className="relative mb-6">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8B949E]">🔍</span>
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">🔍</span>
           <input
             type="text"
             placeholder="Search by firm name or trading style..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-[#161B22] border border-[#30363D] text-white placeholder-[#8B949E] rounded-2xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:border-[#00D4FF] transition-colors"
+            className="w-full bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[#8B949E] rounded-2xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
           />
         </div>
 
@@ -249,8 +256,8 @@ export default function PropFirmsClient() {
               onClick={() => setActiveFilter(f.key)}
               className={"px-4 py-2 rounded-full text-sm font-semibold transition-colors " + (
                 activeFilter === f.key
-                  ? "bg-[#00D4FF] text-[#0D1117]"
-                  : "border border-[#30363D] text-[#8B949E] hover:border-[#00D4FF] hover:text-[#00D4FF]"
+                  ? "bg-[var(--accent-blue)] text-[var(--bg-primary)]"
+                  : "border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-blue)] hover:text-[var(--accent-blue)]"
               )}
             >
               {f.label}
@@ -258,29 +265,29 @@ export default function PropFirmsClient() {
           ))}
         </div>
 
-        <p className="text-[#8B949E] text-xs mb-6">
+        <p className="text-[var(--text-muted)] text-xs mb-6">
           Showing {filteredFirms.length} prop firm{filteredFirms.length !== 1 ? "s" : ""}
         </p>
 
         {filteredFirms.length === 0 ? (
-          <div className="text-center py-16 bg-[#161B22] border border-[#30363D] rounded-2xl">
+          <div className="text-center py-16 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl">
             <div className="text-4xl mb-3">🔍</div>
-            <p className="text-[#8B949E] text-sm">No firms match your filter. Try a different one.</p>
+            <p className="text-[var(--text-muted)] text-sm">No firms match your filter. Try a different one.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredFirms.map((firm, index) => {
               return (
-                <div key={index} className="bg-[#161B22] border border-[#30363D] rounded-2xl p-6 hover:border-[#00D4FF] transition-colors flex flex-col gap-4">
+                <div key={index} className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 hover:border-[var(--accent-blue)] transition-colors flex flex-col gap-4">
 
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div className="text-3xl">{firm.logo}</div>
                       <div>
-                        <h2 className="text-white font-bold text-lg">{firm.name}</h2>
+                        <h2 className="text-[var(--text-primary)] font-bold text-lg">{firm.name}</h2>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[#FFD700] text-xs">{renderStars(firm.rating)}</span>
-                          <span className="text-[#8B949E] text-xs">{firm.rating}/5</span>
+                          <span className="text-[var(--accent-gold)] text-xs">{renderStars(firm.rating)}</span>
+                          <span className="text-[var(--text-muted)] text-xs">{firm.rating}/5</span>
                         </div>
                       </div>
                     </div>
@@ -292,53 +299,53 @@ export default function PropFirmsClient() {
                     </span>
                   </div>
 
-                  <p className="text-[#8B949E] text-sm leading-relaxed">{firm.description}</p>
+                  <p className="text-[var(--text-muted)] text-sm leading-relaxed">{firm.description}</p>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-[#0D1117] rounded-xl p-3">
-                      <div className="text-[#8B949E] text-xs mb-1">Profit Target</div>
-                      <div className="font-bold text-sm text-[#00FF88]">{firm.profitTarget}</div>
+                    <div className="bg-[var(--bg-primary)] rounded-xl p-3">
+                      <div className="text-[var(--text-muted)] text-xs mb-1">Profit Target</div>
+                      <div className="font-bold text-sm text-[var(--accent-green)]">{firm.profitTarget}</div>
                     </div>
-                    <div className="bg-[#0D1117] rounded-xl p-3">
-                      <div className="text-[#8B949E] text-xs mb-1">Max Drawdown</div>
-                      <div className="font-bold text-sm text-[#FF4757]">{firm.maxDrawdown}</div>
+                    <div className="bg-[var(--bg-primary)] rounded-xl p-3">
+                      <div className="text-[var(--text-muted)] text-xs mb-1">Max Drawdown</div>
+                      <div className="font-bold text-sm text-[var(--accent-red)]">{firm.maxDrawdown}</div>
                     </div>
-                    <div className="bg-[#0D1117] rounded-xl p-3">
-                      <div className="text-[#8B949E] text-xs mb-1">Daily Loss Limit</div>
-                      <div className="font-bold text-sm text-[#FFD700]">{firm.dailyLoss}</div>
+                    <div className="bg-[var(--bg-primary)] rounded-xl p-3">
+                      <div className="text-[var(--text-muted)] text-xs mb-1">Daily Loss Limit</div>
+                      <div className="font-bold text-sm text-[var(--accent-gold)]">{firm.dailyLoss}</div>
                     </div>
-                    <div className="bg-[#0D1117] rounded-xl p-3">
-                      <div className="text-[#8B949E] text-xs mb-1">Profit Split</div>
-                      <div className="font-bold text-sm text-[#00D4FF]">{firm.profitSplit}</div>
+                    <div className="bg-[var(--bg-primary)] rounded-xl p-3">
+                      <div className="text-[var(--text-muted)] text-xs mb-1">Profit Split</div>
+                      <div className="font-bold text-sm text-[var(--accent-blue)]">{firm.profitSplit}</div>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div>
-                        <div className="text-[#8B949E] text-xs">Min Trading Days</div>
-                        <div className="text-white font-semibold text-sm">
+                        <div className="text-[var(--text-muted)] text-xs">Min Trading Days</div>
+                        <div className="text-[var(--text-primary)] font-semibold text-sm">
                           {firm.minTradingDays === 0 ? "None" : firm.minTradingDays + " days"}
                         </div>
                       </div>
                       <div>
-                        <div className="text-[#8B949E] text-xs">Difficulty</div>
+                        <div className="text-[var(--text-muted)] text-xs">Difficulty</div>
                         <div className="font-semibold text-sm" style={{ color: getDifficultyColor(firm.difficulty) }}>
                           {firm.difficulty}
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[#8B949E] text-xs">Starting Price</div>
-                      <div className="text-white font-bold text-sm">{firm.price}</div>
+                      <div className="text-[var(--text-muted)] text-xs">Starting Price</div>
+                      <div className="text-[var(--text-primary)] font-bold text-sm">{firm.price}</div>
                     </div>
                   </div>
 
                   <div>
-                    <div className="text-[#8B949E] text-xs mb-2">Account Sizes</div>
+                    <div className="text-[var(--text-muted)] text-xs mb-2">Account Sizes</div>
                     <div className="flex flex-wrap gap-1.5">
                       {firm.accountSizes.map((size, i) => (
-                        <span key={i} className="bg-[#0D1117] border border-[#30363D] text-[#C9D1D9] text-xs px-2 py-1 rounded-lg">
+                        <span key={i} className="bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-secondary)] text-xs px-2 py-1 rounded-lg">
                           {size}
                         </span>
                       ))}
@@ -346,10 +353,10 @@ export default function PropFirmsClient() {
                   </div>
 
                   <div>
-                    <div className="text-[#8B949E] text-xs mb-2">Allowed Styles</div>
+                    <div className="text-[var(--text-muted)] text-xs mb-2">Allowed Styles</div>
                     <div className="flex flex-wrap gap-1.5">
                       {firm.style.map((s, i) => (
-                        <span key={i} className="bg-[#7C3AED20] text-[#7C3AED] text-xs font-semibold px-2 py-1 rounded-lg border border-[#7C3AED40]">
+                        <span key={i} className="bg-[#7C3AED20] text-[var(--accent-purple)] text-xs font-semibold px-2 py-1 rounded-lg border border-[#7C3AED40]">
                           {s}
                         </span>
                       ))}
@@ -360,7 +367,7 @@ export default function PropFirmsClient() {
                     href={firm.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-full bg-[#00D4FF] text-[#0D1117] font-bold py-3 rounded-full text-sm text-center hover:bg-[#00b8d9] transition-colors block"
+                    className="w-full bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold py-3 rounded-full text-sm text-center hover:bg-[var(--accent-blue-hover)] transition-colors block"
                   >
                     {"Visit " + firm.name + " →"}
                   </a>
@@ -371,8 +378,8 @@ export default function PropFirmsClient() {
           </div>
         )}
 
-        <div className="mt-10 bg-[#161B22] border border-[#30363D] rounded-2xl p-5">
-          <p className="text-[#8B949E] text-xs leading-relaxed text-center">
+        <div className="mt-10 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-5">
+          <p className="text-[var(--text-muted)] text-xs leading-relaxed text-center">
             Disclaimer: MatrixVerse is not affiliated with any prop firm listed above. Information is for educational purposes only. Always do your own research before purchasing any prop firm challenge. Rules and prices may change without notice.
           </p>
         </div>

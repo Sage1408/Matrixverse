@@ -1,6 +1,8 @@
 "use client";
 
 import MobileNav from "../components/MobileNav";
+import ThemeToggle from "../components/ThemeToggle"
+import { Skeleton, SkeletonCard, SkeletonText } from "../components/Skeleton"
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
@@ -128,25 +130,30 @@ export default function PsychologyClient() {
   const score = calculateScore();
   const scoreColor = score >= 75 ? "#00FF88" : score >= 50 ? "#FFD700" : "#FF4757";
 
-  const inputClass = "w-full bg-[#0D1117] border border-[#30363D] text-white placeholder-[#8B949E] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#00D4FF] transition-colors";
-  const labelClass = "text-[#8B949E] text-xs mb-2 block";
+  const inputClass = "w-full bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[#8B949E] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors";
+  const labelClass = "text-[var(--text-muted)] text-xs mb-2 block";
 
   if (!user) return (
-    <main className="bg-[#0D1117] min-h-screen flex items-center justify-center">
-      <p className="text-[#8B949E]">Loading...</p>
+    <main className="bg-[var(--bg-primary)] min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-4xl px-6 space-y-6">
+        <SkeletonText lines={2} />
+        <SkeletonCard />
+        <SkeletonCard />
+      </div>
     </main>
   );
 
   return (
-    <main className="bg-[#0D1117] min-h-screen">
+    <main className="bg-[var(--bg-primary)] min-h-screen">
 
       {/* NAVBAR */}
-      <nav className="bg-[#161B22] border-b border-[#30363D] px-6 py-4 flex items-center justify-between">
-        <a href="/dashboard" className="text-[#00D4FF] font-bold text-xl">MatrixVerse</a>
+      <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
+        <a href="/dashboard" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
         <div className="flex items-center gap-4">
-          <a href="/dashboard" className="text-[#8B949E] hover:text-white text-sm">Dashboard</a>
-          <a href="/journal" className="text-[#8B949E] hover:text-white text-sm">Journal</a>
-          <a href="/community" className="text-[#8B949E] hover:text-white text-sm">Community</a>
+          <ThemeToggle />
+          <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
+          <a href="/journal" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Journal</a>
+          <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Community</a>
         </div>
       </nav>
 
@@ -155,18 +162,18 @@ export default function PsychologyClient() {
         {/* HEADER */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-white font-bold text-3xl mb-1">Psychology Tracker</h1>
-            <p className="text-[#8B949E] text-sm">Track your mental state and trade better</p>
+            <h1 className="text-[var(--text-primary)] font-bold text-3xl mb-1">Psychology Tracker</h1>
+            <p className="text-[var(--text-muted)] text-sm">Track your mental state and trade better</p>
           </div>
           {!alreadyCheckedIn ? (
             <button
               onClick={() => setShowModal(true)}
-              className="bg-[#00D4FF] text-[#0D1117] font-bold px-6 py-3 rounded-full text-sm hover:bg-[#00b8d9] transition-colors"
+              className="bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold px-6 py-3 rounded-full text-sm hover:bg-[var(--accent-blue-hover)] transition-colors"
             >
               Daily Check-In
             </button>
           ) : (
-            <div className="bg-[#00FF8820] border border-[#00FF88] text-[#00FF88] text-sm font-bold px-5 py-2 rounded-full">
+            <div className="bg-[var(--accent-green-bg)] border border-[var(--accent-green)] text-[var(--accent-green)] text-sm font-bold px-5 py-2 rounded-full">
               ✓ Checked In Today
             </div>
           )}
@@ -176,8 +183,8 @@ export default function PsychologyClient() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 
           {/* PSYCHOLOGY SCORE */}
-          <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-6 flex flex-col items-center justify-center text-center">
-            <p className="text-[#8B949E] text-xs mb-4">Psychology Score (Last 7 days)</p>
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 flex flex-col items-center justify-center text-center">
+            <p className="text-[var(--text-muted)] text-xs mb-4">Psychology Score (Last 7 days)</p>
             <div
               className="w-28 h-28 rounded-full border-4 flex items-center justify-center mb-3"
               style={{ borderColor: scoreColor }}
@@ -186,36 +193,36 @@ export default function PsychologyClient() {
                 {score}
               </span>
             </div>
-            <p className="text-[#8B949E] text-xs">
+            <p className="text-[var(--text-muted)] text-xs">
               {score >= 75 ? "🟢 Trading mindset is strong" : score >= 50 ? "🟡 Be cautious today" : "🔴 Consider taking a break"}
             </p>
           </div>
 
           {/* STREAK */}
-          <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-6 flex flex-col items-center justify-center text-center">
-            <p className="text-[#8B949E] text-xs mb-4">Check-In Streak</p>
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 flex flex-col items-center justify-center text-center">
+            <p className="text-[var(--text-muted)] text-xs mb-4">Check-In Streak</p>
             <div className="text-5xl mb-2">🔥</div>
-            <div className="text-white font-bold text-3xl mb-1">{checkins.length}</div>
-            <p className="text-[#8B949E] text-xs">Total check-ins logged</p>
+            <div className="text-[var(--text-primary)] font-bold text-3xl mb-1">{checkins.length}</div>
+            <p className="text-[var(--text-muted)] text-xs">Total check-ins logged</p>
           </div>
 
           {/* LAST MOOD */}
-          <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-6 flex flex-col items-center justify-center text-center">
-            <p className="text-[#8B949E] text-xs mb-4">Last Recorded Mood</p>
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 flex flex-col items-center justify-center text-center">
+            <p className="text-[var(--text-muted)] text-xs mb-4">Last Recorded Mood</p>
             {checkins.length > 0 ? (
               <>
                 <div className="text-5xl mb-2">{getMoodEmoji(checkins[0].mood)}</div>
                 <div className="font-bold text-xl mb-1" style={{ color: getMoodColor(checkins[0].mood) }}>
                   {checkins[0].mood}
                 </div>
-                <p className="text-[#8B949E] text-xs">
+                <p className="text-[var(--text-muted)] text-xs">
                   {new Date(checkins[0].checked_in_at).toLocaleDateString()}
                 </p>
               </>
             ) : (
               <>
                 <div className="text-5xl mb-2">😐</div>
-                <p className="text-[#8B949E] text-xs">No check-ins yet</p>
+                <p className="text-[var(--text-muted)] text-xs">No check-ins yet</p>
               </>
             )}
           </div>
@@ -223,8 +230,8 @@ export default function PsychologyClient() {
         </div>
 
         {/* MOOD TIPS */}
-        <div className="bg-[#161B22] border border-[#30363D] rounded-2xl p-6 mb-8">
-          <h2 className="text-white font-bold text-lg mb-4">🧠 Trading Psychology Tips</h2>
+        <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 mb-8">
+          <h2 className="text-[var(--text-primary)] font-bold text-lg mb-4">🧠 Trading Psychology Tips</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
               { tip: "Never trade when you are angry or stressed. Your emotions will override your strategy.", color: "#FF4757" },
@@ -234,34 +241,34 @@ export default function PsychologyClient() {
               { tip: "Revenge trading is the #1 account killer. Take the loss, close the platform, come back tomorrow.", color: "#FF6B35" },
               { tip: "Your best trades come when you are calm, prepared, and following your plan exactly.", color: "#7C3AED" },
             ].map((item, index) => (
-              <div key={index} className="flex items-start gap-3 p-3 bg-[#0D1117] rounded-xl">
+              <div key={index} className="flex items-start gap-3 p-3 bg-[var(--bg-primary)] rounded-xl">
                 <div className="w-1 rounded-full flex-shrink-0 mt-1 h-full min-h-[40px]" style={{ backgroundColor: item.color }}></div>
-                <p className="text-[#C9D1D9] text-sm leading-relaxed">{item.tip}</p>
+                <p className="text-[var(--text-secondary)] text-sm leading-relaxed">{item.tip}</p>
               </div>
             ))}
           </div>
         </div>
 
         {/* CHECK-IN HISTORY */}
-        <div className="bg-[#161B22] border border-[#30363D] rounded-2xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#30363D]">
-            <h2 className="text-white font-bold">Check-In History</h2>
+        <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-[var(--border)]">
+            <h2 className="text-[var(--text-primary)] font-bold">Check-In History</h2>
           </div>
           {checkins.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <div className="text-4xl mb-3">🧠</div>
-              <p className="text-[#8B949E] text-sm">No check-ins yet</p>
+              <p className="text-[var(--text-muted)] text-sm">No check-ins yet</p>
               <button
                 onClick={() => setShowModal(true)}
-                className="mt-4 bg-[#00D4FF] text-[#0D1117] font-bold px-5 py-2 rounded-full text-xs hover:bg-[#00b8d9] transition-colors"
+                className="mt-4 bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold px-5 py-2 rounded-full text-xs hover:bg-[var(--accent-blue-hover)] transition-colors"
               >
                 Do Your First Check-In
               </button>
             </div>
           ) : (
-            <div className="divide-y divide-[#30363D]">
+            <div className="divide-y divide-[var(--border)]">
               {checkins.map((checkin, index) => (
-                <div key={index} className="px-6 py-4 flex items-center justify-between hover:bg-[#1A2332] transition-colors">
+                <div key={index} className="px-6 py-4 flex items-center justify-between hover:bg-[var(--bg-tertiary)] transition-colors">
                   <div className="flex items-center gap-4">
                     <div className="text-2xl">{getMoodEmoji(checkin.mood)}</div>
                     <div>
@@ -269,17 +276,17 @@ export default function PsychologyClient() {
                         <span className="font-bold text-sm" style={{ color: getMoodColor(checkin.mood) }}>
                           {checkin.mood}
                         </span>
-                        <span className="text-[#30363D]">·</span>
-                        <span className="text-[#8B949E] text-xs" style={{ color: getSleepColor(checkin.sleep_quality) }}>
+                        <span className="text-[var(--border)]">·</span>
+                        <span className="text-[var(--text-muted)] text-xs" style={{ color: getSleepColor(checkin.sleep_quality) }}>
                           Sleep: {checkin.sleep_quality}
                         </span>
                       </div>
                       {checkin.intention && (
-                        <p className="text-[#8B949E] text-xs mt-0.5">"{checkin.intention}"</p>
+                        <p className="text-[var(--text-muted)] text-xs mt-0.5">"{checkin.intention}"</p>
                       )}
                     </div>
                   </div>
-                  <div className="text-[#8B949E] text-xs">
+                  <div className="text-[var(--text-muted)] text-xs">
                     {new Date(checkin.checked_in_at).toLocaleDateString()}
                   </div>
                 </div>
@@ -293,11 +300,11 @@ export default function PsychologyClient() {
       {/* CHECK-IN MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 px-4">
-          <div className="bg-[#161B22] border border-[#30363D] rounded-2xl w-full max-w-md">
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl w-full max-w-md">
 
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#30363D]">
-              <h2 className="text-white font-bold text-lg">Daily Check-In</h2>
-              <button onClick={() => setShowModal(false)} className="text-[#8B949E] hover:text-white text-xl">✕</button>
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+              <h2 className="text-[var(--text-primary)] font-bold text-lg">Daily Check-In</h2>
+              <button onClick={() => setShowModal(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-xl">✕</button>
             </div>
 
             <form onSubmit={handleSubmit} className="px-6 py-6 flex flex-col gap-5">
@@ -320,8 +327,8 @@ export default function PsychologyClient() {
                       onClick={() => setForm({ ...form, mood: m.label })}
                       className={`flex flex-col items-center py-3 rounded-xl border text-xs font-semibold transition-colors ${
                         form.mood === m.label
-                          ? "border-[#00D4FF] bg-[#00D4FF20] text-[#00D4FF]"
-                          : "border-[#30363D] text-[#8B949E] hover:border-[#00D4FF]"
+                          ? "border-[var(--accent-blue)] bg-[var(--accent-blue-bg)] text-[var(--accent-blue)]"
+                          : "border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-blue)]"
                       }`}
                     >
                       <span className="text-2xl mb-1">{m.emoji}</span>
@@ -369,10 +376,10 @@ export default function PsychologyClient() {
               </div>
 
               <div className="flex gap-3">
-                <button type="button" onClick={() => setShowModal(false)} className="flex-1 border border-[#30363D] text-[#8B949E] font-semibold py-3 rounded-full text-sm hover:border-white hover:text-white transition-colors">
+                <button type="button" onClick={() => setShowModal(false)} className="flex-1 border border-[var(--border)] text-[var(--text-muted)] font-semibold py-3 rounded-full text-sm hover:border-[var(--hover-border)] hover:text-[var(--text-primary)] transition-colors">
                   Cancel
                 </button>
-                <button type="submit" disabled={loading || !form.mood} className="flex-1 bg-[#00D4FF] text-[#0D1117] font-bold py-3 rounded-full text-sm hover:bg-[#00b8d9] transition-colors disabled:opacity-50">
+                <button type="submit" disabled={loading || !form.mood} className="flex-1 bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold py-3 rounded-full text-sm hover:bg-[var(--accent-blue-hover)] transition-colors disabled:opacity-50">
                   {loading ? "Saving..." : "Save Check-In"}
                 </button>
               </div>

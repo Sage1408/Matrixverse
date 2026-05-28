@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
 import MobileNav from "../components/MobileNav";
+import ThemeToggle from "../components/ThemeToggle"
+import { Skeleton, SkeletonCard, SkeletonText } from "../components/Skeleton"
 
 export default function CommunityClient() {
   const [user, setUser] = useState(null);
@@ -207,26 +209,31 @@ export default function CommunityClient() {
     return Math.floor(seconds / 86400) + "d ago";
   };
 
-  const inputClass = "w-full bg-[#0D1117] border border-[#30363D] text-white placeholder-[#8B949E] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#00D4FF] transition-colors";
+  const inputClass = "w-full bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[#8B949E] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors";
   const username = user?.user_metadata?.username || user?.email;
 
   if (!user) return (
-    <main className="bg-[#0D1117] min-h-screen flex items-center justify-center">
-      <p className="text-[#8B949E]">Loading...</p>
+    <main className="bg-[var(--bg-primary)] min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-4xl px-6 space-y-6">
+        <SkeletonText lines={2} />
+        <SkeletonCard />
+        <SkeletonCard />
+      </div>
     </main>
   );
 
   const displayedPosts = filteredPosts();
 
   return (
-    <main className="bg-[#0D1117] min-h-screen">
+    <main className="bg-[var(--bg-primary)] min-h-screen">
 
-      <nav className="bg-[#161B22] border-b border-[#30363D] px-6 py-4 flex items-center justify-between">
-        <a href="/dashboard" className="text-[#00D4FF] font-bold text-xl">MatrixVerse</a>
+      <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
+        <a href="/dashboard" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
         <div className="hidden md:flex items-center gap-4">
-          <a href="/dashboard" className="text-[#8B949E] hover:text-white text-sm">Dashboard</a>
-          <a href="/journal" className="text-[#8B949E] hover:text-white text-sm">Journal</a>
-          <a href="/leaderboard" className="text-[#8B949E] hover:text-white text-sm">Leaderboard</a>
+          <ThemeToggle />
+          <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
+          <a href="/journal" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Journal</a>
+          <a href="/leaderboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Leaderboard</a>
         </div>
       </nav>
 
@@ -234,12 +241,12 @@ export default function CommunityClient() {
 
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-white font-bold text-3xl mb-1">Community Feed</h1>
-            <p className="text-[#8B949E] text-sm">Share setups, ideas and connect with traders</p>
+            <h1 className="text-[var(--text-primary)] font-bold text-3xl mb-1">Community Feed</h1>
+            <p className="text-[var(--text-muted)] text-sm">Share setups, ideas and connect with traders</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="bg-[#00D4FF] text-[#0D1117] font-bold px-5 py-3 rounded-full text-sm hover:bg-[#00b8d9] transition-colors"
+            className="bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold px-5 py-3 rounded-full text-sm hover:bg-[var(--accent-blue-hover)] transition-colors"
           >
             + Post
           </button>
@@ -257,8 +264,8 @@ export default function CommunityClient() {
               onClick={() => setActiveTab(tab.key)}
               className={"px-4 py-2 rounded-full text-sm font-semibold transition-colors whitespace-nowrap " + (
                 activeTab === tab.key
-                  ? "bg-[#00D4FF] text-[#0D1117]"
-                  : "border border-[#30363D] text-[#8B949E] hover:border-[#00D4FF] hover:text-[#00D4FF]"
+                  ? "bg-[var(--accent-blue)] text-[var(--bg-primary)]"
+                  : "border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-blue)] hover:text-[var(--accent-blue)]"
               )}
             >
               {tab.label}
@@ -268,11 +275,11 @@ export default function CommunityClient() {
 
         {/* FOLLOWING EMPTY STATE */}
         {activeTab === "following" && following.length === 0 && (
-          <div className="text-center py-16 bg-[#161B22] border border-[#30363D] rounded-2xl">
+          <div className="text-center py-16 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl">
             <div className="text-4xl mb-3">👥</div>
-            <p className="text-white font-semibold mb-1">You are not following anyone yet</p>
-            <p className="text-[#8B949E] text-sm mb-4">Follow traders to see their posts here</p>
-            <a href="/search" className="bg-[#00D4FF] text-[#0D1117] font-bold px-5 py-2 rounded-full text-xs hover:bg-[#00b8d9] transition-colors">
+            <p className="text-[var(--text-primary)] font-semibold mb-1">You are not following anyone yet</p>
+            <p className="text-[var(--text-muted)] text-sm mb-4">Follow traders to see their posts here</p>
+            <a href="/search" className="bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold px-5 py-2 rounded-full text-xs hover:bg-[var(--accent-blue-hover)] transition-colors">
               Find Traders
             </a>
           </div>
@@ -280,10 +287,10 @@ export default function CommunityClient() {
 
         {/* FOLLOWING TAB WITH PEOPLE BUT NO POSTS */}
         {activeTab === "following" && following.length > 0 && displayedPosts.length === 0 && (
-          <div className="text-center py-16 bg-[#161B22] border border-[#30363D] rounded-2xl">
+          <div className="text-center py-16 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl">
             <div className="text-4xl mb-3">📭</div>
-            <p className="text-white font-semibold mb-1">No posts from people you follow yet</p>
-            <p className="text-[#8B949E] text-sm">Check back later or explore the Latest feed</p>
+            <p className="text-[var(--text-primary)] font-semibold mb-1">No posts from people you follow yet</p>
+            <p className="text-[var(--text-muted)] text-sm">Check back later or explore the Latest feed</p>
           </div>
         )}
 
@@ -291,42 +298,42 @@ export default function CommunityClient() {
         {(activeTab !== "following" && displayedPosts.length === 0) ? (
           <div className="text-center py-16">
             <div className="text-4xl mb-3">👥</div>
-            <p className="text-[#8B949E] text-sm mb-4">No posts yet. Be the first!</p>
-            <button onClick={() => setShowModal(true)} className="bg-[#00D4FF] text-[#0D1117] font-bold px-5 py-2 rounded-full text-xs">
+            <p className="text-[var(--text-muted)] text-sm mb-4">No posts yet. Be the first!</p>
+            <button onClick={() => setShowModal(true)} className="bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold px-5 py-2 rounded-full text-xs">
               Create First Post
             </button>
           </div>
         ) : displayedPosts.length > 0 ? (
           <div className="flex flex-col gap-4">
             {displayedPosts.map((post) => (
-              <div key={post.id} className="bg-[#161B22] border border-[#30363D] rounded-2xl p-5">
+              <div key={post.id} className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-5">
 
                 {post.is_repost && (
-                  <div className="text-[#8B949E] text-xs mb-3 flex items-center gap-1">
+                  <div className="text-[var(--text-muted)] text-xs mb-3 flex items-center gap-1">
                     🔁
-                    <a href={"/profile/" + post.username} className="text-[#00FF88] font-semibold hover:underline">{post.username}</a>
+                    <a href={"/profile/" + post.username} className="text-[var(--accent-green)] font-semibold hover:underline">{post.username}</a>
                     <span> reposted from </span>
-                    <a href={"/profile/" + post.repost_from} className="text-[#00D4FF] font-semibold hover:underline">@{post.repost_from}</a>
+                    <a href={"/profile/" + post.repost_from} className="text-[var(--accent-blue)] font-semibold hover:underline">@{post.repost_from}</a>
                   </div>
                 )}
 
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <a href={"/profile/" + post.username}>
-                      <div className="w-9 h-9 rounded-full bg-[#00D4FF] flex items-center justify-center text-[#0D1117] font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
+                      <div className="w-9 h-9 rounded-full bg-[var(--accent-blue)] flex items-center justify-center text-[var(--bg-primary)] font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
                         {post.username?.charAt(0).toUpperCase()}
                       </div>
                     </a>
                     <div>
-                      <a href={"/profile/" + post.username} className="text-white font-semibold text-sm hover:text-[#00D4FF] transition-colors block">
+                      <a href={"/profile/" + post.username} className="text-[var(--text-primary)] font-semibold text-sm hover:text-[var(--accent-blue)] transition-colors block">
                         @{post.username}
                       </a>
-                      <div className="text-[#8B949E] text-xs">{getTimeAgo(post.created_at)}</div>
+                      <div className="text-[var(--text-muted)] text-xs">{getTimeAgo(post.created_at)}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap justify-end">
                     {post.pair_tag && (
-                      <span className="bg-[#00D4FF20] text-[#00D4FF] text-xs font-bold px-2 py-1 rounded-full">{post.pair_tag}</span>
+                      <span className="bg-[var(--accent-blue-bg)] text-[var(--accent-blue)] text-xs font-bold px-2 py-1 rounded-full">{post.pair_tag}</span>
                     )}
                     <span className="text-xs font-bold px-2 py-1 rounded-full" style={{ backgroundColor: getPostTypeColor(post.post_type) + "20", color: getPostTypeColor(post.post_type) }}>
                       {post.post_type}
@@ -334,47 +341,47 @@ export default function CommunityClient() {
                   </div>
                 </div>
 
-                <p className="text-[#C9D1D9] text-sm leading-relaxed mb-3 ml-12">{post.content}</p>
+                <p className="text-[var(--text-secondary)] text-sm leading-relaxed mb-3 ml-12">{post.content}</p>
 
                 {post.image_url && (
-                  <img src={post.image_url} alt="Trade chart" className="w-full rounded-xl mb-3 border border-[#30363D]" />
+                  <img src={post.image_url} alt="Trade chart" className="w-full rounded-xl mb-3 border border-[var(--border)]" />
                 )}
 
-                <div className="flex items-center justify-between pt-3 border-t border-[#30363D] ml-12">
+                <div className="flex items-center justify-between pt-3 border-t border-[var(--border)] ml-12">
                   <button onClick={() => handleLike(post)} className="flex items-center gap-1.5 group">
-                    <span className={"text-lg transition-transform group-hover:scale-110 " + (isLiked(post.id) ? "text-[#FF4757]" : "text-[#8B949E] group-hover:text-[#FF4757]")}>
+                    <span className={"text-lg transition-transform group-hover:scale-110 " + (isLiked(post.id) ? "text-[var(--accent-red)]" : "text-[var(--text-muted)] group-hover:text-[var(--accent-red)]")}>
                       {isLiked(post.id) ? "❤️" : "🤍"}
                     </span>
-                    <span className={"text-xs font-semibold " + (isLiked(post.id) ? "text-[#FF4757]" : "text-[#8B949E] group-hover:text-[#FF4757]")}>
+                    <span className={"text-xs font-semibold " + (isLiked(post.id) ? "text-[var(--accent-red)]" : "text-[var(--text-muted)] group-hover:text-[var(--accent-red)]")}>
                       {post.likes || 0}
                     </span>
                   </button>
 
                   <button
                     onClick={() => { setShowComments(showComments === post.id ? null : post.id); setCommentText(""); }}
-                    className="flex items-center gap-1.5 text-[#8B949E] hover:text-[#00D4FF] group"
+                    className="flex items-center gap-1.5 text-[var(--text-muted)] hover:text-[var(--accent-blue)] group"
                   >
                     <span className="text-lg group-hover:scale-110 transition-transform">💬</span>
                     <span className="text-xs font-semibold">{getPostComments(post.id).length}</span>
                   </button>
 
-                  <button onClick={() => handleRepost(post)} className="flex items-center gap-1.5 text-[#8B949E] hover:text-[#00FF88] group">
+                  <button onClick={() => handleRepost(post)} className="flex items-center gap-1.5 text-[var(--text-muted)] hover:text-[var(--accent-green)] group">
                     <span className="text-lg group-hover:scale-110 transition-transform">🔁</span>
-                    <span className="text-xs font-semibold group-hover:text-[#00FF88]">Repost</span>
+                    <span className="text-xs font-semibold group-hover:text-[var(--accent-green)]">Repost</span>
                   </button>
 
-                  <button onClick={() => handleShare(post.id)} className="flex items-center gap-1.5 text-[#8B949E] hover:text-[#7C3AED] group">
+                  <button onClick={() => handleShare(post.id)} className="flex items-center gap-1.5 text-[var(--text-muted)] hover:text-[var(--accent-purple)] group">
                     <span className="text-lg group-hover:scale-110 transition-transform">📤</span>
-                    <span className={"text-xs font-semibold " + (copied === post.id ? "text-[#00FF88]" : "group-hover:text-[#7C3AED]")}>
+                    <span className={"text-xs font-semibold " + (copied === post.id ? "text-[var(--accent-green)]" : "group-hover:text-[var(--accent-purple)]")}>
                       {copied === post.id ? "Copied!" : "Share"}
                     </span>
                   </button>
                 </div>
 
                 {showComments === post.id && (
-                  <div className="mt-4 border-t border-[#30363D] pt-4 ml-12">
+                  <div className="mt-4 border-t border-[var(--border)] pt-4 ml-12">
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="w-7 h-7 rounded-full bg-[#7C3AED] flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-[var(--accent-purple)] flex items-center justify-center text-[var(--text-primary)] font-bold text-xs flex-shrink-0">
                         {username?.charAt(0).toUpperCase()}
                       </div>
                       <input
@@ -383,12 +390,12 @@ export default function CommunityClient() {
                         value={commentText}
                         onChange={(e) => setCommentText(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleComment(post.id)}
-                        className="flex-1 bg-[#0D1117] border border-[#30363D] text-white placeholder-[#8B949E] rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[#00D4FF]"
+                        className="flex-1 bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[#8B949E] rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[var(--accent-blue)]"
                       />
                       <button
                         onClick={() => handleComment(post.id)}
                         disabled={!commentText.trim()}
-                        className="bg-[#00D4FF] text-[#0D1117] font-bold px-4 py-2 rounded-full text-xs hover:bg-[#00b8d9] transition-colors disabled:opacity-40"
+                        className="bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold px-4 py-2 rounded-full text-xs hover:bg-[var(--accent-blue-hover)] transition-colors disabled:opacity-40"
                       >
                         Reply
                       </button>
@@ -396,20 +403,20 @@ export default function CommunityClient() {
 
                     <div className="flex flex-col gap-3">
                       {getPostComments(post.id).length === 0 ? (
-                        <p className="text-[#8B949E] text-xs text-center py-2">No replies yet. Start the conversation!</p>
+                        <p className="text-[var(--text-muted)] text-xs text-center py-2">No replies yet. Start the conversation!</p>
                       ) : (
                         getPostComments(post.id).map((comment, i) => (
                           <div key={i} className="flex items-start gap-3">
                             <a href={"/profile/" + comment.username}>
-                              <div className="w-7 h-7 rounded-full bg-[#7C3AED] flex items-center justify-center text-white font-bold text-xs flex-shrink-0 hover:opacity-80 cursor-pointer">
+                              <div className="w-7 h-7 rounded-full bg-[var(--accent-purple)] flex items-center justify-center text-[var(--text-primary)] font-bold text-xs flex-shrink-0 hover:opacity-80 cursor-pointer">
                                 {comment.username?.charAt(0).toUpperCase()}
                               </div>
                             </a>
                             <div className="flex-1">
-                              <a href={"/profile/" + comment.username} className="text-[#00D4FF] text-xs font-bold mb-0.5 hover:underline block">
+                              <a href={"/profile/" + comment.username} className="text-[var(--accent-blue)] text-xs font-bold mb-0.5 hover:underline block">
                                 @{comment.username}
                               </a>
-                              <div className="text-[#C9D1D9] text-sm leading-relaxed">{comment.content}</div>
+                              <div className="text-[var(--text-secondary)] text-sm leading-relaxed">{comment.content}</div>
                             </div>
                           </div>
                         ))
@@ -426,15 +433,15 @@ export default function CommunityClient() {
 
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 px-4">
-          <div className="bg-[#161B22] border border-[#30363D] rounded-2xl w-full max-w-lg">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-[#30363D]">
-              <h2 className="text-white font-bold text-lg">Create Post</h2>
-              <button onClick={() => setShowModal(false)} className="text-[#8B949E] hover:text-white text-xl">x</button>
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl w-full max-w-lg">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+              <h2 className="text-[var(--text-primary)] font-bold text-lg">Create Post</h2>
+              <button onClick={() => setShowModal(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-xl">x</button>
             </div>
             <form onSubmit={handleSubmit} className="px-6 py-6 flex flex-col gap-4">
 
               <div>
-                <label className="text-[#8B949E] text-xs mb-2 block">Post Type</label>
+                <label className="text-[var(--text-muted)] text-xs mb-2 block">Post Type</label>
                 <div className="grid grid-cols-3 gap-2">
                   {["Trade Setup","Market Analysis","Profit Update","Psychology","Educational","Meme"].map((type) => (
                     <button
@@ -443,8 +450,8 @@ export default function CommunityClient() {
                       onClick={() => setForm({ ...form, post_type: type })}
                       className={"py-2 px-3 rounded-xl border text-xs font-semibold transition-colors " + (
                         form.post_type === type
-                          ? "border-[#00D4FF] bg-[#00D4FF20] text-[#00D4FF]"
-                          : "border-[#30363D] text-[#8B949E] hover:border-[#00D4FF]"
+                          ? "border-[var(--accent-blue)] bg-[var(--accent-blue-bg)] text-[var(--accent-blue)]"
+                          : "border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-blue)]"
                       )}
                     >
                       {type}
@@ -454,7 +461,7 @@ export default function CommunityClient() {
               </div>
 
               <div>
-                <label className="text-[#8B949E] text-xs mb-1 block">Pair Tag (optional)</label>
+                <label className="text-[var(--text-muted)] text-xs mb-1 block">Pair Tag (optional)</label>
                 <select value={form.pair_tag} onChange={(e) => setForm({ ...form, pair_tag: e.target.value })} className={inputClass}>
                   <option value="">No pair tag</option>
                   {["EURUSD","GBPUSD","XAUUSD","USDJPY","BTCUSD","ETHUSD","USDCAD","AUDUSD","GBPJPY"].map(p => (
@@ -464,7 +471,7 @@ export default function CommunityClient() {
               </div>
 
               <div>
-                <label className="text-[#8B949E] text-xs mb-1 block">What's on your mind?</label>
+                <label className="text-[var(--text-muted)] text-xs mb-1 block">What's on your mind?</label>
                 <textarea
                   placeholder="Share your trade idea, analysis, or thought..."
                   value={form.content}
@@ -474,20 +481,20 @@ export default function CommunityClient() {
               </div>
 
               <div>
-                <label className="text-[#8B949E] text-xs mb-1 block">Chart Screenshot (optional)</label>
+                <label className="text-[var(--text-muted)] text-xs mb-1 block">Chart Screenshot (optional)</label>
                 <input
                   type="file" accept="image/*"
                   onChange={(e) => setImage(e.target.files[0])}
-                  className="w-full bg-[#0D1117] border border-[#30363D] text-[#8B949E] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#00D4FF] file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[#00D4FF] file:text-[#0D1117]"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-muted)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent-blue)] file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[var(--accent-blue)] file:text-[var(--bg-primary)]"
                 />
-                {image && <p className="text-[#00FF88] text-xs mt-1">Selected: {image.name}</p>}
+                {image && <p className="text-[var(--accent-green)] text-xs mt-1">Selected: {image.name}</p>}
               </div>
 
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setShowModal(false)} className="flex-1 border border-[#30363D] text-[#8B949E] font-semibold py-3 rounded-full text-sm hover:border-white hover:text-white transition-colors">
+                <button type="button" onClick={() => setShowModal(false)} className="flex-1 border border-[var(--border)] text-[var(--text-muted)] font-semibold py-3 rounded-full text-sm hover:border-[var(--hover-border)] hover:text-[var(--text-primary)] transition-colors">
                   Cancel
                 </button>
-                <button type="submit" disabled={loading} className="flex-1 bg-[#00D4FF] text-[#0D1117] font-bold py-3 rounded-full text-sm hover:bg-[#00b8d9] transition-colors disabled:opacity-50">
+                <button type="submit" disabled={loading} className="flex-1 bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold py-3 rounded-full text-sm hover:bg-[var(--accent-blue-hover)] transition-colors disabled:opacity-50">
                   {loading ? "Posting..." : "Post"}
                 </button>
               </div>

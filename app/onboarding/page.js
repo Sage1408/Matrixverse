@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
+import ThemeToggle from "../components/ThemeToggle"
+import { Skeleton, SkeletonCard } from "../components/Skeleton"
 
 export default function Onboarding() {
   const [user, setUser] = useState(null);
@@ -92,38 +94,43 @@ export default function Onboarding() {
   ];
 
   if (!user) return (
-    <main className="bg-[#0D1117] min-h-screen flex items-center justify-center">
-      <p className="text-[#8B949E]">Loading...</p>
+    <main className="bg-[var(--bg-primary)] min-h-screen flex items-center justify-center px-6">
+      <div className="w-full max-w-lg space-y-6">
+        <Skeleton className="h-6 w-32 mx-auto" />
+        <SkeletonCard />
+      </div>
     </main>
   );
 
   return (
-    <main className="bg-[#0D1117] min-h-screen flex flex-col items-center justify-center px-6 py-10">
-
-      {/* LOGO */}
-      <div className="text-[#00D4FF] font-bold text-2xl mb-8">MatrixVerse</div>
+    <>
+      <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
+        <div className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</div>
+        <ThemeToggle />
+      </nav>
+      <main className="bg-[var(--bg-primary)] min-h-screen flex flex-col items-center justify-center px-6 py-10">
 
       {/* PROGRESS BAR */}
       <div className="w-full max-w-lg mb-8">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[#8B949E] text-xs">Step {step} of 4</span>
-          <span className="text-[#8B949E] text-xs">{Math.round((step / 4) * 100)}% complete</span>
+          <span className="text-[var(--text-muted)] text-xs">Step {step} of 4</span>
+          <span className="text-[var(--text-muted)] text-xs">{Math.round((step / 4) * 100)}% complete</span>
         </div>
-        <div className="w-full h-2 bg-[#30363D] rounded-full overflow-hidden">
+        <div className="w-full h-2 bg-[var(--border)] rounded-full overflow-hidden">
           <div
-            className="h-full bg-[#00D4FF] rounded-full transition-all duration-500"
+            className="h-full bg-[var(--accent-blue)] rounded-full transition-all duration-500"
             style={{ width: (step / 4 * 100) + "%" }}
           />
         </div>
       </div>
 
-      <div className="w-full max-w-lg bg-[#161B22] border border-[#30363D] rounded-2xl p-8">
+      <div className="w-full max-w-lg bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-8">
 
         {/* STEP 1 — TRADER TYPE */}
         {step === 1 && (
           <div>
-            <h1 className="text-white font-bold text-2xl mb-2">What type of trader are you?</h1>
-            <p className="text-[#8B949E] text-sm mb-6">This helps us personalise your experience.</p>
+            <h1 className="text-[var(--text-primary)] font-bold text-2xl mb-2">What type of trader are you?</h1>
+            <p className="text-[var(--text-muted)] text-sm mb-6">This helps us personalise your experience.</p>
             <div className="grid grid-cols-2 gap-3">
               {traderTypes.map((type) => (
                 <button
@@ -131,15 +138,15 @@ export default function Onboarding() {
                   onClick={() => setTraderType(type.key)}
                   className={"flex flex-col items-start p-4 rounded-xl border transition-colors text-left " + (
                     traderType === type.key
-                      ? "border-[#00D4FF] bg-[#00D4FF10]"
-                      : "border-[#30363D] hover:border-[#00D4FF]"
+                      ? "border-[var(--accent-blue)] bg-[var(--accent-blue-bg)]"
+                      : "border-[var(--border)] hover:border-[var(--accent-blue)]"
                   )}
                 >
                   <span className="text-2xl mb-2">{type.icon}</span>
-                  <span className={"font-semibold text-sm " + (traderType === type.key ? "text-[#00D4FF]" : "text-white")}>
+                  <span className={"font-semibold text-sm " + (traderType === type.key ? "text-[var(--accent-blue)]" : "text-[var(--text-primary)]")}>
                     {type.label}
                   </span>
-                  <span className="text-[#8B949E] text-xs mt-0.5">{type.desc}</span>
+                  <span className="text-[var(--text-muted)] text-xs mt-0.5">{type.desc}</span>
                 </button>
               ))}
             </div>
@@ -149,8 +156,8 @@ export default function Onboarding() {
         {/* STEP 2 — PREFERRED PAIRS */}
         {step === 2 && (
           <div>
-            <h1 className="text-white font-bold text-2xl mb-2">Which pairs do you trade?</h1>
-            <p className="text-[#8B949E] text-sm mb-6">Select all that apply. You can change this later.</p>
+            <h1 className="text-[var(--text-primary)] font-bold text-2xl mb-2">Which pairs do you trade?</h1>
+            <p className="text-[var(--text-muted)] text-sm mb-6">Select all that apply. You can change this later.</p>
             <div className="flex flex-wrap gap-2">
               {pairs.map((pair) => (
                 <button
@@ -158,8 +165,8 @@ export default function Onboarding() {
                   onClick={() => togglePair(pair)}
                   className={"px-4 py-2 rounded-full text-sm font-semibold border transition-colors " + (
                     selectedPairs.includes(pair)
-                      ? "bg-[#00D4FF] text-[#0D1117] border-[#00D4FF]"
-                      : "border-[#30363D] text-[#8B949E] hover:border-[#00D4FF] hover:text-[#00D4FF]"
+                      ? "bg-[var(--accent-blue)] text-[var(--bg-primary)] border-[var(--accent-blue)]"
+                      : "border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-blue)] hover:text-[var(--accent-blue)]"
                   )}
                 >
                   {pair}
@@ -167,7 +174,7 @@ export default function Onboarding() {
               ))}
             </div>
             {selectedPairs.length > 0 && (
-              <p className="text-[#00D4FF] text-xs mt-4">{selectedPairs.length} pair(s) selected</p>
+              <p className="text-[var(--accent-blue)] text-xs mt-4">{selectedPairs.length} pair(s) selected</p>
             )}
           </div>
         )}
@@ -175,8 +182,8 @@ export default function Onboarding() {
         {/* STEP 3 — GOAL */}
         {step === 3 && (
           <div>
-            <h1 className="text-white font-bold text-2xl mb-2">What is your main goal?</h1>
-            <p className="text-[#8B949E] text-sm mb-6">We will show you the most relevant features first.</p>
+            <h1 className="text-[var(--text-primary)] font-bold text-2xl mb-2">What is your main goal?</h1>
+            <p className="text-[var(--text-muted)] text-sm mb-6">We will show you the most relevant features first.</p>
             <div className="flex flex-col gap-3">
               {goals.map((g) => (
                 <button
@@ -184,12 +191,12 @@ export default function Onboarding() {
                   onClick={() => setGoal(g.key)}
                   className={"flex items-center gap-4 p-4 rounded-xl border transition-colors text-left " + (
                     goal === g.key
-                      ? "border-[#00D4FF] bg-[#00D4FF10]"
-                      : "border-[#30363D] hover:border-[#00D4FF]"
+                      ? "border-[var(--accent-blue)] bg-[var(--accent-blue-bg)]"
+                      : "border-[var(--border)] hover:border-[var(--accent-blue)]"
                   )}
                 >
                   <span className="text-2xl">{g.icon}</span>
-                  <span className={"font-semibold text-sm " + (goal === g.key ? "text-[#00D4FF]" : "text-white")}>
+                  <span className={"font-semibold text-sm " + (goal === g.key ? "text-[var(--accent-blue)]" : "text-[var(--text-primary)]")}>
                     {g.label}
                   </span>
                 </button>
@@ -201,43 +208,43 @@ export default function Onboarding() {
         {/* STEP 4 — PROFILE SETUP */}
         {step === 4 && (
           <div>
-            <h1 className="text-white font-bold text-2xl mb-2">Set up your profile</h1>
-            <p className="text-[#8B949E] text-sm mb-6">This is optional. You can always update it later in settings.</p>
+            <h1 className="text-[var(--text-primary)] font-bold text-2xl mb-2">Set up your profile</h1>
+            <p className="text-[var(--text-muted)] text-sm mb-6">This is optional. You can always update it later in settings.</p>
 
             <div className="flex flex-col gap-4">
 
-              <div className="flex items-center gap-4 p-4 bg-[#0D1117] rounded-xl mb-2">
-                <div className="w-14 h-14 rounded-full bg-[#00D4FF] flex items-center justify-center text-[#0D1117] font-bold text-xl">
+              <div className="flex items-center gap-4 p-4 bg-[var(--bg-primary)] rounded-xl mb-2">
+                <div className="w-14 h-14 rounded-full bg-[var(--accent-blue)] flex items-center justify-center text-[var(--bg-primary)] font-bold text-xl">
                   {user.user_metadata?.username?.charAt(0).toUpperCase() || "?"}
                 </div>
                 <div>
-                  <p className="text-white font-semibold">@{user.user_metadata?.username}</p>
-                  <p className="text-[#8B949E] text-xs">Your avatar uses your username initial</p>
+                  <p className="text-[var(--text-primary)] font-semibold">@{user.user_metadata?.username}</p>
+                  <p className="text-[var(--text-muted)] text-xs">Your avatar uses your username initial</p>
                 </div>
               </div>
 
               <div>
-                <label className="text-[#8B949E] text-xs mb-1 block">Display Name (optional)</label>
+                <label className="text-[var(--text-muted)] text-xs mb-1 block">Display Name (optional)</label>
                 <input
                   type="text"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="Your full name or trading name"
-                  className="w-full bg-[#0D1117] border border-[#30363D] text-white placeholder-[#8B949E] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#00D4FF] transition-colors"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[#8B949E] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
                 />
               </div>
 
               <div>
-                <label className="text-[#8B949E] text-xs mb-1 block">Bio (optional)</label>
+                <label className="text-[var(--text-muted)] text-xs mb-1 block">Bio (optional)</label>
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
                   maxLength={140}
                   rows={3}
                   placeholder="Tell other traders about yourself..."
-                  className="w-full bg-[#0D1117] border border-[#30363D] text-white placeholder-[#8B949E] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[#00D4FF] transition-colors"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[#8B949E] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
                 />
-                <p className="text-[#8B949E] text-xs mt-1">{bio.length}/140</p>
+                <p className="text-[var(--text-muted)] text-xs mt-1">{bio.length}/140</p>
               </div>
 
             </div>
@@ -249,7 +256,7 @@ export default function Onboarding() {
           {step > 1 && (
             <button
               onClick={() => setStep(step - 1)}
-              className="flex-1 border border-[#30363D] text-[#8B949E] font-semibold py-3 rounded-full text-sm hover:border-white hover:text-white transition-colors"
+              className="flex-1 border border-[var(--border)] text-[var(--text-muted)] font-semibold py-3 rounded-full text-sm hover:border-[var(--hover-border)] hover:text-[var(--text-primary)] transition-colors"
             >
               Back
             </button>
@@ -262,7 +269,7 @@ export default function Onboarding() {
                 (step === 1 && !traderType) ||
                 (step === 3 && !goal)
               }
-              className="flex-1 bg-[#00D4FF] text-[#0D1117] font-bold py-3 rounded-full text-sm hover:bg-[#00b8d9] transition-colors disabled:opacity-40"
+              className="flex-1 bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold py-3 rounded-full text-sm hover:bg-[var(--accent-blue-hover)] transition-colors disabled:opacity-40"
             >
               {step === 2 && selectedPairs.length === 0 ? "Skip" : "Continue"}
             </button>
@@ -270,7 +277,7 @@ export default function Onboarding() {
             <button
               onClick={handleFinish}
               disabled={loading}
-              className="flex-1 bg-[#00D4FF] text-[#0D1117] font-bold py-3 rounded-full text-sm hover:bg-[#00b8d9] transition-colors disabled:opacity-50"
+              className="flex-1 bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold py-3 rounded-full text-sm hover:bg-[var(--accent-blue-hover)] transition-colors disabled:opacity-50"
             >
               {loading ? "Setting up..." : "Go to Dashboard 🚀"}
             </button>
@@ -281,7 +288,7 @@ export default function Onboarding() {
         {step < 4 && (
           <button
             onClick={handleFinish}
-            className="w-full text-center text-[#8B949E] text-xs mt-4 hover:text-white transition-colors"
+            className="w-full text-center text-[var(--text-muted)] text-xs mt-4 hover:text-[var(--text-primary)] transition-colors"
           >
             Skip setup and go to dashboard
           </button>
@@ -289,5 +296,6 @@ export default function Onboarding() {
 
       </div>
     </main>
+    </>
   );
 }

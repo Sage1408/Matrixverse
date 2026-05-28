@@ -1,1 +1,67 @@
 @import "tailwindcss";
+
+:root {
+  --bg-primary: #0D1117;
+  --bg-secondary: #161B22;
+  --bg-tertiary: #1A2332;
+  --border: #30363D;
+  --text-primary: #ffffff;
+  --text-secondary: #C9D1D9;
+  --text-muted: #8B949E;
+  --hover-bg: #1A2332;
+  --hover-border: #ffffff;
+  --accent-blue: #00D4FF;
+  --accent-blue-hover: #00b8d9;
+  --accent-blue-bg: rgba(0, 212, 255, 0.12);
+  --accent-green: #00FF88;
+  --accent-green-hover: #00cc6a;
+  --accent-green-bg: rgba(0, 255, 136, 0.12);
+  --accent-green-border: rgba(0, 255, 136, 0.25);
+  --accent-red: #FF4757;
+  --accent-red-hover: #e63946;
+  --accent-red-bg: rgba(255, 71, 87, 0.12);
+  --accent-red-border: rgba(255, 71, 87, 0.25);
+  --accent-purple: #7C3AED;
+  --accent-purple-hover: #6d28d9;
+  --accent-purple-bg: rgba(124, 58, 237, 0.12);
+  --accent-gold: #FFD700;
+  --accent-gold-hover: #e6c200;
+  --accent-gold-bg: rgba(255, 215, 0, 0.12);
+  --accent-gold-border: rgba(255, 215, 0, 0.25);
+  --accent-orange: #FF6B35;
+  --accent-orange-hover: #e85d2c;
+  --accent-orange-bg: rgba(255, 107, 53, 0.12);
+}
+
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-tertiary: #f3f4f6;
+  --border: #d0d7de;
+  --text-primary: #1f2328;
+  --text-secondary: #656d76;
+  --text-muted: #656d76;
+  --hover-bg: #f3f4f6;
+  --hover-border: #1f2328;
+  --accent-blue: #00A3C4;
+  --accent-blue-hover: #0089a8;
+  --accent-blue-bg: rgba(0, 163, 196, 0.12);
+  --accent-green: #00B868;
+  --accent-green-hover: #009e58;
+  --accent-green-bg: rgba(0, 184, 104, 0.12);
+  --accent-green-border: rgba(0, 184, 104, 0.25);
+  --accent-red: #E0313F;
+  --accent-red-hover: #c02835;
+  --accent-red-bg: rgba(224, 49, 63, 0.12);
+  --accent-red-border: rgba(224, 49, 63, 0.25);
+  --accent-purple: #7C3AED;
+  --accent-purple-hover: #6d28d9;
+  --accent-purple-bg: rgba(124, 58, 237, 0.12);
+  --accent-gold: #D4A800;
+  --accent-gold-hover: #b89200;
+  --accent-gold-bg: rgba(212, 168, 0, 0.12);
+  --accent-gold-border: rgba(212, 168, 0, 0.25);
+  --accent-orange: #E55A28;
+  --accent-orange-hover: #cc4d20;
+  --accent-orange-bg: rgba(229, 90, 40, 0.12);
+}

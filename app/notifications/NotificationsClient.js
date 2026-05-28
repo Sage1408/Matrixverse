@@ -1,6 +1,8 @@
 "use client";
 
 import MobileNav from "../components/MobileNav";
+import ThemeToggle from "../components/ThemeToggle"
+import { Skeleton, SkeletonCard, SkeletonText } from "../components/Skeleton"
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
@@ -92,19 +94,24 @@ export default function NotificationsClient() {
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   if (!user) return (
-    <main className="bg-[#0D1117] min-h-screen flex items-center justify-center">
-      <p className="text-[#8B949E]">Loading...</p>
+    <main className="bg-[var(--bg-primary)] min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-4xl px-6 space-y-6">
+        <SkeletonText lines={2} />
+        <SkeletonCard />
+        <SkeletonCard />
+      </div>
     </main>
   );
 
   return (
-    <main className="bg-[#0D1117] min-h-screen">
+    <main className="bg-[var(--bg-primary)] min-h-screen">
 
-      <nav className="bg-[#161B22] border-b border-[#30363D] px-6 py-4 flex items-center justify-between">
-        <a href="/dashboard" className="text-[#00D4FF] font-bold text-xl">MatrixVerse</a>
+      <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
+        <a href="/dashboard" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
         <div className="flex items-center gap-4">
-          <a href="/dashboard" className="text-[#8B949E] hover:text-white text-sm">Dashboard</a>
-          <a href="/community" className="text-[#8B949E] hover:text-white text-sm">Community</a>
+          <ThemeToggle />
+          <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
+          <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Community</a>
         </div>
       </nav>
 
@@ -112,15 +119,15 @@ export default function NotificationsClient() {
 
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-white font-bold text-3xl mb-1">Notifications</h1>
-            <p className="text-[#8B949E] text-sm">
+            <h1 className="text-[var(--text-primary)] font-bold text-3xl mb-1">Notifications</h1>
+            <p className="text-[var(--text-muted)] text-sm">
               {unreadCount > 0 ? unreadCount + " unread notification" + (unreadCount > 1 ? "s" : "") : "All caught up!"}
             </p>
           </div>
           {unreadCount > 0 && (
             <button
               onClick={markAllRead}
-              className="border border-[#30363D] text-[#8B949E] text-xs font-semibold px-4 py-2 rounded-full hover:border-[#00D4FF] hover:text-[#00D4FF] transition-colors"
+              className="border border-[var(--border)] text-[var(--text-muted)] text-xs font-semibold px-4 py-2 rounded-full hover:border-[var(--accent-blue)] hover:text-[var(--accent-blue)] transition-colors"
             >
               Mark all read
             </button>
@@ -134,8 +141,8 @@ export default function NotificationsClient() {
               onClick={() => setFilter(f.key)}
               className={"px-4 py-2 rounded-full text-sm font-semibold transition-colors " + (
                 filter === f.key
-                  ? "bg-[#00D4FF] text-[#0D1117]"
-                  : "border border-[#30363D] text-[#8B949E] hover:border-[#00D4FF] hover:text-[#00D4FF]"
+                  ? "bg-[var(--accent-blue)] text-[var(--bg-primary)]"
+                  : "border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-blue)] hover:text-[var(--accent-blue)]"
               )}
             >
               {f.label}
@@ -144,16 +151,16 @@ export default function NotificationsClient() {
         </div>
 
         {filteredNotifs.length === 0 ? (
-          <div className="text-center py-16 bg-[#161B22] border border-[#30363D] rounded-2xl">
+          <div className="text-center py-16 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl">
             <div className="text-4xl mb-3">🔔</div>
-            <p className="text-[#8B949E] text-sm">No notifications here yet</p>
+            <p className="text-[var(--text-muted)] text-sm">No notifications here yet</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
             {filteredNotifs.map((notif) => (
               <div
                 key={notif.id}
-                className={"bg-[#161B22] border rounded-2xl p-4 flex items-start gap-4 " + (!notif.is_read ? "border-[#00D4FF40]" : "border-[#30363D]")}
+                className={"bg-[var(--bg-secondary)] border rounded-2xl p-4 flex items-start gap-4 " + (!notif.is_read ? "border-[#00D4FF40]" : "border-[var(--border)]")}
               >
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0"
@@ -163,10 +170,10 @@ export default function NotificationsClient() {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <p className="text-[#C9D1D9] text-sm leading-relaxed">{notif.message}</p>
-                  <p className="text-[#8B949E] text-xs mt-1">{getTimeAgo(notif.created_at)}</p>
+                  <p className="text-[var(--text-secondary)] text-sm leading-relaxed">{notif.message}</p>
+                  <p className="text-[var(--text-muted)] text-xs mt-1">{getTimeAgo(notif.created_at)}</p>
                   {notif.link && (
-                    <a href={notif.link} className="text-[#00D4FF] text-xs hover:underline mt-1 block">
+                    <a href={notif.link} className="text-[var(--accent-blue)] text-xs hover:underline mt-1 block">
                       View →
                     </a>
                   )}
@@ -176,14 +183,14 @@ export default function NotificationsClient() {
                   {!notif.is_read && (
                     <button
                       onClick={() => markOneRead(notif.id)}
-                      className="text-[#00D4FF] text-xs hover:underline"
+                      className="text-[var(--accent-blue)] text-xs hover:underline"
                     >
                       Read
                     </button>
                   )}
                   <button
                     onClick={() => deleteOne(notif.id)}
-                    className="text-[#8B949E] hover:text-[#FF4757] text-xs transition-colors"
+                    className="text-[var(--text-muted)] hover:text-[var(--accent-red)] text-xs transition-colors"
                   >
                     x
                   </button>

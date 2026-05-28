@@ -13,7 +13,7 @@ export const metadata = {
 
 export default function Home() {
   return (
-    <main className="bg-[#0D1117] min-h-screen">
+    <main className="bg-[var(--bg-primary)] min-h-screen">
       <Navbar />
       <Hero />
       <Features />

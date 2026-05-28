@@ -42,7 +42,7 @@ export default function FAQ() {
   ];
 
   return (
-    <section id="faq" className="bg-[#0D1117] py-24 px-6">
+    <section id="faq" className="bg-[var(--bg-primary)] py-24 px-6">
       <div className="max-w-3xl mx-auto">
 
         <motion.div
@@ -56,7 +56,7 @@ export default function FAQ() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="inline-block bg-[#161B22] border border-[#30363D] text-[#00D4FF] text-xs font-semibold px-4 py-2 rounded-full mb-4"
+            className="inline-block bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--accent-blue)] text-xs font-semibold px-4 py-2 rounded-full mb-4"
           >
             ❓ FAQ
           </motion.div>
@@ -65,7 +65,7 @@ export default function FAQ() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-3xl md:text-5xl font-bold text-white mb-4"
+            className="text-3xl md:text-5xl font-bold text-[var(--text-primary)] mb-4"
           >
             Common Questions
           </motion.h2>
@@ -74,7 +74,7 @@ export default function FAQ() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-[#8B949E] text-lg"
+            className="text-[var(--text-muted)] text-lg"
           >
             Everything you need to know before getting started.
           </motion.p>
@@ -93,17 +93,17 @@ export default function FAQ() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
-              className="bg-[#161B22] border border-[#30363D] rounded-2xl overflow-hidden"
+              className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl overflow-hidden"
             >
               <button
                 className="w-full text-left px-6 py-5 flex items-center justify-between gap-4"
                 onClick={() => setOpenIndex(openIndex === index ? null : index)}
               >
-                <span className="text-white font-semibold text-sm">{faq.question}</span>
+                <span className="text-[var(--text-primary)] font-semibold text-sm">{faq.question}</span>
                 <motion.span
                   animate={{ rotate: openIndex === index ? 180 : 0 }}
                   transition={{ duration: 0.3 }}
-                  className="text-[#00D4FF] text-lg flex-shrink-0 inline-block"
+                  className="text-[var(--accent-blue)] text-lg flex-shrink-0 inline-block"
                 >
                   {openIndex === index ? "−" : "+"}
                 </motion.span>
@@ -118,7 +118,7 @@ export default function FAQ() {
                     className="overflow-hidden"
                   >
                     <div className="px-6 pb-5">
-                      <p className="text-[#8B949E] text-sm leading-relaxed">{faq.answer}</p>
+                      <p className="text-[var(--text-muted)] text-sm leading-relaxed">{faq.answer}</p>
                     </div>
                   </motion.div>
                 )}

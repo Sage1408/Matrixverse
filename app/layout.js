@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import PushProvider from "./components/PushProvider";
+import ThemeProvider from "./components/ThemeProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -71,8 +72,14 @@ export default function RootLayout({ children }) {
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col"><PushProvider>{children}</PushProvider></body>
+      <head>
+        <script dangerouslySetInnerHTML={{
+          __html: `(function(){try{var t=localStorage.getItem("matrixverse-theme");if(!t||(t!=="dark"&&t!=="light"))t="dark";document.documentElement.setAttribute("data-theme",t)}catch(e){}})()`
+        }} />
+      </head>
+      <body className="min-h-full flex flex-col"><ThemeProvider><PushProvider>{children}</PushProvider></ThemeProvider></body>
     </html>
   );
 }

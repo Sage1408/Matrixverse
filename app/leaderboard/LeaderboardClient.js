@@ -1,6 +1,8 @@
 "use client";
 
 import MobileNav from "../components/MobileNav";
+import ThemeToggle from "../components/ThemeToggle"
+import { Skeleton, SkeletonCard, SkeletonText } from "../components/Skeleton"
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
@@ -113,30 +115,35 @@ export default function LeaderboardClient() {
   ];
 
   if (!user) return (
-    <main className="bg-[#0D1117] min-h-screen flex items-center justify-center">
-      <p className="text-[#8B949E]">Loading...</p>
+    <main className="bg-[var(--bg-primary)] min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-4xl px-6 space-y-6">
+        <SkeletonText lines={2} />
+        <SkeletonCard />
+        <SkeletonCard />
+      </div>
     </main>
   );
 
   return (
-    <main className="bg-[#0D1117] min-h-screen">
+    <main className="bg-[var(--bg-primary)] min-h-screen">
 
-      <nav className="bg-[#161B22] border-b border-[#30363D] px-6 py-4 flex items-center justify-between">
-        <a href="/dashboard" className="text-[#00D4FF] font-bold text-xl">MatrixVerse</a>
+      <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
+        <a href="/dashboard" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
         <div className="flex items-center gap-4">
-          <a href="/dashboard" className="text-[#8B949E] hover:text-white text-sm">Dashboard</a>
-          <a href="/journal" className="text-[#8B949E] hover:text-white text-sm">Journal</a>
-          <a href="/community" className="text-[#8B949E] hover:text-white text-sm">Community</a>
+          <ThemeToggle />
+          <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
+          <a href="/journal" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Journal</a>
+          <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Community</a>
         </div>
       </nav>
 
       <div className="max-w-4xl mx-auto px-6 py-10 pb-20">
 
         <div className="text-center mb-10">
-          <h1 className="text-white font-bold text-3xl mb-2">🏆 Leaderboard</h1>
-          <p className="text-[#8B949E] text-sm">Compete with traders worldwide</p>
+          <h1 className="text-[var(--text-primary)] font-bold text-3xl mb-2">🏆 Leaderboard</h1>
+          <p className="text-[var(--text-muted)] text-sm">Compete with traders worldwide</p>
           {myRank > 0 && (
-            <div className="inline-block mt-3 bg-[#161B22] border border-[#00D4FF] text-[#00D4FF] text-sm font-bold px-4 py-2 rounded-full">
+            <div className="inline-block mt-3 bg-[var(--bg-secondary)] border border-[var(--accent-blue)] text-[var(--accent-blue)] text-sm font-bold px-4 py-2 rounded-full">
               Your Rank: #{myRank}
             </div>
           )}
@@ -149,8 +156,8 @@ export default function LeaderboardClient() {
               onClick={() => setActiveCategory(cat.key)}
               className={"px-4 py-2 rounded-full text-sm font-semibold transition-colors " + (
                 activeCategory === cat.key
-                  ? "bg-[#00D4FF] text-[#0D1117]"
-                  : "border border-[#30363D] text-[#8B949E] hover:border-[#00D4FF] hover:text-[#00D4FF]"
+                  ? "bg-[var(--accent-blue)] text-[var(--bg-primary)]"
+                  : "border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-blue)] hover:text-[var(--accent-blue)]"
               )}
             >
               {cat.label}
@@ -167,18 +174,18 @@ export default function LeaderboardClient() {
                 <a
                   href={"/profile/" + trader.username}
                   key={rankIndex}
-                  className={"bg-[#161B22] border rounded-2xl p-5 text-center block hover:border-[#00D4FF] transition-colors " + (
-                    rankIndex === 0 ? "border-[#FFD700] md:-mt-4" : "border-[#30363D]"
+                  className={"bg-[var(--bg-secondary)] border rounded-2xl p-5 text-center block hover:border-[var(--accent-blue)] transition-colors " + (
+                    rankIndex === 0 ? "border-[var(--accent-gold)] md:-mt-4" : "border-[var(--border)]"
                   )}
                 >
                   <div className="text-3xl mb-2">{getMedalEmoji(rankIndex)}</div>
                   <div
-                    className="w-12 h-12 rounded-full mx-auto flex items-center justify-center text-[#0D1117] font-bold text-lg mb-2"
+                    className="w-12 h-12 rounded-full mx-auto flex items-center justify-center text-[var(--bg-primary)] font-bold text-lg mb-2"
                     style={{ backgroundColor: getMedalColor(rankIndex) }}
                   >
                     {trader.username?.charAt(0).toUpperCase()}
                   </div>
-                  <div className="text-white font-bold text-sm mb-1">@{trader.username}</div>
+                  <div className="text-[var(--text-primary)] font-bold text-sm mb-1">@{trader.username}</div>
                   <div className="font-bold" style={{ color: getMedalColor(rankIndex) }}>
                     {getStatValue(trader)}
                   </div>
@@ -188,26 +195,26 @@ export default function LeaderboardClient() {
           </div>
         )}
 
-        <div className="bg-[#161B22] border border-[#30363D] rounded-2xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-[#30363D]">
-            <h2 className="text-white font-bold">Full Rankings</h2>
+        <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl overflow-hidden">
+          <div className="px-6 py-4 border-b border-[var(--border)]">
+            <h2 className="text-[var(--text-primary)] font-bold">Full Rankings</h2>
           </div>
 
           {sortedTraders.length === 0 ? (
             <div className="text-center py-16">
               <div className="text-4xl mb-3">🏆</div>
-              <p className="text-[#8B949E] text-sm">No traders ranked yet.</p>
-              <p className="text-[#8B949E] text-xs mt-1">Log trades to appear on the leaderboard!</p>
-              <a href="/journal" className="inline-block mt-4 bg-[#00D4FF] text-[#0D1117] font-bold px-5 py-2 rounded-full text-xs hover:bg-[#00b8d9] transition-colors">
+              <p className="text-[var(--text-muted)] text-sm">No traders ranked yet.</p>
+              <p className="text-[var(--text-muted)] text-xs mt-1">Log trades to appear on the leaderboard!</p>
+              <a href="/journal" className="inline-block mt-4 bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold px-5 py-2 rounded-full text-xs hover:bg-[var(--accent-blue-hover)] transition-colors">
                 Log Trades
               </a>
             </div>
           ) : (
-            <div className="divide-y divide-[#30363D]">
+            <div className="divide-y divide-[var(--border)]">
               {sortedTraders.map((trader, index) => (
                 <div
                   key={trader.user_id}
-                  className={"flex items-center justify-between px-6 py-4 hover:bg-[#1A2332] transition-colors " + (
+                  className={"flex items-center justify-between px-6 py-4 hover:bg-[var(--bg-tertiary)] transition-colors " + (
                     trader.user_id === user?.id ? "bg-[#00D4FF08]" : ""
                   )}
                 >
@@ -217,7 +224,7 @@ export default function LeaderboardClient() {
                     </div>
                     <a href={"/profile/" + trader.username}>
                       <div
-                        className="w-9 h-9 rounded-full flex items-center justify-center text-[#0D1117] font-bold text-sm hover:opacity-80 cursor-pointer transition-opacity"
+                        className="w-9 h-9 rounded-full flex items-center justify-center text-[var(--bg-primary)] font-bold text-sm hover:opacity-80 cursor-pointer transition-opacity"
                         style={{ backgroundColor: getMedalColor(index) }}
                       >
                         {trader.username?.charAt(0).toUpperCase()}
@@ -225,14 +232,14 @@ export default function LeaderboardClient() {
                     </a>
                     <div>
                       <div className="flex items-center gap-2">
-                        <a href={"/profile/" + trader.username} className="text-white font-semibold text-sm hover:text-[#00D4FF] transition-colors">
+                        <a href={"/profile/" + trader.username} className="text-[var(--text-primary)] font-semibold text-sm hover:text-[var(--accent-blue)] transition-colors">
                           @{trader.username}
                         </a>
                         {trader.user_id === user?.id && (
-                          <span className="text-[#00D4FF] text-xs">(You)</span>
+                          <span className="text-[var(--accent-blue)] text-xs">(You)</span>
                         )}
                       </div>
-                      <div className="text-[#8B949E] text-xs">
+                      <div className="text-[var(--text-muted)] text-xs">
                         {trader.total_trades} trades · {trader.win_rate}% win rate
                       </div>
                     </div>
@@ -240,15 +247,15 @@ export default function LeaderboardClient() {
 
                   <div className="flex items-center gap-6">
                     <div className="text-right hidden md:block">
-                      <div className="text-[#8B949E] text-xs">Avg RR</div>
-                      <div className="text-[#FFD700] font-bold text-sm">{trader.avg_rr}R</div>
+                      <div className="text-[var(--text-muted)] text-xs">Avg RR</div>
+                      <div className="text-[var(--accent-gold)] font-bold text-sm">{trader.avg_rr}R</div>
                     </div>
                     <div className="text-right hidden md:block">
-                      <div className="text-[#8B949E] text-xs">Win Rate</div>
-                      <div className="text-[#00D4FF] font-bold text-sm">{trader.win_rate}%</div>
+                      <div className="text-[var(--text-muted)] text-xs">Win Rate</div>
+                      <div className="text-[var(--accent-blue)] font-bold text-sm">{trader.win_rate}%</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-[#8B949E] text-xs">Net PnL</div>
+                      <div className="text-[var(--text-muted)] text-xs">Net PnL</div>
                       <div className="font-bold text-sm" style={{ color: trader.net_pnl >= 0 ? "#00FF88" : "#FF4757" }}>
                         {trader.net_pnl >= 0 ? "+" : ""}${trader.net_pnl}
                       </div>
@@ -261,8 +268,8 @@ export default function LeaderboardClient() {
         </div>
 
         {myRank > 0 && (
-          <div className="mt-6 bg-[#161B22] border border-[#00D4FF] rounded-2xl p-5">
-            <h2 className="text-white font-bold mb-4">Your Stats</h2>
+          <div className="mt-6 bg-[var(--bg-secondary)] border border-[var(--accent-blue)] rounded-2xl p-5">
+            <h2 className="text-[var(--text-primary)] font-bold mb-4">Your Stats</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {(() => {
                 const me = sortedTraders.find(t => t.user_id === user?.id);
@@ -274,7 +281,7 @@ export default function LeaderboardClient() {
                   { label: "Avg RR", value: me.avg_rr + "R", color: "#7C3AED" },
                 ].map((stat, i) => (
                   <div key={i} className="text-center">
-                    <div className="text-[#8B949E] text-xs mb-1">{stat.label}</div>
+                    <div className="text-[var(--text-muted)] text-xs mb-1">{stat.label}</div>
                     <div className="font-bold text-lg" style={{ color: stat.color }}>{stat.value}</div>
                   </div>
                 ));
