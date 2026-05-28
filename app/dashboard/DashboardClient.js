@@ -7,6 +7,8 @@ import NotificationBell from "../components/NotificationBell";
 import MobileNav from "../components/MobileNav";
 import ThemeToggle from "../components/ThemeToggle"
 import { Skeleton, SkeletonCard, SkeletonText } from "../components/Skeleton"
+import ReportGenerator from "../components/ReportGenerator"
+import OnboardingWizard from "../components/OnboardingWizard"
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer
