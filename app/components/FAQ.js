@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState(null);
+  const { scrollY } = useScroll()
+  const bgY = useTransform(scrollY, [0, 500], [0, 80])
 
   const faqs = [
     {
@@ -42,8 +44,12 @@ export default function FAQ() {
   ];
 
   return (
-    <section id="faq" className="bg-[var(--bg-primary)] py-24 px-6 scroll-mt-24">
-      <div className="max-w-3xl mx-auto">
+    <section id="faq" className="bg-[var(--bg-primary)] py-24 px-6 scroll-mt-24 relative overflow-hidden">
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        style={{ y: bgY }}
+      />
+      <div className="max-w-3xl mx-auto relative z-10">
 
         <motion.div
           initial="hidden"

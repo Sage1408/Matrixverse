@@ -1,19 +1,26 @@
 "use client";
 
 import { FaXTwitter, FaInstagram, FaDiscord, FaYoutube, FaTelegram } from "react-icons/fa6";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { fadeInUp, staggerContainerFast } from "../lib/animations";
 
 export default function Footer() {
+  const { scrollY } = useScroll()
+  const bgY = useTransform(scrollY, [0, 500], [0, 50])
+
   return (
-    <footer className="bg-[var(--bg-primary)] border-t border-[var(--border)] py-16 px-6">
+    <footer className="bg-[var(--bg-primary)] border-t border-[var(--border)] py-16 px-6 relative overflow-hidden">
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        style={{ y: bgY }}
+      />
       <motion.div
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-50px" }}
         variants={staggerContainerFast}
-        className="max-w-6xl mx-auto"
+        className="max-w-6xl mx-auto relative z-10"
       >
         <motion.div variants={fadeInUp} className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
           <div className="col-span-1">

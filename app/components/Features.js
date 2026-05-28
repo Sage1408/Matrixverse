@@ -1,9 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { fadeInUp, staggerContainerFast } from "../lib/animations";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { fadeInUp, staggerContainerFast, scaleIn } from "../lib/animations";
+import TiltCard from "./TiltCard";
 
 export default function Features() {
+  const { scrollY } = useScroll()
+  const bgY = useTransform(scrollY, [0, 500], [0, 100])
+
   const features = [
     {
       icon: "📓",
@@ -44,8 +48,12 @@ export default function Features() {
   ];
 
   return (
-    <section id="features" className="bg-[var(--bg-primary)] py-24 px-6 scroll-mt-24">
-      <div className="max-w-6xl mx-auto">
+    <section id="features" className="bg-[var(--bg-primary)] py-24 px-6 scroll-mt-24 relative overflow-hidden">
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        style={{ y: bgY }}
+      />
+      <div className="max-w-6xl mx-auto relative z-10">
 
         <motion.div
           initial="hidden"
@@ -73,23 +81,24 @@ export default function Features() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              variants={fadeInUp}
-              whileHover={{ scale: 1.03, borderColor: feature.color, boxShadow: `0 0 30px ${feature.color}20` }}
-              className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 transition-colors duration-300"
-            >
-              <div className="text-4xl mb-4">{feature.icon}</div>
-              <h3
-                className="text-lg font-bold mb-2"
-                style={{ color: feature.color }}
+            <TiltCard key={index}>
+              <motion.div
+                variants={scaleIn}
+                whileHover={{ scale: 1.03, borderColor: feature.color, boxShadow: `0 0 30px ${feature.color}20` }}
+                className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 transition-colors duration-300"
               >
-                {feature.title}
-              </h3>
-              <p className="text-[var(--text-muted)] text-sm leading-relaxed">
-                {feature.description}
-              </p>
-            </motion.div>
+                <div className="text-4xl mb-4">{feature.icon}</div>
+                <h3
+                  className="text-lg font-bold mb-2"
+                  style={{ color: feature.color }}
+                >
+                  {feature.title}
+                </h3>
+                <p className="text-[var(--text-muted)] text-sm leading-relaxed">
+                  {feature.description}
+                </p>
+              </motion.div>
+            </TiltCard>
           ))}
         </motion.div>
 

@@ -1,9 +1,13 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { fadeInUp, staggerContainerFast } from "../lib/animations";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { fadeInUp, staggerContainerFast, scaleIn } from "../lib/animations";
+import TiltCard from "./TiltCard";
 
 export default function Testimonials() {
+  const { scrollY } = useScroll()
+  const bgY = useTransform(scrollY, [0, 500], [0, 100])
+
   const testimonials = [
     {
       name: "Emeka Okafor",
@@ -62,8 +66,12 @@ export default function Testimonials() {
   ];
 
   return (
-    <section className="bg-[var(--bg-primary)] py-24 px-6">
-      <div className="max-w-6xl mx-auto">
+    <section className="bg-[var(--bg-primary)] py-24 px-6 relative overflow-hidden">
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        style={{ y: bgY }}
+      />
+      <div className="max-w-6xl mx-auto relative z-10">
 
         <motion.div
           initial="hidden"
@@ -91,36 +99,37 @@ export default function Testimonials() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {testimonials.map((t, index) => (
-            <motion.div
-              key={index}
-              variants={fadeInUp}
-              whileHover={{ scale: 1.02, borderColor: t.color, boxShadow: `0 0 30px ${t.color}15` }}
-              className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 transition-colors duration-300 flex flex-col gap-4"
-            >
-              <p className="text-[var(--text-secondary)] text-sm leading-relaxed flex-1">
-                &ldquo;{t.comment}&rdquo;
-              </p>
-
-              <div
-                className="text-xs font-bold px-3 py-1 rounded-full w-fit"
-                style={{ backgroundColor: t.color + "20", color: t.color, border: `1px solid ${t.color}40` }}
+            <TiltCard key={index}>
+              <motion.div
+                variants={scaleIn}
+                whileHover={{ scale: 1.02, borderColor: t.color, boxShadow: `0 0 30px ${t.color}15` }}
+                className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 transition-colors duration-300 flex flex-col gap-4"
               >
-                📈 {t.profit}
-              </div>
+                <p className="text-[var(--text-secondary)] text-sm leading-relaxed flex-1">
+                  &ldquo;{t.comment}&rdquo;
+                </p>
 
-              <div className="flex items-center gap-3 pt-2 border-t border-[var(--border)]">
                 <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-[var(--bg-primary)]"
-                  style={{ backgroundColor: t.color }}
+                  className="text-xs font-bold px-3 py-1 rounded-full w-fit"
+                  style={{ backgroundColor: t.color + "20", color: t.color, border: `1px solid ${t.color}40` }}
                 >
-                  {t.avatar}
+                  📈 {t.profit}
                 </div>
-                <div>
-                  <div className="text-[var(--text-primary)] text-sm font-semibold">{t.name}</div>
-                  <div className="text-[var(--text-muted)] text-xs">{t.username} · {t.role}</div>
+
+                <div className="flex items-center gap-3 pt-2 border-t border-[var(--border)]">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-[var(--bg-primary)]"
+                    style={{ backgroundColor: t.color }}
+                  >
+                    {t.avatar}
+                  </div>
+                  <div>
+                    <div className="text-[var(--text-primary)] text-sm font-semibold">{t.name}</div>
+                    <div className="text-[var(--text-muted)] text-xs">{t.username} · {t.role}</div>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </TiltCard>
           ))}
         </motion.div>
 
