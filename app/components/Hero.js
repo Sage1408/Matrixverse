@@ -1,43 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { fadeInUp, staggerContainer, float, floatSlow, floatReverse } from "../lib/animations";
-
-const shapes = [
-  { Icon: "\u25C6", size: "text-6xl", pos: "top-20 left-[10%]", color: "text-[var(--accent-blue)]/10", anim: float },
-  { Icon: "\u2B21", size: "text-5xl", pos: "top-40 right-[15%]", color: "text-[var(--accent-purple)]/10", anim: floatSlow },
-  { Icon: "\u25CF", size: "text-4xl", pos: "bottom-40 left-[20%]", color: "text-[var(--accent-green)]/10", anim: floatReverse },
-  { Icon: "\u25C8", size: "text-7xl", pos: "bottom-60 right-[10%]", color: "text-[var(--accent-gold)]/10", anim: float },
-  { Icon: "\u25B5", size: "text-5xl", pos: "top-60 left-[60%]", color: "text-[var(--accent-orange)]/10", anim: floatSlow },
-  { Icon: "\u25C7", size: "text-4xl", pos: "top-80 right-[30%]", color: "text-[var(--accent-blue)]/10", anim: floatReverse },
-];
+import { motion } from "framer-motion";
+import { fadeInUp, staggerContainer } from "../lib/animations";
+import MarketBackground from "./MarketBackground";
 
 export default function Hero() {
-  const { scrollY } = useScroll()
-  const bgY = useTransform(scrollY, [0, 500], [0, 150])
-  const contentY = useTransform(scrollY, [0, 500], [0, -50])
-
   return (
     <section className="bg-[var(--bg-primary)] min-h-screen flex items-center justify-center px-6 pt-24 relative overflow-hidden">
-      {/* Floating background shapes */}
-      {shapes.map((s, i) => (
-        <motion.div
-          key={i}
-          className={`absolute ${s.pos} ${s.size} ${s.color} select-none pointer-events-none`}
-          variants={s.anim}
-          initial="initial"
-          animate="animate"
-          style={{ y: bgY }}
-        >
-          {s.Icon}
-        </motion.div>
-      ))}
+      <MarketBackground />
 
-      <motion.div
-        className="max-w-4xl mx-auto text-center relative z-10"
-        style={{ y: contentY }}
-      >
+      <div className="max-w-4xl mx-auto text-center relative z-10">
         <motion.div
           variants={staggerContainer}
           initial="hidden"
@@ -82,7 +55,7 @@ export default function Hero() {
             </div>
           </motion.div>
         </motion.div>
-      </motion.div>
+      </div>
     </section>
   );
 }
