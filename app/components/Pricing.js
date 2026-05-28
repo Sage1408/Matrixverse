@@ -26,7 +26,7 @@ export default function Pricing() {
   ];
 
   return (
-    <section id="pricing" className="bg-[var(--bg-primary)] py-24 px-6">
+    <section id="pricing" className="bg-[var(--bg-primary)] py-24 px-6 scroll-mt-24">
       <div className="max-w-5xl mx-auto">
 
         <motion.div

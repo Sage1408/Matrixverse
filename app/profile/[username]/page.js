@@ -227,6 +227,7 @@ export default function Profile({ params }) {
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
+          <a href="/analytics" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Analytics</a>
           <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Community</a>
           <a href="/leaderboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Leaderboard</a>
           {isOwnProfile && (
@@ -235,7 +236,7 @@ export default function Profile({ params }) {
         </div>
       </nav>
 
-      <div className="max-w-3xl mx-auto px-6 py-10 pb-20">
+      <div className="max-w-3xl mx-auto px-6 py-10 pb-24">
 
         <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 mb-6">
           <div className="flex items-start justify-between mb-4">
@@ -437,7 +438,7 @@ export default function Profile({ params }) {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-[var(--border)]">
-                      {["Pair","Dir","PnL","RR","Strategy","Date"].map(h => (
+                      {["Pair","Dir","PnL","RR","Tags","Strategy","Date"].map(h => (
                         <th key={h} className="text-[var(--text-muted)] text-xs px-4 py-3 text-left">{h}</th>
                       ))}
                     </tr>
@@ -455,6 +456,17 @@ export default function Profile({ params }) {
                           {trade.pnl >= 0 ? "+" : ""}${trade.pnl}
                         </td>
                         <td className="px-4 py-3 text-[var(--accent-gold)] text-sm">{trade.rr_ratio ? trade.rr_ratio + "R" : "-"}</td>
+                        <td className="px-4 py-3">
+                          {trade.tags && trade.tags.length > 0 ? (
+                            <div className="flex flex-wrap gap-1">
+                              {trade.tags.map((tag, i) => (
+                                <span key={i} className="bg-[var(--accent-blue-bg)] text-[var(--accent-blue)] text-[10px] font-bold px-1.5 py-0.5 rounded-full">{tag}</span>
+                              ))}
+                            </div>
+                          ) : (
+                            <span className="text-[var(--text-muted)] text-xs">-</span>
+                          )}
+                        </td>
                         <td className="px-4 py-3 text-[var(--text-muted)] text-sm">{trade.strategy || "-"}</td>
                         <td className="px-4 py-3 text-[var(--text-muted)] text-xs">{new Date(trade.traded_at).toLocaleDateString()}</td>
                       </tr>

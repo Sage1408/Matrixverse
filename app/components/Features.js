@@ -44,7 +44,7 @@ export default function Features() {
   ];
 
   return (
-    <section id="features" className="bg-[var(--bg-primary)] py-24 px-6">
+    <section id="features" className="bg-[var(--bg-primary)] py-24 px-6 scroll-mt-24">
       <div className="max-w-6xl mx-auto">
 
         <motion.div

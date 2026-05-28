@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import PushProvider from "./components/PushProvider";
 import ThemeProvider from "./components/ThemeProvider";
+import ToastProvider from "./components/ToastProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -79,7 +80,7 @@ export default function RootLayout({ children }) {
           __html: `(function(){try{var t=localStorage.getItem("matrixverse-theme");if(!t||(t!=="dark"&&t!=="light"))t="dark";document.documentElement.setAttribute("data-theme",t)}catch(e){}})()`
         }} />
       </head>
-      <body className="min-h-full flex flex-col"><ThemeProvider><PushProvider>{children}</PushProvider></ThemeProvider></body>
+      <body className="min-h-full flex flex-col"><ThemeProvider><ToastProvider><PushProvider>{children}</PushProvider></ToastProvider></ThemeProvider></body>
     </html>
   );
 }

@@ -172,6 +172,7 @@ export default function DashboardClient() {
         <div className="hidden md:flex items-center gap-6">
           <ThemeToggle />
           <a href="/journal" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Journal</a>
+          <a href="/analytics" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Analytics</a>
           <a href="/psychology" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Psychology</a>
           <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Community</a>
           <a href="/leaderboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Leaderboard</a>
@@ -494,6 +495,7 @@ export default function DashboardClient() {
             <h2 className="text-[var(--text-primary)] font-bold text-lg mb-4">Quick Links</h2>
             <div className="flex flex-col gap-3">
               <a href="/journal" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">📓 Trading Journal</a>
+              <a href="/analytics" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">📊 Analytics</a>
               <a href="/ai-analyzer" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🤖 AI Analyzer</a>
               <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">👥 Community</a>
               <a href="/leaderboard" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🏆 Leaderboard</a>

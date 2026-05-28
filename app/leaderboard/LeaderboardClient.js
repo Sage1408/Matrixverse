@@ -137,7 +137,7 @@ export default function LeaderboardClient() {
         </div>
       </nav>
 
-      <div className="max-w-4xl mx-auto px-6 py-10 pb-20">
+      <div className="max-w-4xl mx-auto px-6 py-10 pb-24">
 
         <div className="text-center mb-10">
           <h1 className="text-[var(--text-primary)] font-bold text-3xl mb-2">🏆 Leaderboard</h1>

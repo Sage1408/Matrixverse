@@ -33,6 +33,11 @@
   --accent-orange-bg: rgba(255, 107, 53, 0.12);
 }
 
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 [data-theme="light"] {
   --bg-primary: #ffffff;
   --bg-secondary: #f6f8fa;

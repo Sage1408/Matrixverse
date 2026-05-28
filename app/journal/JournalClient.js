@@ -18,6 +18,9 @@ export default function JournalClient() {
   const [screenshot, setScreenshot] = useState(null);
   const [exportFrom, setExportFrom] = useState("");
   const [exportTo, setExportTo] = useState("");
+  const [tags, setTags] = useState([])
+  const [tagInput, setTagInput] = useState("")
+  const [tagFilter, setTagFilter] = useState("")
   const [form, setForm] = useState({
     pair: "",
     direction: "buy",
@@ -107,6 +110,7 @@ export default function JournalClient() {
       pnl: parseFloat(form.pnl),
       rr_ratio: rr ? parseFloat(rr) : null,
       strategy: form.strategy,
+      tags: tags.length > 0 ? tags : null,
       emotion_before: form.emotion_before,
       emotion_after: form.emotion_after,
       notes: form.notes,
@@ -118,6 +122,7 @@ export default function JournalClient() {
       setShowModal(false);
       fetchTrades(user.id);
       setScreenshot(null);
+      setTags([]);
       setForm({
         pair: "",
         direction: "buy",
@@ -242,7 +247,7 @@ export default function JournalClient() {
         </div>
       </nav>
 
-      <div className="max-w-6xl mx-auto px-6 py-10 pb-20">
+      <div className="max-w-6xl mx-auto px-6 py-10 pb-24">
 
         {/* HEADER */}
         <div className="flex items-center justify-between mb-8">
@@ -313,6 +318,17 @@ export default function JournalClient() {
           </div>
         </div>
 
+        {/* TAG FILTER */}
+        <div className="flex gap-2 mb-4 flex-wrap">
+          <input
+            type="text"
+            placeholder="Filter by tag..."
+            value={tagFilter}
+            onChange={(e) => setTagFilter(e.target.value)}
+            className="bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[var(--text-muted)] rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-[var(--accent-blue)] flex-1 max-w-xs"
+          />
+        </div>
+
         {/* TRADES LIST */}
         <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl overflow-hidden">
           <div className="px-6 py-4 border-b border-[var(--border)]">
@@ -334,13 +350,16 @@ export default function JournalClient() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-[var(--border)]">
-                    {["Pair","Direction","Lot","Entry","SL","TP","RR","PnL","Strategy","Screenshot","Date"].map((h) => (
+                    {["Pair","Direction","Lot","Entry","SL","TP","RR","PnL","Tags","Strategy","Screenshot","Date"].map((h) => (
                       <th key={h} className="text-[var(--text-muted)] text-xs font-semibold px-4 py-3 text-left">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {trades.map((trade, index) => (
+                  {(tagFilter
+                    ? trades.filter(t => t.tags && t.tags.some(tag => tag.toLowerCase().includes(tagFilter.toLowerCase())))
+                    : trades
+                  ).map((trade, index) => (
                     <tr key={index} className="border-b border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors">
                       <td className="px-4 py-3 text-[var(--accent-blue)] font-bold text-sm">{trade.pair}</td>
                       <td className="px-4 py-3">
@@ -355,6 +374,17 @@ export default function JournalClient() {
                       <td className="px-4 py-3 text-[var(--accent-gold)] text-sm">{trade.rr_ratio ? `${trade.rr_ratio}R` : "-"}</td>
                       <td className="px-4 py-3 font-bold text-sm" style={{ color: trade.pnl >= 0 ? "#00FF88" : "#FF4757" }}>
                         {trade.pnl >= 0 ? "+" : ""}${trade.pnl}
+                      </td>
+                      <td className="px-4 py-3">
+                        {trade.tags && trade.tags.length > 0 ? (
+                          <div className="flex flex-wrap gap-1">
+                            {trade.tags.map((tag, i) => (
+                              <span key={i} className="bg-[var(--accent-blue-bg)] text-[var(--accent-blue)] text-[10px] font-bold px-1.5 py-0.5 rounded-full">{tag}</span>
+                            ))}
+                          </div>
+                        ) : (
+                          <span className="text-[var(--text-muted)] text-xs">-</span>
+                        )}
                       </td>
                       <td className="px-4 py-3 text-[var(--text-muted)] text-sm">{trade.strategy || "-"}</td>
                       <td className="px-4 py-3">
@@ -448,6 +478,37 @@ export default function JournalClient() {
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
+              </div>
+
+              <div>
+                <label className={labelClass}>Tags (press Enter or comma to add)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. scalp, swing, news"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === ",") {
+                      e.preventDefault()
+                      const val = tagInput.trim().replace(/,/g, "")
+                      if (val && !tags.includes(val)) {
+                        setTags(prev => [...prev, val])
+                      }
+                      setTagInput("")
+                    }
+                  }}
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent-blue)]"
+                />
+                {tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {tags.map((tag, i) => (
+                      <span key={i} className="bg-[var(--accent-blue-bg)] text-[var(--accent-blue)] text-xs font-bold px-2 py-1 rounded-full flex items-center gap-1">
+                        {tag}
+                        <button type="button" onClick={() => setTags(prev => prev.filter((_, j) => j !== i))} className="hover:text-[var(--text-primary)]">&times;</button>
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">

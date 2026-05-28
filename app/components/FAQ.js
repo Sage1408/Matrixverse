@@ -42,7 +42,7 @@ export default function FAQ() {
   ];
 
   return (
-    <section id="faq" className="bg-[var(--bg-primary)] py-24 px-6">
+    <section id="faq" className="bg-[var(--bg-primary)] py-24 px-6 scroll-mt-24">
       <div className="max-w-3xl mx-auto">
 
         <motion.div
