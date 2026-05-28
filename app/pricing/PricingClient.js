@@ -68,7 +68,7 @@ export default function PricingClient() {
 
       <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
         <a href="/" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
-        <div className="flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-4">
           <ThemeToggle />
           {user ? (
             <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
@@ -80,6 +80,9 @@ export default function PricingClient() {
               </a>
             </>
           )}
+        </div>
+        <div className="md:hidden">
+          <ThemeToggle />
         </div>
       </nav>
 

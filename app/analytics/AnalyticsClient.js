@@ -210,13 +210,16 @@ export default function AnalyticsClient() {
           <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Community</a>
           <a href={"/profile/" + username} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Profile</a>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="hidden md:flex items-center gap-4">
           <a href={"/profile/" + username} className="text-[var(--accent-blue)] text-sm font-semibold hover:underline hidden md:block">
             @{username}
           </a>
           <button onClick={handleLogout} className="text-[var(--accent-red)] text-sm hover:underline hidden md:block">
             Logout
           </button>
+        </div>
+        <div className="md:hidden">
+          <ThemeToggle />
         </div>
       </nav>
 
