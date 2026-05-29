@@ -78,6 +78,9 @@ export default function Navbar() {
           <Link href="#faq" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm" onClick={() => setMenuOpen(false)}>
             FAQ
           </Link>
+          <Link href="/education" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm" onClick={() => setMenuOpen(false)}>
+            Learn
+          </Link>
           <hr className="border-[var(--border)]" />
           <Link href="/login" className="text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-sm">
             Login

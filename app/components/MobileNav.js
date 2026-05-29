@@ -7,6 +7,7 @@ export default function MobileNav({ username }) {
 
   const navItems = [
     { href: "/dashboard", icon: "📊", label: "Home" },
+    { href: "/education", icon: "📚", label: "Learn" },
     { href: "/journal", icon: "📓", label: "Journal" },
     { href: "/analytics", icon: "📊", label: "Analytics" },
     { href: "/community", icon: "👥", label: "Community" },
