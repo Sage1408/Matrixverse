@@ -8,7 +8,7 @@ export default function AuthCallback() {
   const router = useRouter();
 
   useEffect(() => {
-    const handleAuth = async () => {
+    const handleCallback = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
       if (error || !session) {
         router.push("/login");
@@ -16,9 +16,9 @@ export default function AuthCallback() {
       }
 
       const user = session.user;
-      const username = user.user_metadata?.full_name?.replace(/\s+/g, "_").toLowerCase()
-        || user.email?.split("@")[0]
-        || "user_" + user.id.slice(0, 8);
+      const username = user.user_metadata?.preferred_username ||
+        user.user_metadata?.name?.replace(/\s+/g, "_").toLowerCase() ||
+        user.email?.split("@")[0];
 
       const { data: existing } = await supabase
         .from("profiles")
@@ -27,32 +27,49 @@ export default function AuthCallback() {
         .single();
 
       if (!existing) {
+        let finalUsername = username;
+        let attempts = 0;
+        while (attempts < 10) {
+          const { data: clash } = await supabase
+            .from("profiles")
+            .select("id")
+            .eq("username", finalUsername)
+            .single();
+          if (!clash) break;
+          finalUsername = username + (attempts + 1);
+          attempts++;
+        }
+
         await supabase.from("profiles").insert([{
           user_id: user.id,
-          username,
+          username: finalUsername,
           email: user.email,
+          display_name: user.user_metadata?.full_name || user.user_metadata?.name || "",
+          avatar_url: user.user_metadata?.avatar_url || user.user_metadata?.picture || "",
         }]);
-        await supabase.auth.updateUser({
-          data: { username },
-        });
-      }
 
-      const { data: { user: updated } } = await supabase.auth.getUser();
-      if (updated?.user_metadata?.onboarded) {
-        router.push("/dashboard");
-      } else {
+        await supabase.auth.updateUser({
+          data: { username: finalUsername },
+        });
+
         router.push("/onboarding");
+      } else {
+        const uname = existing.username || username;
+        await supabase.auth.updateUser({
+          data: { username: uname },
+        });
+        router.push("/dashboard");
       }
     };
 
-    handleAuth();
+    handleCallback();
   }, []);
 
   return (
     <main className="bg-[var(--bg-primary)] min-h-screen flex items-center justify-center">
-      <div className="text-center">
-        <div className="w-8 h-8 border-2 border-[var(--accent-blue)] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-        <p className="text-[var(--text-muted)] text-sm">Signing you in...</p>
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-10 h-10 border-2 border-[var(--accent-blue)] border-t-transparent rounded-full animate-spin" />
+        <p className="text-[var(--text-muted)] text-sm">Completing sign in...</p>
       </div>
     </main>
   );
