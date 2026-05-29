@@ -569,7 +569,46 @@ export default function JournalClient() {
               <button onClick={() => { setImportModal(false); setImportData([]) }} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-xl">✕</button>
             </div>
             <div className="px-6 py-6 flex flex-col gap-4">
-              <p className="text-[var(--text-muted)] text-xs">Upload a CSV file from MatrixVerse export or MT4 trade history.</p>
+              <div className="bg-[var(--bg-tertiary)] rounded-xl p-4 flex flex-col gap-3">
+                <p className="text-[var(--text-primary)] text-xs font-bold">📋 How to export from MT4 / MT5</p>
+                <div className="flex flex-col gap-2">
+                  <details className="group">
+                    <summary className="text-[var(--accent-blue)] text-xs font-semibold cursor-pointer hover:underline list-none flex items-center gap-1">
+                      <span className="group-open:rotate-90 transition-transform">▶</span> MT4 Steps
+                    </summary>
+                    <ol className="text-[var(--text-muted)] text-[11px] leading-relaxed pl-4 pt-2 flex flex-col gap-1 list-decimal">
+                      <li>Open MT4 → go to <strong>Account History</strong> tab (bottom)</li>
+                      <li>Right-click anywhere in the history area → select <strong>Save as Detailed Report</strong></li>
+                      <li>Save the <code>.html</code> file to your computer</li>
+                      <li>Open the file in a browser, copy the table, paste into a new CSV file</li>
+                      <li><strong>OR</strong> use a free online converter (HTML to CSV)</li>
+                    </ol>
+                  </details>
+                  <details className="group">
+                    <summary className="text-[var(--accent-blue)] text-xs font-semibold cursor-pointer hover:underline list-none flex items-center gap-1">
+                      <span className="group-open:rotate-90 transition-transform">▶</span> MT5 Steps
+                    </summary>
+                    <ol className="text-[var(--text-muted)] text-[11px] leading-relaxed pl-4 pt-2 flex flex-col gap-1 list-decimal">
+                      <li>Open MT5 → go to <strong>Tools</strong> → <strong>History Center</strong></li>
+                      <li>Select the account and time period</li>
+                      <li>Click <strong>Export</strong> → choose CSV format</li>
+                      <li>Save the CSV file</li>
+                      <li>Upload it below</li>
+                    </ol>
+                  </details>
+                  <details className="group">
+                    <summary className="text-[var(--accent-blue)] text-xs font-semibold cursor-pointer hover:underline list-none flex items-center gap-1">
+                      <span className="group-open:rotate-90 transition-transform">▶</span> MatrixVerse CSV Format
+                    </summary>
+                    <div className="text-[var(--text-muted)] text-[11px] leading-relaxed pl-4 pt-2">
+                      <p className="mb-1">You can also upload a CSV with these columns:</p>
+                      <code className="block bg-[var(--bg-primary)] p-2 rounded-lg text-[10px]">
+                        Pair,Direction,Lot Size,Entry,SL,TP,PnL,Strategy,Date
+                      </code>
+                    </div>
+                  </details>
+                </div>
+              </div>
               <input
                 type="file"
                 accept=".csv"
