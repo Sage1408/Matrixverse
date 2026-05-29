@@ -3,6 +3,7 @@ import "./globals.css";
 import PushProvider from "./components/PushProvider";
 import ThemeProvider from "./components/ThemeProvider";
 import ToastProvider from "./components/ToastProvider";
+import InstallPrompt from "./components/InstallPrompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -66,6 +67,13 @@ export const metadata = {
     index: true,
     follow: true,
   },
+  manifest: "/manifest.json",
+  themeColor: "#0D1117",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "MatrixVerse",
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -80,7 +88,7 @@ export default function RootLayout({ children }) {
           __html: `(function(){try{var t=localStorage.getItem("matrixverse-theme");if(!t||(t!=="dark"&&t!=="light"))t="dark";document.documentElement.setAttribute("data-theme",t)}catch(e){}})()`
         }} />
       </head>
-      <body className="min-h-full flex flex-col"><ThemeProvider><ToastProvider><PushProvider>{children}</PushProvider></ToastProvider></ThemeProvider></body>
+      <body className="min-h-full flex flex-col"><ThemeProvider><ToastProvider><PushProvider>{children}<InstallPrompt /></PushProvider></ToastProvider></ThemeProvider></body>
     </html>
   );
 }
