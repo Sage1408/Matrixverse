@@ -1,4 +1,4 @@
-const CACHE = "matrixverse-v1"
+const CACHE = "matrixverse-v2"
 const PRECACHE_URLS = ["/", "/dashboard", "/journal", "/education", "/glossary"]
 
 self.addEventListener("install", (event) => {
@@ -10,7 +10,16 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+    caches.keys().then((keys) => {
+      return Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
+    }).then(() => {
+      // Notify all clients that a new version is ready
+      self.clients.matchAll().then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({ type: "NEW_VERSION" })
+        })
+      })
+    })
   )
   event.waitUntil(clients.claim())
 })
