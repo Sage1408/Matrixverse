@@ -77,6 +77,16 @@ export default function PostDetail({ params }) {
     await fetchLikes(user.id);
   };
 
+  const checkPref = async (userId, type) => {
+    const prefKey = type === "like" || type === "comment" || type === "follow" ? "community_replies" : type;
+    const { data: recipient } = await supabase
+      .from("profiles")
+      .select("notification_prefs")
+      .eq("user_id", String(userId))
+      .single();
+    return recipient?.notification_prefs?.[prefKey] !== false;
+  };
+
   const handleComment = async () => {
     if (!commentText.trim()) return;
     const currentUsername = user.user_metadata?.username || user.email;
@@ -86,7 +96,7 @@ export default function PostDetail({ params }) {
       username: currentUsername,
       content: commentText,
     }]);
-    if (post && String(post.user_id) !== String(user.id)) {
+    if (post && String(post.user_id) !== String(user.id) && await checkPref(post.user_id, "comment")) {
       await supabase.from("notifications").insert([{
         user_id: String(post.user_id),
         type: "comment",
@@ -120,7 +130,7 @@ export default function PostDetail({ params }) {
       parent_id: parentId,
     }]);
     const parent = comments.find(c => c.id === parentId);
-    if (parent && String(parent.user_id) !== String(user.id)) {
+    if (parent && String(parent.user_id) !== String(user.id) && await checkPref(parent.user_id, "comment")) {
       await supabase.from("notifications").insert([{
         user_id: String(parent.user_id),
         type: "comment",

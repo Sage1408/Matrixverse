@@ -71,6 +71,15 @@ export default function CommunityClient() {
 
   const sendNotification = async (toUserId, type, message, link) => {
     if (!toUserId || toUserId === String(user.id)) return;
+
+    const prefKey = type === "like" || type === "comment" || type === "follow" ? "community_replies" : type;
+    const { data: recipient } = await supabase
+      .from("profiles")
+      .select("notification_prefs")
+      .eq("user_id", String(toUserId))
+      .single();
+    if (recipient?.notification_prefs?.[prefKey] === false) return;
+
     await supabase.from("notifications").insert([{
       user_id: String(toUserId),
       type,

@@ -17,6 +17,9 @@ export default function SettingsClient() {
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
   const fileInputRef = useRef(null);
   const router = useRouter();
 
@@ -69,6 +72,9 @@ export default function SettingsClient() {
         trading_style: profileRow?.trading_style || user.user_metadata?.trading_style || "",
         timezone: profileRow?.timezone || user.user_metadata?.timezone || "UTC",
       });
+      if (profileRow?.notification_prefs) {
+        setNotifications(profileRow.notification_prefs);
+      }
     };
     init();
   }, []);
@@ -381,13 +387,64 @@ export default function SettingsClient() {
 
                 <div className="border-t border-[var(--border)] pt-5">
                   <h3 className="text-[var(--accent-red)] font-semibold mb-2">Danger Zone</h3>
+                  <p className="text-[var(--text-muted)] text-xs mb-3">Permanently delete your account and all data. This cannot be undone.</p>
                   <button
-                    onClick={() => showMsg("Please contact support to delete your account.", true)}
+                    onClick={() => setShowDeleteModal(true)}
                     className="border border-[var(--accent-red)] text-[var(--accent-red)] font-semibold py-2 px-5 rounded-full text-sm hover:bg-[var(--accent-red)] hover:text-[var(--text-primary)] transition-colors"
                   >
                     Delete Account
                   </button>
                 </div>
+
+                {showDeleteModal && (
+                  <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 px-4">
+                    <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl w-full max-w-md p-6">
+                      <h3 className="text-[var(--accent-red)] font-bold text-lg mb-2">Delete Account</h3>
+                      <p className="text-[var(--text-muted)] text-sm mb-4">
+                        This will permanently delete your profile, trades, posts, comments, and all associated data.
+                        Type <strong className="text-[var(--accent-red)]">DELETE</strong> to confirm.
+                      </p>
+                      <input
+                        type="text"
+                        value={deleteConfirmText}
+                        onChange={(e) => setDeleteConfirmText(e.target.value)}
+                        placeholder='Type DELETE to confirm'
+                        className="w-full bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[#8B949E] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent-red)] mb-4"
+                      />
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => { setShowDeleteModal(false); setDeleteConfirmText(""); }}
+                          className="flex-1 border border-[var(--border)] text-[var(--text-muted)] font-semibold py-3 rounded-full text-sm hover:border-[var(--hover-border)] hover:text-[var(--text-primary)] transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (deleteConfirmText !== "DELETE") return;
+                            setDeleting(true);
+                            const res = await fetch("/api/delete-account", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ user_id: user.id }),
+                            });
+                            const data = await res.json();
+                            if (data.error) {
+                              showMsg(data.error, true);
+                              setDeleting(false);
+                            } else {
+                              await supabase.auth.signOut();
+                              router.push("/");
+                            }
+                          }}
+                          disabled={deleteConfirmText !== "DELETE" || deleting}
+                          className="flex-1 bg-[var(--accent-red)] text-[var(--text-primary)] font-bold py-3 rounded-full text-sm hover:bg-[var(--accent-red-hover)] transition-colors disabled:opacity-50"
+                        >
+                          {deleting ? "Deleting..." : "Delete Forever"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -417,7 +474,13 @@ export default function SettingsClient() {
                   </div>
                 ))}
 
-                <button onClick={() => showMsg("Notification preferences saved!")} className="bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold py-3 rounded-full text-sm hover:bg-[var(--accent-blue-hover)] transition-colors">
+                <button onClick={async () => {
+                  await supabase.from("profiles").upsert({
+                    user_id: user.id,
+                    notification_prefs: notifications,
+                  }, { onConflict: "user_id" });
+                  showMsg("Notification preferences saved!");
+                }} className="bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold py-3 rounded-full text-sm hover:bg-[var(--accent-blue-hover)] transition-colors">
                   Save Preferences
                 </button>
               </div>

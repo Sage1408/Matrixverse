@@ -154,23 +154,30 @@ export default function Profile({ params }) {
       if (profileRow) {
         const notifUserId = profileRow.user_id;
         if (notifUserId && String(notifUserId) !== String(currentUser.id)) {
-          await supabase.from("notifications").insert([{
-            user_id: String(notifUserId),
-            type: "follow",
-            message: currentUsername + " started following you",
-            is_read: false,
-            link: "/profile/" + currentUsername,
-          }]);
-          fetch("/api/send-push", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              user_id: notifUserId,
-              title: "MatrixVerse",
-              body: currentUsername + " started following you",
-              url: "/profile/" + currentUsername,
-            }),
-          }).catch(() => {});
+          const { data: recipient } = await supabase
+            .from("profiles")
+            .select("notification_prefs")
+            .eq("user_id", String(notifUserId))
+            .single();
+          if (recipient?.notification_prefs?.community_replies !== false) {
+            await supabase.from("notifications").insert([{
+              user_id: String(notifUserId),
+              type: "follow",
+              message: currentUsername + " started following you",
+              is_read: false,
+              link: "/profile/" + currentUsername,
+            }]);
+            fetch("/api/send-push", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                user_id: notifUserId,
+                title: "MatrixVerse",
+                body: currentUsername + " started following you",
+                url: "/profile/" + currentUsername,
+              }),
+            }).catch(() => {});
+          }
         }
       }
     }
