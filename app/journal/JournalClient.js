@@ -28,6 +28,13 @@ export default function JournalClient() {
   const [rcPipValue, setRcPipValue] = useState("10")
   const [rcLotSize, setRcLotSize] = useState(null)
   const [showRc, setShowRc] = useState(false)
+  const [showChecklist, setShowChecklist] = useState(false)
+  const [checklist, setChecklist] = useState({
+    hasSL: false, hasTP: false, riskOk: false, notRevenge: false, planWritten: false,
+  })
+  const [importModal, setImportModal] = useState(false)
+  const [importData, setImportData] = useState([])
+  const [importLoading, setImportLoading] = useState(false)
   const [form, setForm] = useState({
     pair: "",
     direction: "buy",
@@ -134,6 +141,7 @@ export default function JournalClient() {
       setIsDemo(false);
       setShowRc(false);
       setRcLotSize(null);
+      setChecklist({ hasSL: false, hasTP: false, riskOk: false, notRevenge: false, planWritten: false });
       setForm({
         pair: "",
         direction: "buy",
@@ -232,6 +240,79 @@ export default function JournalClient() {
     doc.save("matrixverse_trades.pdf");
   };
 
+  // CSV Import
+  const parseCSV = (text) => {
+    const lines = text.split("\n").map(l => l.trim()).filter(Boolean)
+    if (lines.length < 2) return []
+    const headers = lines[0].toLowerCase().split(",").map(h => h.trim())
+
+    // Detect format
+    const isMT4 = headers.some(h => h.includes("ticket") || h.includes("open price"))
+    const rows = []
+
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(",").map(c => c.trim().replace(/"/g, ""))
+      if (cols.length < 2) continue
+
+      if (isMT4) {
+        // MT4: Ticket,Time,Type,Size,Symbol,Open Price,S/L,T/P,Close Time,Close Price,Commission,Taxes,Swap,Profit
+        const type = cols[2]?.toLowerCase() || ""
+        if (type.includes("balance") || type.includes("deposit")) continue
+        rows.push({
+          pair: cols[4] || "",
+          direction: type.includes("buy") ? "buy" : type.includes("sell") ? "sell" : "buy",
+          lot_size: parseFloat(cols[3]) || 0,
+          entry_price: parseFloat(cols[5]) || 0,
+          stop_loss: parseFloat(cols[6]) || 0,
+          take_profit: parseFloat(cols[7]) || 0,
+          pnl: parseFloat(cols[13]) || 0,
+          strategy: "Imported",
+          traded_at: cols[1] ? new Date(cols[1]).toISOString() : new Date().toISOString(),
+          notes: `Imported from MT4 (Ticket: ${cols[0]})`,
+        })
+      } else {
+        // MatrixVerse format
+        const get = (key) => {
+          const idx = headers.findIndex(h => h.includes(key))
+          return idx >= 0 ? cols[idx] : ""
+        }
+        const pair = get("pair") || get("symbol")
+        const dirRaw = (get("direction") || get("type") || "buy").toLowerCase()
+        const pnl = parseFloat(get("pnl") || get("profit")) || 0
+        rows.push({
+          pair,
+          direction: dirRaw.includes("sell") ? "sell" : "buy",
+          lot_size: parseFloat(get("lot")) || 0,
+          entry_price: parseFloat(get("entry")) || 0,
+          stop_loss: parseFloat(get("sl")) || 0,
+          take_profit: parseFloat(get("tp")) || 0,
+          pnl,
+          strategy: get("strategy") || "Imported",
+          traded_at: get("date") ? new Date(get("date")).toISOString() : new Date().toISOString(),
+          notes: get("notes") || "Imported via CSV",
+        })
+      }
+    }
+    return rows.filter(r => r.pair)
+  }
+
+  const handleImport = async () => {
+    if (importData.length === 0) return
+    setImportLoading(true)
+    const { error } = await supabase.from("trades").insert(
+      importData.map(t => ({
+        user_id: user.id,
+        ...t,
+      }))
+    )
+    if (!error) {
+      fetchTrades(user.id)
+      setImportModal(false)
+      setImportData([])
+    }
+    setImportLoading(false)
+  }
+
   const inputClass = "w-full bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[#8B949E] rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors";
   const labelClass = "text-[var(--text-muted)] text-xs mb-1 block";
 
@@ -272,7 +353,7 @@ export default function JournalClient() {
             <p className="text-[var(--text-muted)] text-sm">Log and track all your trades</p>
           </div>
           <button
-            onClick={() => setShowModal(true)}
+            onClick={() => setShowChecklist(true)}
             className="bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold px-6 py-3 rounded-full text-sm hover:bg-[var(--accent-blue-hover)] transition-colors"
           >
             + Add Trade
@@ -329,6 +410,9 @@ export default function JournalClient() {
               </button>
               <button onClick={exportPDF} className="bg-[var(--accent-red-bg)] border border-[var(--accent-red)] text-[var(--accent-red)] text-xs font-bold px-4 py-2 rounded-full hover:bg-[var(--accent-red)] hover:text-[var(--text-primary)] transition-colors">
                 PDF
+              </button>
+              <button onClick={() => setImportModal(true)} className="bg-[var(--accent-gold-bg)] border border-[var(--accent-gold)] text-[var(--accent-gold)] text-xs font-bold px-4 py-2 rounded-full hover:bg-[var(--accent-gold)] hover:text-[var(--bg-primary)] transition-colors">
+                Import CSV
               </button>
             </div>
           </div>
@@ -424,6 +508,104 @@ export default function JournalClient() {
           )}
         </div>
       </div>
+
+      {/* PRE-TRADE CHECKLIST MODAL */}
+      {showChecklist && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 px-4">
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl w-full max-w-md">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+              <h2 className="text-[var(--text-primary)] font-bold text-lg">✅ Pre-Trade Checklist</h2>
+              <button onClick={() => setShowChecklist(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-xl">✕</button>
+            </div>
+            <div className="px-6 py-6 flex flex-col gap-4">
+              <p className="text-[var(--text-muted)] text-sm">Before you enter this trade, confirm:</p>
+              {[
+                { key: "hasSL", label: "I have a Stop Loss set" },
+                { key: "hasTP", label: "I have a Take Profit set" },
+                { key: "riskOk", label: "I'm risking ≤ 2% of my account" },
+                { key: "notRevenge", label: "I'm not revenge trading" },
+                { key: "planWritten", label: "I have a written plan for this trade" },
+              ].map(item => (
+                <button
+                  key={item.key}
+                  onClick={() => setChecklist(prev => ({ ...prev, [item.key]: !prev[item.key] }))}
+                  className={"flex items-center gap-3 p-3 rounded-xl border transition-colors text-left " + (
+                    checklist[item.key]
+                      ? "border-[var(--accent-green)] bg-[var(--accent-green-bg)]"
+                      : "border-[var(--border)] hover:border-[var(--accent-blue)]"
+                  )}
+                >
+                  <span className={"w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 " + (
+                    checklist[item.key] ? "border-[var(--accent-green)] bg-[var(--accent-green)] text-black" : "border-[var(--border)]"
+                  )}>
+                    {checklist[item.key] && <span className="text-xs font-bold">✓</span>}
+                  </span>
+                  <span className={"text-sm " + (checklist[item.key] ? "text-[var(--accent-green)] font-semibold" : "text-[var(--text-secondary)]")}>{item.label}</span>
+                </button>
+              ))}
+              <div className="flex gap-3 pt-2">
+                <button onClick={() => setShowChecklist(false)} className="flex-1 border border-[var(--border)] text-[var(--text-muted)] font-semibold py-3 rounded-full text-sm hover:border-[var(--hover-border)] hover:text-[var(--text-primary)] transition-colors">
+                  Skip
+                </button>
+                <button
+                  onClick={() => { setShowChecklist(false); setShowModal(true) }}
+                  disabled={!Object.values(checklist).every(Boolean)}
+                  className="flex-1 bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold py-3 rounded-full text-sm hover:bg-[var(--accent-blue-hover)] transition-colors disabled:opacity-40"
+                >
+                  I'm Ready
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CSV IMPORT MODAL */}
+      {importModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 px-4">
+          <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl w-full max-w-lg">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--border)]">
+              <h2 className="text-[var(--text-primary)] font-bold text-lg">📥 Import Trades</h2>
+              <button onClick={() => { setImportModal(false); setImportData([]) }} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-xl">✕</button>
+            </div>
+            <div className="px-6 py-6 flex flex-col gap-4">
+              <p className="text-[var(--text-muted)] text-xs">Upload a CSV file from MatrixVerse export or MT4 trade history.</p>
+              <input
+                type="file"
+                accept=".csv"
+                onChange={async (e) => {
+                  const file = e.target.files[0]
+                  if (!file) return
+                  const text = await file.text()
+                  const parsed = parseCSV(text)
+                  setImportData(parsed)
+                }}
+                className="w-full bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-muted)] rounded-xl px-4 py-3 text-sm file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-[var(--accent-blue)] file:text-[var(--bg-primary)] hover:file:bg-[#00b8d9]"
+              />
+              {importData.length > 0 && (
+                <div>
+                  <p className="text-[var(--accent-green)] text-xs font-semibold mb-2">✓ {importData.length} trades parsed</p>
+                  <div className="max-h-40 overflow-y-auto bg-[var(--bg-primary)] rounded-xl p-3">
+                    {importData.slice(0, 10).map((t, i) => (
+                      <div key={i} className="text-[10px] text-[var(--text-secondary)] py-0.5 border-b border-[var(--border)] last:border-0">
+                        {t.pair} | {t.direction} | {t.lot_size} lot | ${t.pnl}
+                      </div>
+                    ))}
+                    {importData.length > 10 && <div className="text-[10px] text-[var(--text-muted)] pt-1">...and {importData.length - 10} more</div>}
+                  </div>
+                  <button
+                    onClick={handleImport}
+                    disabled={importLoading}
+                    className="w-full mt-3 bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold py-3 rounded-full text-sm hover:bg-[var(--accent-blue-hover)] transition-colors disabled:opacity-50"
+                  >
+                    {importLoading ? "Importing..." : `Import ${importData.length} Trades`}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ADD TRADE MODAL */}
       {showModal && (
