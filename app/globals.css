@@ -70,3 +70,11 @@
   --accent-orange-hover: #cc4d20;
   --accent-orange-bg: rgba(229, 90, 40, 0.12);
 }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn {
+  animation: fadeIn 0.15s ease-out;
+}

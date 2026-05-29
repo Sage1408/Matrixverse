@@ -5,6 +5,7 @@ import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
 import MobileNav from "../components/MobileNav";
 import ThemeToggle from "../components/ThemeToggle"
+import ProfileHoverCard from "../components/ProfileHoverCard"
 import { Skeleton, SkeletonCard, SkeletonText } from "../components/Skeleton"
 
 export default function CommunityClient() {
@@ -313,23 +314,31 @@ export default function CommunityClient() {
                 {post.is_repost && (
                   <div className="text-[var(--text-muted)] text-xs mb-3 flex items-center gap-1">
                     🔁
-                    <a href={"/profile/" + post.username} className="text-[var(--accent-green)] font-semibold hover:underline">{post.username}</a>
+                    <ProfileHoverCard username={post.username}>
+                      <a href={"/profile/" + post.username} className="text-[var(--accent-green)] font-semibold hover:underline">{post.username}</a>
+                    </ProfileHoverCard>
                     <span> reposted from </span>
-                    <a href={"/profile/" + post.repost_from} className="text-[var(--accent-blue)] font-semibold hover:underline">@{post.repost_from}</a>
+                    <ProfileHoverCard username={post.repost_from}>
+                      <a href={"/profile/" + post.repost_from} className="text-[var(--accent-blue)] font-semibold hover:underline">@{post.repost_from}</a>
+                    </ProfileHoverCard>
                   </div>
                 )}
 
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <a href={"/profile/" + post.username}>
-                      <div className="w-9 h-9 rounded-full bg-[var(--accent-blue)] flex items-center justify-center text-[var(--bg-primary)] font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity">
-                        {post.username?.charAt(0).toUpperCase()}
-                      </div>
-                    </a>
-                    <div>
-                      <a href={"/profile/" + post.username} className="text-[var(--text-primary)] font-semibold text-sm hover:text-[var(--accent-blue)] transition-colors block">
-                        @{post.username}
+                    <ProfileHoverCard username={post.username}>
+                      <a href={"/profile/" + post.username}>
+                        <div className="w-9 h-9 rounded-full bg-[var(--accent-blue)] flex items-center justify-center text-[var(--bg-primary)] font-bold text-sm cursor-pointer hover:opacity-80 transition-opacity overflow-hidden">
+                          {post.username?.charAt(0).toUpperCase()}
+                        </div>
                       </a>
+                    </ProfileHoverCard>
+                    <div>
+                      <ProfileHoverCard username={post.username}>
+                        <a href={"/profile/" + post.username} className="text-[var(--text-primary)] font-semibold text-sm hover:text-[var(--accent-blue)] transition-colors block">
+                          @{post.username}
+                        </a>
+                      </ProfileHoverCard>
                       <div className="text-[var(--text-muted)] text-xs">{getTimeAgo(post.created_at)}</div>
                     </div>
                   </div>
@@ -383,7 +392,7 @@ export default function CommunityClient() {
                 {showComments === post.id && (
                   <div className="mt-4 border-t border-[var(--border)] pt-4 ml-12">
                     <div className="flex items-center gap-2 mb-4">
-                      <div className="w-7 h-7 rounded-full bg-[var(--accent-purple)] flex items-center justify-center text-[var(--text-primary)] font-bold text-xs flex-shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-[var(--accent-purple)] flex items-center justify-center text-[var(--text-primary)] font-bold text-xs flex-shrink-0 overflow-hidden">
                         {username?.charAt(0).toUpperCase()}
                       </div>
                       <input
@@ -409,15 +418,19 @@ export default function CommunityClient() {
                       ) : (
                         getPostComments(post.id).map((comment, i) => (
                           <div key={i} className="flex items-start gap-3">
-                            <a href={"/profile/" + comment.username}>
-                              <div className="w-7 h-7 rounded-full bg-[var(--accent-purple)] flex items-center justify-center text-[var(--text-primary)] font-bold text-xs flex-shrink-0 hover:opacity-80 cursor-pointer">
-                                {comment.username?.charAt(0).toUpperCase()}
-                              </div>
-                            </a>
-                            <div className="flex-1">
-                              <a href={"/profile/" + comment.username} className="text-[var(--accent-blue)] text-xs font-bold mb-0.5 hover:underline block">
-                                @{comment.username}
+                            <ProfileHoverCard username={comment.username}>
+                              <a href={"/profile/" + comment.username}>
+                                <div className="w-7 h-7 rounded-full bg-[var(--accent-purple)] flex items-center justify-center text-[var(--text-primary)] font-bold text-xs flex-shrink-0 hover:opacity-80 cursor-pointer overflow-hidden">
+                                  {comment.username?.charAt(0).toUpperCase()}
+                                </div>
                               </a>
+                            </ProfileHoverCard>
+                            <div className="flex-1">
+                              <ProfileHoverCard username={comment.username}>
+                                <a href={"/profile/" + comment.username} className="text-[var(--accent-blue)] text-xs font-bold mb-0.5 hover:underline block">
+                                  @{comment.username}
+                                </a>
+                              </ProfileHoverCard>
                               <div className="text-[var(--text-secondary)] text-sm leading-relaxed">{comment.content}</div>
                             </div>
                           </div>
