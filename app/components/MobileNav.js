@@ -22,12 +22,12 @@ export default function MobileNav({ username }) {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-[var(--bg-secondary)] border-t border-[var(--border)]">
-      <div className="flex items-center justify-around px-2 py-2">
+      <div className="flex items-center justify-between px-1 py-2 overflow-x-auto">
         {navItems.map((item) => (
           <a
             key={item.href}
             href={item.href}
-            className={"flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-colors min-w-[56px] " + (
+            className={"flex flex-col items-center gap-0.5 px-1.5 py-2 rounded-xl transition-colors flex-shrink-0 " + (
               isActive(item.href)
                 ? "text-[var(--accent-blue)]"
                 : "text-[var(--text-muted)] hover:text-[var(--text-primary)]"
