@@ -234,6 +234,7 @@ export default function CommunityClient() {
           <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
           <a href="/journal" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Journal</a>
           <a href="/leaderboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Leaderboard</a>
+          <a href="/education" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Learn</a>
         </div>
       </nav>
 

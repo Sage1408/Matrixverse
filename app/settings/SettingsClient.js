@@ -158,6 +158,7 @@ export default function SettingsClient() {
         <div className="hidden md:flex items-center gap-4">
           <ThemeToggle />
           <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
+          <a href="/education" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Learn</a>
           <a href={profileUrl} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Profile</a>
         </div>
         <div className="md:hidden">

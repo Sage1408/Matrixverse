@@ -172,6 +172,7 @@ export default function DashboardClient() {
         <div className="hidden md:flex items-center gap-6">
           <ThemeToggle />
           <a href="/journal" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Journal</a>
+          <a href="/education" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Learn</a>
           <a href="/analytics" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Analytics</a>
           <a href="/psychology" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Psychology</a>
           <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Community</a>

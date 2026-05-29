@@ -37,6 +37,9 @@ export default function Navbar() {
           <Link href="#faq" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 text-sm">
             FAQ
           </Link>
+          <Link href="/education" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors duration-200 text-sm">
+            Learn
+          </Link>
         </div>
 
         {/* DESKTOP BUTTONS */}
