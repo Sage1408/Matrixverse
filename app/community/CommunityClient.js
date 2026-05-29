@@ -21,9 +21,6 @@ export default function CommunityClient() {
   const [activeTab, setActiveTab] = useState("latest");
   const [copied, setCopied] = useState(null);
   const [image, setImage] = useState(null);
-  const [editingCommentId, setEditingCommentId] = useState(null);
-  const [editCommentText, setEditCommentText] = useState("");
-  const [deleteCommentConfirm, setDeleteCommentConfirm] = useState(null);
   const [form, setForm] = useState({
     content: "",
     pair_tag: "",
@@ -179,33 +176,9 @@ export default function CommunityClient() {
   };
 
   const handleShare = (postId) => {
-    navigator.clipboard.writeText(window.location.origin + "/community?post=" + postId);
+    navigator.clipboard.writeText(window.location.origin + "/community/post/" + postId);
     setCopied(postId);
     setTimeout(() => setCopied(null), 2000);
-  };
-
-  const startEditComment = (comment) => {
-    setEditingCommentId(comment.id);
-    setEditCommentText(comment.content);
-  };
-
-  const cancelEditComment = () => {
-    setEditingCommentId(null);
-    setEditCommentText("");
-  };
-
-  const saveEditComment = async (commentId) => {
-    if (!editCommentText.trim()) return;
-    await supabase.from("comments").update({ content: editCommentText }).eq("id", commentId);
-    setEditingCommentId(null);
-    setEditCommentText("");
-    await fetchComments();
-  };
-
-  const executeDeleteComment = async (commentId) => {
-    await supabase.from("comments").delete().eq("id", commentId);
-    setDeleteCommentConfirm(null);
-    await fetchComments();
   };
 
   const isLiked = (postId) => likes.some(l => l.post_id === String(postId));
@@ -416,89 +389,38 @@ export default function CommunityClient() {
                   </button>
                 </div>
 
-                {showComments === post.id && (
-                  <div className="mt-4 border-t border-[var(--border)] pt-4 ml-12">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="w-7 h-7 rounded-full bg-[var(--accent-purple)] flex items-center justify-center text-[var(--text-primary)] font-bold text-xs flex-shrink-0 overflow-hidden">
-                        {username?.charAt(0).toUpperCase()}
+                  {showComments === post.id && (
+                    <div className="mt-4 border-t border-[var(--border)] pt-4 ml-12">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-full bg-[var(--accent-purple)] flex items-center justify-center text-[var(--text-primary)] font-bold text-xs flex-shrink-0 overflow-hidden">
+                          {username?.charAt(0).toUpperCase()}
+                        </div>
+                        <input
+                          type="text"
+                          placeholder="Post your reply..."
+                          value={commentText}
+                          onChange={(e) => setCommentText(e.target.value)}
+                          onKeyDown={(e) => e.key === "Enter" && handleComment(post.id)}
+                          className="flex-1 bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[#8B949E] rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[var(--accent-blue)]"
+                        />
+                        <button
+                          onClick={() => handleComment(post.id)}
+                          disabled={!commentText.trim()}
+                          className="bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold px-4 py-2 rounded-full text-xs hover:bg-[var(--accent-blue-hover)] transition-colors disabled:opacity-40"
+                        >
+                          Reply
+                        </button>
                       </div>
-                      <input
-                        type="text"
-                        placeholder="Post your reply..."
-                        value={commentText}
-                        onChange={(e) => setCommentText(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleComment(post.id)}
-                        className="flex-1 bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[#8B949E] rounded-full px-4 py-2 text-sm focus:outline-none focus:border-[var(--accent-blue)]"
-                      />
-                      <button
-                        onClick={() => handleComment(post.id)}
-                        disabled={!commentText.trim()}
-                        className="bg-[var(--accent-blue)] text-[var(--bg-primary)] font-bold px-4 py-2 rounded-full text-xs hover:bg-[var(--accent-blue-hover)] transition-colors disabled:opacity-40"
-                      >
-                        Reply
-                      </button>
-                    </div>
-
-                    <div className="flex flex-col gap-3">
-                      {getPostComments(post.id).length === 0 ? (
-                        <p className="text-[var(--text-muted)] text-xs text-center py-2">No replies yet. Start the conversation!</p>
-                      ) : (
-                        getPostComments(post.id).map((comment, i) => {
-                          const isOwnComment = String(comment.user_id) === String(user.id);
-                          return (
-                            <div key={i} className="flex items-start gap-3">
-                              <ProfileHoverCard username={comment.username}>
-                                <a href={"/profile/" + comment.username}>
-                                  <div className="w-7 h-7 rounded-full bg-[var(--accent-purple)] flex items-center justify-center text-[var(--text-primary)] font-bold text-xs flex-shrink-0 hover:opacity-80 cursor-pointer overflow-hidden">
-                                    {comment.username?.charAt(0).toUpperCase()}
-                                  </div>
-                                </a>
-                              </ProfileHoverCard>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between gap-2">
-                                  <ProfileHoverCard username={comment.username}>
-                                    <a href={"/profile/" + comment.username} className="text-[var(--accent-blue)] text-xs font-bold mb-0.5 hover:underline block">
-                                      @{comment.username}
-                                    </a>
-                                  </ProfileHoverCard>
-                                  {isOwnComment && editingCommentId !== comment.id && (
-                                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                                      <button onClick={() => startEditComment(comment)} className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-xs transition-colors">Edit</button>
-                                      {deleteCommentConfirm === comment.id ? (
-                                        <div className="flex items-center gap-1">
-                                          <button onClick={() => executeDeleteComment(comment.id)} className="text-[var(--accent-red)] text-xs font-bold hover:underline">Delete</button>
-                                          <button onClick={() => setDeleteCommentConfirm(null)} className="text-[var(--text-muted)] text-xs hover:text-[var(--text-primary)]">Cancel</button>
-                                        </div>
-                                      ) : (
-                                        <button onClick={() => setDeleteCommentConfirm(comment.id)} className="text-[var(--text-muted)] hover:text-[var(--accent-red)] text-xs transition-colors">Delete</button>
-                                      )}
-                                    </div>
-                                  )}
-                                </div>
-                                {editingCommentId === comment.id ? (
-                                  <div className="flex items-center gap-2 mt-1">
-                                    <input
-                                      type="text"
-                                      value={editCommentText}
-                                      onChange={(e) => setEditCommentText(e.target.value)}
-                                      onKeyDown={(e) => e.key === "Enter" && saveEditComment(comment.id)}
-                                      className="flex-1 bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] rounded-xl px-3 py-1.5 text-sm focus:outline-none focus:border-[var(--accent-blue)]"
-                                      autoFocus
-                                    />
-                                    <button onClick={() => saveEditComment(comment.id)} className="text-[var(--accent-green)] text-xs font-bold hover:underline">Save</button>
-                                    <button onClick={cancelEditComment} className="text-[var(--text-muted)] text-xs hover:text-[var(--text-primary)]">Cancel</button>
-                                  </div>
-                                ) : (
-                                  <div className="text-[var(--text-secondary)] text-sm leading-relaxed">{comment.content}</div>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })
+                      {getPostComments(post.id).length > 0 && (
+                        <a
+                          href={"/community/post/" + post.id}
+                          className="block mt-3 text-center text-[var(--accent-blue)] text-xs font-semibold hover:underline"
+                        >
+                          View all {getPostComments(post.id).length} {getPostComments(post.id).length === 1 ? "reply" : "replies"} →
+                        </a>
                       )}
                     </div>
-                  </div>
-                )}
+                  )}
 
               </div>
             ))}
