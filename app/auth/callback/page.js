@@ -22,7 +22,7 @@ export default function AuthCallback() {
 
       const { data: existing } = await supabase
         .from("profiles")
-        .select("id")
+        .select("id, username")
         .eq("user_id", user.id)
         .single();
 
@@ -54,10 +54,12 @@ export default function AuthCallback() {
 
         router.push("/onboarding");
       } else {
-        const uname = existing.username || username;
-        await supabase.auth.updateUser({
-          data: { username: uname },
-        });
+        const currentMeta = user.user_metadata?.username;
+        if (currentMeta !== existing.username) {
+          await supabase.auth.updateUser({
+            data: { username: existing.username },
+          });
+        }
         router.push("/dashboard");
       }
     };
