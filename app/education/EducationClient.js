@@ -165,6 +165,12 @@ export default function EducationClient() {
             <p className="text-[var(--text-muted)] text-sm">Learn the basics — from what a pip is to how prop firms work.</p>
           </div>
 
+          <div className="text-center mb-8">
+            <a href="/glossary" className="inline-flex items-center gap-2 bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--accent-blue)] font-semibold px-5 py-2.5 rounded-full text-sm hover:border-[var(--accent-blue)] transition-colors">
+              📖 Browse Trading Glossary →
+            </a>
+          </div>
+
           <div className="flex flex-col gap-3">
             {guides.map(g => (
               <div key={g.id} className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl overflow-hidden">

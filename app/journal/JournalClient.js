@@ -21,6 +21,13 @@ export default function JournalClient() {
   const [tags, setTags] = useState([])
   const [tagInput, setTagInput] = useState("")
   const [tagFilter, setTagFilter] = useState("")
+  const [isDemo, setIsDemo] = useState(false)
+  // Risk calculator state
+  const [rcBalance, setRcBalance] = useState("")
+  const [rcRiskPct, setRcRiskPct] = useState("")
+  const [rcPipValue, setRcPipValue] = useState("10")
+  const [rcLotSize, setRcLotSize] = useState(null)
+  const [showRc, setShowRc] = useState(false)
   const [form, setForm] = useState({
     pair: "",
     direction: "buy",
@@ -116,6 +123,7 @@ export default function JournalClient() {
       notes: form.notes,
       traded_at: form.traded_at,
       screenshot_url: screenshotUrl,
+      is_demo: isDemo,
     }]);
 
     if (!error) {
@@ -123,6 +131,9 @@ export default function JournalClient() {
       fetchTrades(user.id);
       setScreenshot(null);
       setTags([]);
+      setIsDemo(false);
+      setShowRc(false);
+      setRcLotSize(null);
       setForm({
         pair: "",
         direction: "buy",
@@ -244,7 +255,8 @@ export default function JournalClient() {
           <ThemeToggle />
           <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
           <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Community</a>
-          <a href="/education" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Learn</a>
+           <a href="/education" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Learn</a>
+           <a href="/glossary" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Glossary</a>
         </div>
         <div className="md:hidden">
           <ThemeToggle />
@@ -365,7 +377,10 @@ export default function JournalClient() {
                     : trades
                   ).map((trade, index) => (
                     <tr key={index} className="border-b border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors">
-                      <td className="px-4 py-3 text-[var(--accent-blue)] font-bold text-sm">{trade.pair}</td>
+                      <td className="px-4 py-3 text-[var(--accent-blue)] font-bold text-sm">
+                        {trade.pair}
+                        {trade.is_demo && <span className="ml-1.5 text-[10px] bg-[var(--accent-gold-bg)] text-[var(--accent-gold)] font-bold px-1.5 py-0.5 rounded-full align-middle">Paper</span>}
+                      </td>
                       <td className="px-4 py-3">
                         <span className={`text-xs font-bold px-2 py-1 rounded-full ${trade.direction === "buy" ? "bg-[var(--accent-green-bg)] text-[var(--accent-green)]" : "bg-[var(--accent-red-bg)] text-[var(--accent-red)]"}`}>
                           {trade.direction?.toUpperCase()}
@@ -443,12 +458,61 @@ export default function JournalClient() {
                 <div>
                   <label className={labelClass}>Lot Size</label>
                   <input type="number" name="lot_size" placeholder="0.01" step="0.01" value={form.lot_size} onChange={handleChange} required className={inputClass} />
+                  <button type="button" onClick={() => setShowRc(!showRc)} className="text-[var(--accent-blue)] text-[10px] font-semibold mt-1 hover:underline">
+                    {showRc ? "▲ Hide" : "▼ Risk Calculator"}
+                  </button>
                 </div>
                 <div>
                   <label className={labelClass}>Entry Price</label>
                   <input type="number" name="entry_price" placeholder="1.08500" step="0.00001" value={form.entry_price} onChange={handleChange} required className={inputClass} />
                 </div>
               </div>
+
+              {showRc && (
+                <div className="bg-[var(--bg-tertiary)] border border-[var(--border)] rounded-xl p-4 flex flex-col gap-3">
+                  <div className="text-[var(--text-primary)] text-xs font-bold">⚖️ Position Size Calculator</div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className={labelClass}>Account Balance ($)</label>
+                      <input type="number" placeholder="5000" value={rcBalance} onChange={e => setRcBalance(e.target.value)} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>Risk %</label>
+                      <input type="number" placeholder="1" step="0.1" value={rcRiskPct} onChange={e => setRcRiskPct(e.target.value)} className={inputClass} />
+                    </div>
+                    <div>
+                      <label className={labelClass}>SL (pips)</label>
+                      <input type="number" placeholder="20" value={form.stop_loss && form.entry_price ? Math.abs(parseFloat(form.entry_price) - parseFloat(form.stop_loss)).toFixed(1) : ""} readOnly className={inputClass + " opacity-60"} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className={labelClass}>Pip Value ($)</label>
+                      <input type="number" placeholder="10" step="0.01" value={rcPipValue} onChange={e => setRcPipValue(e.target.value)} className={inputClass} />
+                      <p className="text-[10px] text-[var(--text-muted)] mt-0.5">$10 for 1 lot EUR/USD</p>
+                    </div>
+                    <div className="flex flex-col justify-end">
+                      <label className={labelClass}>Suggested Lot Size</label>
+                      <div className="w-full bg-[var(--bg-primary)] border border-[var(--border)] rounded-xl px-4 py-3 text-sm font-bold" style={{ color: rcLotSize && parseFloat(rcLotSize) > 0 ? "#00FF88" : "#FF4757" }}>
+                        {rcLotSize || "Fill fields above"}
+                      </div>
+                    </div>
+                  </div>
+                  <button type="button" onClick={() => {
+                    const balance = parseFloat(rcBalance)
+                    const risk = parseFloat(rcRiskPct)
+                    const sl = form.entry_price && form.stop_loss ? Math.abs(parseFloat(form.entry_price) - parseFloat(form.stop_loss)) : 0
+                    const pv = parseFloat(rcPipValue)
+                    if (balance && risk && sl && pv) {
+                      const riskAmount = (balance * risk) / 100
+                      const lots = riskAmount / (sl * pv)
+                      setRcLotSize(lots.toFixed(2))
+                    }
+                  }} className="self-end bg-[var(--accent-blue)] text-[var(--bg-primary)] text-xs font-bold px-4 py-2 rounded-full hover:bg-[var(--accent-blue-hover)] transition-colors">
+                    Calculate
+                  </button>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -553,6 +617,20 @@ export default function JournalClient() {
                 {screenshot && (
                   <p className="text-[var(--accent-green)] text-xs mt-1">✓ {screenshot.name} selected</p>
                 )}
+              </div>
+
+              <div className="flex items-center gap-3 mb-4 p-3 bg-[var(--bg-tertiary)] rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setIsDemo(!isDemo)}
+                  className={"relative w-10 h-5 rounded-full transition-colors flex-shrink-0 " + (isDemo ? "bg-[var(--accent-gold)]" : "bg-[var(--border)]")}
+                >
+                  <div className={"w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all " + (isDemo ? "left-5" : "left-0.5")} />
+                </button>
+                <div>
+                  <span className="text-[var(--text-primary)] text-sm font-semibold">Paper Trade</span>
+                  <p className="text-[var(--text-muted)] text-[10px]">Mark as demo/practice — won't affect real stats</p>
+                </div>
               </div>
 
               <div>

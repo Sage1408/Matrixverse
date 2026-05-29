@@ -70,7 +70,8 @@ export default function PricingClient() {
         <a href="/" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
         <div className="hidden md:flex items-center gap-4">
           <ThemeToggle />
-          <a href="/education" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Learn</a>
+           <a href="/education" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Learn</a>
+           <a href="/glossary" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Glossary</a>
           {user ? (
             <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
           ) : (

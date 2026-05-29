@@ -26,6 +26,7 @@ export default function DashboardClient() {
   const [streak, setStreak] = useState(0);
   const [badgeNotification, setBadgeNotification] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [tradeFilter, setTradeFilter] = useState("all");
   const router = useRouter();
 
   useEffect(() => {
@@ -82,11 +83,12 @@ export default function DashboardClient() {
   };
 
   // Stats
-  const winRate = trades.length > 0
-    ? Math.round((trades.filter(t => t.pnl > 0).length / trades.length) * 100)
+  const filteredTrades = tradeFilter === "all" ? trades : trades.filter(t => tradeFilter === "real" ? !t.is_demo : t.is_demo)
+  const winRate = filteredTrades.length > 0
+    ? Math.round((filteredTrades.filter(t => t.pnl > 0).length / filteredTrades.length) * 100)
     : 0;
 
-  const netPnL = trades.reduce((sum, t) => sum + (t.pnl || 0), 0).toFixed(2);
+  const netPnL = filteredTrades.reduce((sum, t) => sum + (t.pnl || 0), 0).toFixed(2);
 
   const calcPsychScore = () => {
     if (checkins.length === 0) return null;
@@ -200,6 +202,27 @@ export default function DashboardClient() {
             <a href={"/profile/" + username} className="text-[var(--accent-blue)] hover:underline">{username}</a>{" "}👋
           </h1>
           <p className="text-[var(--text-muted)] text-sm">Here is your trading overview</p>
+        </div>
+
+        {/* Trade Filter Toggle */}
+        <div className="flex items-center gap-2 mb-6">
+          {[
+            { key: "all", label: "All Trades", color: "#00D4FF" },
+            { key: "real", label: "Real Only", color: "#00FF88" },
+            { key: "demo", label: "Paper Only", color: "#FFD700" },
+          ].map(f => (
+            <button
+              key={f.key}
+              onClick={() => setTradeFilter(f.key)}
+              className={"px-4 py-1.5 rounded-full text-xs font-semibold transition-colors border " + (
+                tradeFilter === f.key
+                  ? "border-transparent text-[var(--bg-primary)]" : "border-[var(--border)] text-[var(--text-muted)]"
+              )}
+              style={tradeFilter === f.key ? { backgroundColor: f.color, color: "#000" } : {}}
+            >
+              {f.label}
+            </button>
+          ))}
         </div>
 
         {/* STATS ROW */}
