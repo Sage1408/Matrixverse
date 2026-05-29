@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 export default function Profile({ params }) {
   const { username } = use(params);
   const [currentUser, setCurrentUser] = useState(null);
+  const [profileRow, setProfileRow] = useState(null);
   const [trades, setTrades] = useState([]);
   const [posts, setPosts] = useState([]);
   const [checkins, setCheckins] = useState([]);
@@ -31,6 +32,14 @@ export default function Profile({ params }) {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/login"); return; }
       setCurrentUser(user);
+
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("username", username)
+        .single();
+      setProfileRow(profileData);
+
       await loadProfileData();
       await loadFollowData(user);
       await fetchBadges(user);
@@ -246,12 +255,16 @@ export default function Profile({ params }) {
         <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 mb-6">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-[var(--accent-blue)] flex items-center justify-center text-[var(--bg-primary)] font-bold text-2xl">
-                {username?.charAt(0).toUpperCase()}
+              <div className="w-16 h-16 rounded-full bg-[var(--accent-blue)] flex items-center justify-center text-[var(--bg-primary)] font-bold text-2xl overflow-hidden">
+                {profileRow?.avatar_url ? (
+                  <img src={profileRow.avatar_url} alt={username} className="w-full h-full object-cover" />
+                ) : (
+                  username?.charAt(0).toUpperCase()
+                )}
               </div>
               <div>
                 <h1 className="text-[var(--text-primary)] font-bold text-xl">@{username}</h1>
-                <p className="text-[var(--text-muted)] text-sm mt-0.5">MatrixVerse Trader</p>
+                <p className="text-[var(--text-muted)] text-sm mt-0.5">{profileRow?.display_name || "MatrixVerse Trader"}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <span className="bg-[var(--accent-blue-bg)] text-[var(--accent-blue)] text-xs font-bold px-2 py-0.5 rounded-full">Trader</span>
                   {score && score >= 75 && (

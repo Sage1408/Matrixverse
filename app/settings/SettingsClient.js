@@ -3,7 +3,7 @@
 import MobileNav from "../components/MobileNav";
 import ThemeToggle from "../components/ThemeToggle"
 import { Skeleton, SkeletonCard, SkeletonText } from "../components/Skeleton"
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
 
@@ -14,6 +14,10 @@ export default function SettingsClient() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [profileUrl, setProfileUrl] = useState("/dashboard");
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [avatarPreview, setAvatarPreview] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef(null);
   const router = useRouter();
 
   const [profile, setProfile] = useState({
@@ -49,13 +53,21 @@ export default function SettingsClient() {
       if (!user) { router.push("/login"); return; }
       setUser(user);
       const uname = user.user_metadata?.username || "";
-      setProfileUrl("/profile/" + uname);
+
+      const { data: profileRow } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      setAvatarUrl(profileRow?.avatar_url || null);
+      setProfileUrl("/profile/" + (profileRow?.username || uname));
       setProfile({
-        username: uname,
-        display_name: user.user_metadata?.display_name || "",
-        bio: user.user_metadata?.bio || "",
-        trading_style: user.user_metadata?.trading_style || "",
-        timezone: user.user_metadata?.timezone || "UTC",
+        username: profileRow?.username || uname,
+        display_name: profileRow?.display_name || user.user_metadata?.display_name || "",
+        bio: profileRow?.bio || user.user_metadata?.bio || "",
+        trading_style: profileRow?.trading_style || user.user_metadata?.trading_style || "",
+        timezone: profileRow?.timezone || user.user_metadata?.timezone || "UTC",
       });
     };
     init();
@@ -67,9 +79,45 @@ export default function SettingsClient() {
     setTimeout(() => { setMessage(""); setError(""); }, 3000);
   };
 
+  const uploadAvatar = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      showMsg("File must be under 2MB", true);
+      return;
+    }
+    if (!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(file.type)) {
+      showMsg("Only JPG, PNG, WebP, and GIF are allowed", true);
+      return;
+    }
+    setAvatarPreview(URL.createObjectURL(file));
+    setUploading(true);
+    const ext = file.name.split(".").pop();
+    const filePath = `${user.id}/${Date.now()}.${ext}`;
+    const { error: uploadError } = await supabase.storage
+      .from("avatars")
+      .upload(filePath, file, { upsert: true });
+    if (uploadError) {
+      showMsg(uploadError.message, true);
+      setUploading(false);
+      setAvatarPreview(null);
+      return;
+    }
+    const { data: { publicUrl } } = supabase.storage
+      .from("avatars")
+      .getPublicUrl(filePath);
+    setAvatarUrl(publicUrl);
+    const { error: dbError } = await supabase
+      .from("profiles")
+      .upsert({ user_id: user.id, avatar_url: publicUrl }, { onConflict: "user_id" });
+    if (dbError) showMsg(dbError.message, true);
+    else showMsg("Avatar uploaded!");
+    setUploading(false);
+  };
+
   const saveProfile = async () => {
     setLoading(true);
-    const { error } = await supabase.auth.updateUser({
+    const { error: metaError } = await supabase.auth.updateUser({
       data: {
         username: profile.username,
         display_name: profile.display_name,
@@ -78,7 +126,19 @@ export default function SettingsClient() {
         timezone: profile.timezone,
       },
     });
-    if (error) showMsg(error.message, true);
+    if (metaError) { showMsg(metaError.message, true); setLoading(false); return; }
+    const { error: dbError } = await supabase
+      .from("profiles")
+      .upsert({
+        user_id: user.id,
+        username: profile.username,
+        display_name: profile.display_name,
+        bio: profile.bio,
+        trading_style: profile.trading_style,
+        timezone: profile.timezone,
+        avatar_url: avatarUrl,
+      }, { onConflict: "user_id" });
+    if (dbError) showMsg(dbError.message, true);
     else {
       showMsg("Profile updated successfully!");
       setProfileUrl("/profile/" + profile.username);
@@ -210,12 +270,32 @@ export default function SettingsClient() {
                 <h2 className="text-[var(--text-primary)] font-bold text-lg">Profile Settings</h2>
 
                 <div className="flex items-center gap-4 p-4 bg-[var(--bg-primary)] rounded-xl">
-                  <div className="w-14 h-14 rounded-full bg-[var(--accent-blue)] flex items-center justify-center text-[var(--bg-primary)] font-bold text-xl">
-                    {profile.username?.charAt(0).toUpperCase() || "?"}
+                  <div className="relative">
+                    <div className="w-14 h-14 rounded-full bg-[var(--accent-blue)] flex items-center justify-center text-[var(--bg-primary)] font-bold text-xl overflow-hidden">
+                      {(avatarPreview || avatarUrl) ? (
+                        <img src={avatarPreview || avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                      ) : (
+                        profile.username?.charAt(0).toUpperCase() || "?"
+                      )}
+                    </div>
+                    <button
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploading}
+                      className="absolute -bottom-1 -right-1 w-6 h-6 bg-[var(--accent-blue)] rounded-full flex items-center justify-center text-[var(--bg-primary)] text-xs hover:bg-[var(--accent-blue-hover)] transition-colors"
+                    >
+                      📷
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      className="hidden"
+                      onChange={uploadAvatar}
+                    />
                   </div>
                   <div>
                     <p className="text-[var(--text-primary)] font-semibold">@{profile.username}</p>
-                    <p className="text-[var(--text-muted)] text-xs">Avatar uses your username initial</p>
+                    <p className="text-[var(--text-muted)] text-xs">Click the camera icon to upload a photo</p>
                   </div>
                 </div>
 
