@@ -6,7 +6,7 @@ import InboxIcon from "../components/InboxIcon";
 import { Skeleton, SkeletonCard, SkeletonText } from "../components/Skeleton"
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function SearchClient() {
   const [user, setUser] = useState(null);
@@ -16,6 +16,7 @@ export default function SearchClient() {
   const [traderStats, setTraderStats] = useState({});
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     const init = async () => {
@@ -26,6 +27,19 @@ export default function SearchClient() {
     };
     init();
   }, []);
+
+  useEffect(() => {
+    if (allTraders.length > 0) {
+      const q = searchParams.get("q")
+      if (q) {
+        setQuery(q)
+        const filtered = allTraders.filter(t =>
+          t.username?.toLowerCase().includes(q.toLowerCase())
+        )
+        setResults(filtered)
+      }
+    }
+  }, [allTraders, searchParams])
 
   const fetchAllTraders = async (currentUser) => {
     setLoading(true);

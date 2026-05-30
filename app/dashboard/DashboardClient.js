@@ -207,6 +207,21 @@ export default function DashboardClient() {
           <p className="text-[var(--text-muted)] text-sm">Here is your trading overview</p>
         </div>
 
+        {/* Search Bar */}
+        <div className="relative mb-6">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]">🔍</span>
+          <input
+            type="text"
+            placeholder="Search traders..."
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && e.target.value.trim()) {
+                router.push("/search?q=" + encodeURIComponent(e.target.value.trim()))
+              }
+            }}
+            className="w-full bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[#8B949E] rounded-2xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
+          />
+        </div>
+
         {/* Trade Filter Toggle */}
         <div className="flex items-center gap-2 mb-6">
           {[
@@ -530,7 +545,6 @@ export default function DashboardClient() {
               <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">👥 Community</a>
               <a href="/leaderboard" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🏆 Leaderboard</a>
               <a href="/psychology" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🧠 Psychology</a>
-              <a href="/search" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🔍 Search Traders</a>
               <a href={"/profile/" + username} className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">👤 My Profile</a>
             </div>
           </div>
