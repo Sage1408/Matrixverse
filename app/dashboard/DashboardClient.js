@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import NotificationBell from "../components/NotificationBell";
 import MobileNav from "../components/MobileNav";
 import ThemeToggle from "../components/ThemeToggle"
+import InboxIcon from "../components/InboxIcon";
 import { Skeleton, SkeletonCard, SkeletonText } from "../components/Skeleton"
 import ReportGenerator from "../components/ReportGenerator"
 import OnboardingWizard from "../components/OnboardingWizard"
@@ -172,6 +173,7 @@ export default function DashboardClient() {
       <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
         <div className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</div>
         <div className="hidden md:flex items-center gap-6">
+          <InboxIcon username={user?.user_metadata?.username} />
           <ThemeToggle />
           <a href="/journal" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Journal</a>
           <a href="/education" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Learn</a>

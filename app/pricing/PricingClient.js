@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
 import ThemeToggle from "../components/ThemeToggle"
+import InboxIcon from "../components/InboxIcon";
 
 export default function PricingClient() {
   const [user, setUser] = useState(null);
@@ -69,6 +70,7 @@ export default function PricingClient() {
       <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
         <a href="/" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
         <div className="hidden md:flex items-center gap-4">
+          <InboxIcon username={user?.user_metadata?.username} />
           <ThemeToggle />
            <a href="/education" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Learn</a>
            <a href="/glossary" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Glossary</a>

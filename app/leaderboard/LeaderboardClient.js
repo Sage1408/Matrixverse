@@ -2,6 +2,7 @@
 
 import MobileNav from "../components/MobileNav";
 import ThemeToggle from "../components/ThemeToggle"
+import InboxIcon from "../components/InboxIcon";
 import { Skeleton, SkeletonCard, SkeletonText } from "../components/Skeleton"
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
@@ -130,6 +131,7 @@ export default function LeaderboardClient() {
       <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
         <a href="/dashboard" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
         <div className="hidden md:flex items-center gap-4">
+          <InboxIcon username={user?.user_metadata?.username} />
           <ThemeToggle />
           <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
           <a href="/journal" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Journal</a>

@@ -2,6 +2,7 @@
 
 import MobileNav from "../../components/MobileNav";
 import ThemeToggle from "../../components/ThemeToggle"
+import InboxIcon from "../../components/InboxIcon"
 import { Skeleton, SkeletonCard, SkeletonText, SkeletonProfile } from "../../components/Skeleton"
 import { use, useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
@@ -26,6 +27,24 @@ export default function Profile({ params }) {
   const [saving, setSaving] = useState(false);
   const [badgesData, setBadgesData] = useState({ earned: [], all: [] });
   const router = useRouter();
+  const [messaging, setMessaging] = useState(false);
+
+  const handleMessage = async () => {
+    if (!currentUser || !profileRow) return
+    setMessaging(true)
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    try {
+      const res = await fetch("/api/conversations", {
+        method: "POST",
+        headers: { Authorization: "Bearer " + session.access_token, "Content-Type": "application/json" },
+        body: JSON.stringify({ participant_id: profileRow.user_id }),
+      })
+      const data = await res.json()
+      if (data.conversation_id) router.push("/inbox/" + data.conversation_id)
+    } catch (e) {}
+    setMessaging(false)
+  };
 
   useEffect(() => {
     const init = async () => {
@@ -264,6 +283,7 @@ export default function Profile({ params }) {
       <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
         <a href="/dashboard" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
         <div className="hidden md:flex items-center gap-4">
+          <InboxIcon username={currentUser?.user_metadata?.username} />
           <ThemeToggle />
           <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
            <a href="/education" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Learn</a>
@@ -311,17 +331,26 @@ export default function Profile({ params }) {
                 Edit Profile
               </a>
             ) : (
-              <button
-                onClick={handleFollow}
-                disabled={followLoading}
-                className={"text-xs font-bold px-5 py-2 rounded-full transition-colors disabled:opacity-50 " + (
-                  isFollowing
-                    ? "border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-red)] hover:text-[var(--accent-red)]"
-                    : "bg-[var(--accent-blue)] text-[var(--bg-primary)] hover:bg-[var(--accent-blue-hover)]"
-                )}
-              >
-                {followLoading ? "..." : isFollowing ? "Following ✓" : "Follow"}
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleMessage}
+                  disabled={messaging}
+                  className="border border-[var(--border)] text-[var(--text-muted)] text-xs font-semibold px-4 py-2 rounded-full hover:border-[var(--accent-blue)] hover:text-[var(--accent-blue)] transition-colors disabled:opacity-50"
+                >
+                  {messaging ? "..." : "Message"}
+                </button>
+                <button
+                  onClick={handleFollow}
+                  disabled={followLoading}
+                  className={"text-xs font-bold px-5 py-2 rounded-full transition-colors disabled:opacity-50 " + (
+                    isFollowing
+                      ? "border border-[var(--border)] text-[var(--text-muted)] hover:border-[var(--accent-red)] hover:text-[var(--accent-red)]"
+                      : "bg-[var(--accent-blue)] text-[var(--bg-primary)] hover:bg-[var(--accent-blue-hover)]"
+                  )}
+                >
+                  {followLoading ? "..." : isFollowing ? "Following ✓" : "Follow"}
+                </button>
+              </div>
             )}
           </div>
 
