@@ -95,7 +95,7 @@ export default function Inbox() {
   }
 
   return (
-    <main className="bg-[var(--bg-primary)] min-h-screen">
+    <main className="bg-[var(--bg-primary)] min-h-screen pb-16 md:pb-0">
       <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
         <a href="/dashboard" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
         <div className="hidden md:flex items-center gap-4">

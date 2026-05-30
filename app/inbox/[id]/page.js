@@ -300,7 +300,7 @@ export default function Conversation({ params }) {
   const headerName = conversation?.name || otherUser?.display_name || otherUser?.username || "Chat"
 
   return (
-    <main className="bg-[var(--bg-primary)] min-h-screen flex flex-col">
+    <main className="bg-[var(--bg-primary)] min-h-screen flex flex-col pb-16 md:pb-0">
       <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button onClick={() => router.push("/inbox")} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors">
