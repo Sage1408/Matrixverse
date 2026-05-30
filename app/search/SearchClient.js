@@ -136,6 +136,7 @@ export default function SearchClient() {
            <a href="/glossary" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Glossary</a>
         </div>
         <div className="md:hidden">
+          <InboxIcon username={currentUser?.user_metadata?.username} />
           <ThemeToggle />
         </div>
       </nav>

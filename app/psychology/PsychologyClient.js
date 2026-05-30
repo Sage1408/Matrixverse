@@ -160,6 +160,7 @@ export default function PsychologyClient() {
            <a href="/glossary" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Glossary</a>
         </div>
         <div className="md:hidden">
+          <InboxIcon username={user?.user_metadata?.username} />
           <ThemeToggle />
         </div>
       </nav>

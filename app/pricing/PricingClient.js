@@ -86,6 +86,7 @@ export default function PricingClient() {
           )}
         </div>
         <div className="md:hidden">
+          <InboxIcon username={user?.user_metadata?.username} />
           <ThemeToggle />
         </div>
       </nav>

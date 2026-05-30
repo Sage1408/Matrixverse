@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect, useRef, use, useCallback } from "react"
-import { supabase } from "../../../lib/supabase"
+import { supabase } from "../../lib/supabase"
 import { useRouter } from "next/navigation"
 import InboxIcon from "../../components/InboxIcon"
 import ThemeToggle from "../../components/ThemeToggle"

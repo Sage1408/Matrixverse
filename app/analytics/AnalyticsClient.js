@@ -223,6 +223,7 @@ export default function AnalyticsClient() {
           </button>
         </div>
         <div className="md:hidden">
+          <InboxIcon username={user?.user_metadata?.username} />
           <ThemeToggle />
         </div>
       </nav>

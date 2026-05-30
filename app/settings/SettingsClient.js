@@ -231,6 +231,7 @@ export default function SettingsClient() {
           <a href={profileUrl} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Profile</a>
         </div>
         <div className="md:hidden">
+          <InboxIcon username={user?.user_metadata?.username} />
           <ThemeToggle />
         </div>
       </nav>

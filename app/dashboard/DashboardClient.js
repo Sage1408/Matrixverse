@@ -192,6 +192,7 @@ export default function DashboardClient() {
           </button>
         </div>
         <div className="md:hidden">
+          <InboxIcon username={user?.user_metadata?.username} />
           <ThemeToggle />
         </div>
       </nav>

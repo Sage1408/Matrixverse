@@ -296,6 +296,7 @@ export default function Profile({ params }) {
           )}
         </div>
         <div className="md:hidden">
+          <InboxIcon username={currentUser?.user_metadata?.username} />
           <ThemeToggle />
         </div>
       </nav>

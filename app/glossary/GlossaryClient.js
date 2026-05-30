@@ -49,10 +49,10 @@ export default function GlossaryClient() {
         <a href="/dashboard" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
         <div className="hidden md:flex items-center gap-4">
           <a href="/education" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Learn</a>
-          <InboxIcon username={user?.user_metadata?.username} />
+          <InboxIcon />
           <ThemeToggle />
         </div>
-        <div className="md:hidden"><ThemeToggle /></div>
+        <div className="md:hidden"><InboxIcon /><ThemeToggle /></div>
       </nav>
 
       <main className="bg-[var(--bg-primary)] min-h-screen px-6 py-8 pb-24">
