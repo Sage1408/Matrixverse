@@ -4,6 +4,7 @@ import { supabase } from "../../../lib/supabase"
 import { useRouter } from "next/navigation"
 import InboxIcon from "../../components/InboxIcon"
 import ThemeToggle from "../../components/ThemeToggle"
+import MobileNav from "../../components/MobileNav"
 
 const EMOJIS = ["👍", "❤️", "😂", "😮", "😢", "🔥"]
 
@@ -532,6 +533,7 @@ export default function Conversation({ params }) {
           </button>
         </div>
       </div>
+      <MobileNav username={currentUser?.user_metadata?.username} />
     </main>
   )
 }

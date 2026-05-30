@@ -4,6 +4,7 @@ import { supabase } from "../../lib/supabase"
 import { useRouter } from "next/navigation"
 import InboxIcon from "../components/InboxIcon"
 import ThemeToggle from "../components/ThemeToggle"
+import MobileNav from "../components/MobileNav"
 
 export default function Inbox() {
   const [conversations, setConversations] = useState([])
@@ -258,6 +259,7 @@ export default function Inbox() {
           </div>
         )}
       </div>
+      <MobileNav username={currentUser?.user_metadata?.username} />
     </main>
   )
 }
