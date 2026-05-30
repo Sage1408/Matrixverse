@@ -22,6 +22,14 @@ export async function GET(req) {
 
     const ids = memberships.map(m => m.conversation_id)
 
+    const { data: convs } = await supabase
+      .from("conversations")
+      .select("id, name, avatar_url, created_at")
+      .in("id", ids)
+
+    const convMap = {}
+    convs?.forEach(c => { convMap[c.id] = c })
+
     const { data: participants } = await supabase
       .from("conversation_participants")
       .select("conversation_id, user_id")
@@ -34,9 +42,19 @@ export async function GET(req) {
     const profileMap = {}
     profiles?.forEach(p => { profileMap[p.user_id] = p })
 
+    // Count participants per conversation to detect groups
+    const participantCounts = {}
+    const participantMap = {}
+    participants?.forEach(p => {
+      if (!participantCounts[p.conversation_id]) participantCounts[p.conversation_id] = 0
+      participantCounts[p.conversation_id]++
+      if (!participantMap[p.conversation_id]) participantMap[p.conversation_id] = []
+      participantMap[p.conversation_id].push(p.user_id)
+    })
+
     const { data: lastMessages } = await supabase
       .from("messages")
-      .select("conversation_id, content, created_at")
+      .select("conversation_id, content, created_at, file_name, image_url, audio_url")
       .in("conversation_id", ids)
       .order("created_at", { ascending: false })
 
@@ -50,8 +68,29 @@ export async function GET(req) {
     })
 
     const conversations = await Promise.all(ids.map(async (cid) => {
-      const other = participants?.find(p => p.conversation_id === cid && p.user_id !== user.id)
-      const otherProfile = other ? profileMap[other.user_id] : null
+      const conv = convMap[cid]
+      const isGroup = participantCounts[cid] > 2
+      const otherParticipants = participantMap[cid]?.filter(pid => pid !== user.id) || []
+
+      let displayName = ""
+      let avatarUrl = ""
+      let otherUser = null
+
+      if (isGroup) {
+        displayName = conv?.name || otherParticipants.map(pid => profileMap[pid]?.username).filter(Boolean).join(", ")
+        avatarUrl = conv?.avatar_url || ""
+      } else {
+        const otherPid = otherParticipants[0]
+        const otherProfile = otherPid ? profileMap[otherPid] : null
+        otherUser = otherProfile ? {
+          user_id: otherPid,
+          username: otherProfile.username,
+          avatar_url: otherProfile.avatar_url,
+          display_name: otherProfile.display_name,
+        } : null
+        displayName = otherProfile?.display_name || otherProfile?.username || "Unknown"
+        avatarUrl = otherProfile?.avatar_url || ""
+      }
 
       const { count } = await supabase
         .from("messages")
@@ -60,15 +99,25 @@ export async function GET(req) {
         .neq("sender_id", user.id)
         .is("read_at", null)
 
+      const lastMsg = lastMsgMap[cid]
+      let lastMsgText = lastMsg?.content || ""
+      if (!lastMsgText && lastMsg?.file_name) lastMsgText = "📎 " + lastMsg.file_name
+      else if (!lastMsgText && lastMsg?.image_url) lastMsgText = "📷 Image"
+      else if (!lastMsgText && lastMsg?.audio_url) lastMsgText = "🎵 Voice note"
+      else if (!lastMsgText) lastMsgText = "No messages yet"
+
       return {
         id: cid,
-        other_user: otherProfile ? {
-          user_id: other.user_id,
-          username: otherProfile.username,
-          avatar_url: otherProfile.avatar_url,
-          display_name: otherProfile.display_name,
-        } : null,
-        last_message: lastMsgMap[cid] || null,
+        is_group: isGroup,
+        name: displayName,
+        avatar_url: avatarUrl,
+        other_user: otherUser,
+        participants: isGroup ? otherParticipants.map(pid => ({
+          user_id: pid,
+          username: profileMap[pid]?.username,
+          avatar_url: profileMap[pid]?.avatar_url,
+        })) : [],
+        last_message: lastMsg ? { content: lastMsgText, created_at: lastMsg.created_at } : null,
         unread_count: count || 0,
       }
     }))
@@ -98,37 +147,55 @@ export async function POST(req) {
     const { data: { user }, error: authError } = await supabase.auth.getUser(authHeader.replace("Bearer ", ""))
     if (authError || !user) return Response.json({ error: "Unauthorized" }, { status: 401 })
 
-    const { participant_id } = await req.json()
-    if (!participant_id) return Response.json({ error: "participant_id required" }, { status: 400 })
+    const body = await req.json()
+    const { participant_ids, participant_id, name } = body
 
-    const { data: existing } = await supabase
-      .from("conversation_participants")
-      .select(`
-        conversation_id,
-        conversation_participants!inner(user_id)
-      `)
-      .eq("user_id", user.id)
+    const allIds = participant_ids || (participant_id ? [participant_id] : [])
+    if (allIds.length === 0) return Response.json({ error: "At least one participant required" }, { status: 400 })
 
-    const matching = existing?.filter(e => {
-      return e.conversation_participants?.some(p => p.user_id === participant_id)
-    })
+    // For 1-on-1, check if existing conversation
+    if (allIds.length === 1 && !participant_ids) {
+      const targetId = allIds[0]
+      const { data: myConvs } = await supabase
+        .from("conversation_participants")
+        .select("conversation_id")
+        .eq("user_id", user.id)
 
-    if (matching && matching.length > 0) {
-      return Response.json({ conversation_id: matching[0].conversation_id, existing: true })
+      if (myConvs?.length > 0) {
+        const myIds = myConvs.map(c => c.conversation_id)
+        const { data: matches } = await supabase
+          .from("conversation_participants")
+          .select("conversation_id")
+          .in("conversation_id", myIds)
+          .eq("user_id", targetId)
+
+        // Find a conversation that's EXACTLY these two users
+        for (const match of matches || []) {
+          const { count } = await supabase
+            .from("conversation_participants")
+            .select("*", { count: "exact", head: true })
+            .eq("conversation_id", match.conversation_id)
+          if (count === 2) {
+            return Response.json({ conversation_id: match.conversation_id, existing: true })
+          }
+        }
+      }
     }
 
     const { data: conv, error: convErr } = await supabase
       .from("conversations")
-      .insert([{}])
+      .insert([{ name: name || null }])
       .select()
       .single()
 
     if (convErr) return Response.json({ error: convErr.message }, { status: 500 })
 
-    await supabase.from("conversation_participants").insert([
-      { conversation_id: conv.id, user_id: user.id },
-      { conversation_id: conv.id, user_id: participant_id },
-    ])
+    const inserts = [{ conversation_id: conv.id, user_id: user.id }]
+    allIds.forEach(pid => {
+      inserts.push({ conversation_id: conv.id, user_id: pid })
+    })
+
+    await supabase.from("conversation_participants").insert(inserts)
 
     return Response.json({ conversation_id: conv.id, existing: false })
   } catch (err) {

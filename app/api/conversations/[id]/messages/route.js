@@ -74,12 +74,18 @@ export async function POST(req, { params }) {
 
     if (!participant) return Response.json({ error: "Not a participant" }, { status: 403 })
 
-    const { content } = await req.json()
-    if (!content?.trim()) return Response.json({ error: "Content required" }, { status: 400 })
+    const { content, image_url, audio_url, file_url, file_name, file_size } = await req.json()
+
+    const insertData = { conversation_id: cid, sender_id: user.id, content: content || "" }
+    if (image_url) insertData.image_url = image_url
+    if (audio_url) insertData.audio_url = audio_url
+    if (file_url) insertData.file_url = file_url
+    if (file_name) insertData.file_name = file_name
+    if (file_size != null) insertData.file_size = file_size
 
     const { data: msg, error: msgErr } = await supabase
       .from("messages")
-      .insert([{ conversation_id: cid, sender_id: user.id, content: content.trim() }])
+      .insert([insertData])
       .select()
       .single()
 
@@ -90,25 +96,33 @@ export async function POST(req, { params }) {
       .update({ updated_at: new Date().toISOString() })
       .eq("id", cid)
 
-    const { data: otherParticipant } = await supabase
+    // Notify other participants
+    const { data: otherParticipants } = await supabase
       .from("conversation_participants")
       .select("user_id")
       .eq("conversation_id", cid)
       .neq("user_id", user.id)
+
+    const { data: myProfile } = await supabase
+      .from("profiles")
+      .select("username")
+      .eq("user_id", user.id)
       .single()
 
-    if (otherParticipant) {
+    const senderName = myProfile?.username || "Someone"
+
+    for (const p of otherParticipants || []) {
       const { data: recipient } = await supabase
         .from("profiles")
         .select("notification_prefs")
-        .eq("user_id", otherParticipant.user_id)
+        .eq("user_id", p.user_id)
         .single()
 
       if (recipient?.notification_prefs?.community_replies !== false) {
         await supabase.from("notifications").insert([{
-          user_id: otherParticipant.user_id,
+          user_id: p.user_id,
           type: "message",
-          message: (user.user_metadata?.username || "Someone") + " sent you a message",
+          message: senderName + " sent you a message",
           is_read: false,
           link: "/inbox/" + cid,
         }])
@@ -116,9 +130,9 @@ export async function POST(req, { params }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            user_id: otherParticipant.user_id,
+            user_id: p.user_id,
             title: "MatrixVerse",
-            body: (user.user_metadata?.username || "Someone") + " sent you a message",
+            body: senderName + " sent you a message",
             url: "/inbox/" + cid,
           }),
         }).catch(() => {})
