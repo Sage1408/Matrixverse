@@ -29,13 +29,14 @@ export default function InboxIcon({ username }) {
   }, [fetchUnread])
 
   return (
-    <button onClick={() => router.push("/inbox")} className="relative text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors" title="Inbox">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <button onClick={() => router.push("/inbox")} className="flex items-center gap-1.5 relative text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors text-sm" title="Inbox">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
         <polyline points="22,6 12,13 2,6" />
       </svg>
+      <span>Messages</span>
       {unread > 0 && (
-        <span className="absolute -top-1.5 -right-1.5 bg-[var(--accent-red)] text-white text-[10px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1">
+        <span className="bg-[var(--accent-red)] text-white text-[10px] font-bold min-w-[16px] h-4 flex items-center justify-center rounded-full px-1">
           {unread > 99 ? "99+" : unread}
         </span>
       )}
