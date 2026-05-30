@@ -40,7 +40,13 @@ export default function MobileNav({ username }) {
     { href: "/education", icon: "📚", label: "Learn" },
     { href: "/analytics", icon: "📈", label: "Analytics" },
     { href: "/leaderboard", icon: "🏆", label: "Leaderboard" },
+    { href: "/settings", icon: "⚙️", label: "Settings" },
   ];
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/login";
+  };
 
   const isActive = (href) => {
     if (href.startsWith("/profile")) return pathname.startsWith("/profile");
@@ -111,6 +117,14 @@ export default function MobileNav({ username }) {
                 </a>
               ))}
             </div>
+            <hr className="border-[var(--border)] my-3" />
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-[var(--accent-red)] hover:bg-red-950/20 transition-colors w-full"
+            >
+              <span className="text-xl">🚪</span>
+              Log out
+            </button>
           </div>
         </>
       )}
