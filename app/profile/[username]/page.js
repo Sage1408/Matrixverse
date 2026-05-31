@@ -239,11 +239,6 @@ export default function Profile({ params }) {
 
       <div className="max-w-3xl mx-auto px-6 py-10 pb-24">
 
-        {/* DEBUG - remove after fixing */}
-        <div className="text-xs text-[var(--text-muted)] mb-4 p-3 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border)]">
-          username: {username} | profileRow: {profileRow ? "found" : "null"} | trades: {trades.length} | loading: {loading ? "true" : "false"}
-        </div>
-
         <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 mb-6">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-4">
