@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
 import NotificationBell from "../components/NotificationBell";
@@ -27,6 +27,9 @@ export default function DashboardClient() {
   const [badgeNotification, setBadgeNotification] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [tradeFilter, setTradeFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [showResults, setShowResults] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -56,6 +59,24 @@ export default function DashboardClient() {
       .order("checked_in_at", { ascending: false });
     if (data) setCheckins(data);
   };
+
+  const searchTimeout = useRef(null)
+
+  const handleSearchChange = (e) => {
+    const val = e.target.value
+    setSearchQuery(val)
+    clearTimeout(searchTimeout.current)
+    if (!val.trim()) { setSearchResults([]); setShowResults(false); return }
+    searchTimeout.current = setTimeout(async () => {
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, username, display_name, avatar_url")
+        .ilike("username", "%" + val.trim() + "%")
+        .limit(10)
+      setSearchResults(profiles || [])
+      setShowResults(true)
+    }, 300)
+  }
 
   const handleCheckin = async () => {
     const { data: { session } } = await supabase.auth.getSession();
@@ -210,13 +231,38 @@ export default function DashboardClient() {
           <input
             type="text"
             placeholder="Search traders..."
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && e.target.value.trim()) {
-                router.push("/search?q=" + encodeURIComponent(e.target.value.trim()))
-              }
-            }}
+            value={searchQuery}
+            onChange={handleSearchChange}
+            onFocus={() => { if (searchResults.length > 0 || searchQuery.trim()) setShowResults(true) }}
+            onBlur={() => setTimeout(() => setShowResults(false), 200)}
             className="w-full bg-[var(--bg-secondary)] border border-[var(--border)] text-[var(--text-primary)] placeholder-[#8B949E] rounded-2xl pl-12 pr-4 py-3 text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors"
           />
+          {showResults && (searchResults.length > 0 || searchQuery.trim()) && (
+            <div className="absolute top-full left-0 right-0 mt-2 bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl shadow-xl z-50 max-h-64 overflow-y-auto">
+              {searchQuery.trim() && searchResults.length === 0 ? (
+                <div className="px-5 py-8 text-center">
+                  <p className="text-[var(--text-muted)] text-sm">No traders found</p>
+                </div>
+              ) : (
+                searchResults.map(trader => (
+                  <a
+                    key={trader.user_id}
+                    href={"/profile/" + trader.username}
+                    className="flex items-center gap-3 px-5 py-3 hover:bg-[var(--bg-tertiary)] transition-colors border-b border-[var(--border)] last:border-b-0"
+                  >
+                    <div className="w-9 h-9 rounded-full bg-[var(--accent-blue)] flex items-center justify-center text-[var(--bg-primary)] font-bold text-sm">
+                      {trader.username?.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-[var(--text-primary)] font-semibold text-sm">@{trader.username}</p>
+                      <p className="text-[var(--text-muted)] text-xs">{trader.display_name || "MatrixVerse Trader"}</p>
+                    </div>
+                    <span className="ml-auto text-[var(--accent-blue)] text-xs font-semibold">View →</span>
+                  </a>
+                ))
+              )}
+            </div>
+          )}
         </div>
 
         {/* Trade Filter Toggle */}

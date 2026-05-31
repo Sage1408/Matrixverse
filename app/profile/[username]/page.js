@@ -27,6 +27,59 @@ export default function Profile({ params }) {
   const [badgesData, setBadgesData] = useState({ earned: [], all: [] });
   const router = useRouter();
 
+  useEffect(() => {
+    const load = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) { router.push("/login"); return }
+      setCurrentUser(user)
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("username", username)
+        .single()
+      if (profile) {
+        setProfileRow(profile)
+        const userId = profile.user_id
+
+        const { data: tradesData } = await supabase
+          .from("trades").select("*").eq("user_id", userId).order("traded_at", { ascending: false })
+        if (tradesData) setTrades(tradesData)
+
+        const { data: postsData } = await supabase
+          .from("posts").select("*").eq("user_id", userId).order("created_at", { ascending: false })
+        if (postsData) setPosts(postsData)
+
+        const { data: checkinsData } = await supabase
+          .from("checkins").select("*").eq("user_id", userId).order("checked_in_at", { ascending: false })
+        if (checkinsData) setCheckins(checkinsData)
+
+        const { data: followersData } = await supabase
+          .from("follows").select("*").eq("following_username", username)
+        if (followersData) setFollowers(followersData)
+
+        const { data: followingData } = await supabase
+          .from("follows").select("*").eq("follower_username", user?.user_metadata?.username || user.email)
+        if (followingData) {
+          setFollowing(followingData)
+          setIsFollowing(followingData.some(f => f.following_username === username))
+        }
+
+        // Load badges
+        try {
+          const res = await fetch("/api/badges/list")
+          const badgeData = await res.json()
+          const badgesRes = await fetch("/api/badges/list?user_id=" + userId)
+          const badgeUserData = await badgesRes.json()
+          setBadgesData({ earned: badgeUserData.badges || badgeUserData || [], all: badgeData.badges || badgeData || [] })
+        } catch (e) {}
+      }
+
+      setLoading(false)
+    }
+    load()
+  }, [username])
+
   const handleFollow = async () => {
     if (!currentUser) return;
     setFollowLoading(true);
