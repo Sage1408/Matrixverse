@@ -37,8 +37,8 @@ export default function Profile({ params }) {
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
           .select("*")
-          .eq("username", username)
-          .single()
+          .ilike("username", username)
+          .maybeSingle()
         if (profileError || !profile) {
           setLoading(false)
           return
