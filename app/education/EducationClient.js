@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import ThemeToggle from "../components/ThemeToggle";
-import InboxIcon from "../components/InboxIcon";
 import MobileNav from "../components/MobileNav";
 
 const guides = [
@@ -154,10 +153,9 @@ export default function EducationClient() {
         <a href="/dashboard" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
         <div className="hidden md:flex items-center gap-4">
           <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
-          <InboxIcon />
           <ThemeToggle />
         </div>
-        <div className="md:hidden"><InboxIcon /><ThemeToggle /></div>
+        <div className="md:hidden"><ThemeToggle /></div>
       </nav>
 
       <main className="bg-[var(--bg-primary)] min-h-screen px-6 py-8 pb-24">

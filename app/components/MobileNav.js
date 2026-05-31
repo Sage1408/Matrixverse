@@ -1,36 +1,15 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "../lib/supabase";
 
 export default function MobileNav({ username }) {
   const pathname = usePathname();
   const [showMore, setShowMore] = useState(false);
-  const [unread, setUnread] = useState(0);
-
-  useEffect(() => {
-    const fetchUnread = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
-      try {
-        const res = await fetch("/api/conversations", {
-          headers: { Authorization: "Bearer " + session.access_token },
-        });
-        const data = await res.json();
-        if (data.conversations) {
-          setUnread(data.conversations.reduce((s, c) => s + (c.unread_count || 0), 0));
-        }
-      } catch (e) {}
-    };
-    fetchUnread();
-    const interval = setInterval(fetchUnread, 15000);
-    return () => clearInterval(interval);
-  }, []);
 
   const mainItems = [
     { href: "/dashboard", icon: "📊", label: "Home" },
-    { href: "/inbox", icon: "💬", label: "Inbox" },
     { href: "/journal", icon: "📓", label: "Journal" },
     { href: "/community", icon: "👥", label: "Community" },
     { href: "/profile/" + (username || ""), icon: "👤", label: "Profile" },
@@ -79,15 +58,10 @@ export default function MobileNav({ username }) {
         {/* More button */}
         <button
           onClick={() => setShowMore(!showMore)}
-          className="flex flex-col items-center gap-0.5 px-2 py-2 rounded-xl transition-colors flex-shrink-0 min-w-0 text-[var(--text-muted)] hover:text-[var(--text-primary)] relative"
+          className="flex flex-col items-center gap-0.5 px-2 py-2 rounded-xl transition-colors flex-shrink-0 min-w-0 text-[var(--text-muted)] hover:text-[var(--text-primary)]"
         >
           <span className="text-xl leading-none">•••</span>
           <span className="text-[10px] font-semibold leading-tight">More</span>
-          {unread > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 bg-[var(--accent-red)] text-white text-[8px] font-bold min-w-[14px] h-3.5 flex items-center justify-center rounded-full px-0.5">
-              {unread > 9 ? "9+" : unread}
-            </span>
-          )}
         </button>
       </div>
 

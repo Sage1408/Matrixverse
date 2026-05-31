@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 import { useRouter } from "next/navigation";
 import ThemeToggle from "../components/ThemeToggle";
-import InboxIcon from "../components/InboxIcon";
 import MobileNav from "../components/MobileNav";
 import { Skeleton, SkeletonText, SkeletonCard } from "../components/Skeleton";
 
@@ -99,7 +98,6 @@ export default function AdminClient() {
           <span className="bg-[var(--accent-purple)] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">ADMIN</span>
         </div>
         <div className="flex items-center gap-3">
-          <InboxIcon username={user?.user_metadata?.username} />
           <ThemeToggle />
         </div>
       </nav>

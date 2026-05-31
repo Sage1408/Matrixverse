@@ -2,7 +2,6 @@
 
 import MobileNav from "../../components/MobileNav";
 import ThemeToggle from "../../components/ThemeToggle"
-import InboxIcon from "../../components/InboxIcon"
 import { Skeleton, SkeletonCard, SkeletonText, SkeletonProfile } from "../../components/Skeleton"
 import { use, useState, useEffect } from "react";
 import { supabase } from "../../lib/supabase";
@@ -27,127 +26,6 @@ export default function Profile({ params }) {
   const [saving, setSaving] = useState(false);
   const [badgesData, setBadgesData] = useState({ earned: [], all: [] });
   const router = useRouter();
-  const [messaging, setMessaging] = useState(false);
-
-  const handleMessage = async () => {
-    if (!currentUser || !profileRow) return
-    setMessaging(true)
-    const { data: { session } } = await supabase.auth.getSession()
-    if (!session) return
-    try {
-      const res = await fetch("/api/conversations", {
-        method: "POST",
-        headers: { Authorization: "Bearer " + session.access_token, "Content-Type": "application/json" },
-        body: JSON.stringify({ participant_id: profileRow.user_id }),
-      })
-      const data = await res.json()
-      if (data.conversation_id) router.push("/inbox/" + data.conversation_id)
-    } catch (e) {}
-    setMessaging(false)
-  };
-
-  useEffect(() => {
-    const init = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.push("/login"); return; }
-      setCurrentUser(user);
-
-      const { data: profileData } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("username", username)
-        .single();
-      setProfileRow(profileData);
-
-      await loadProfileData();
-      await loadFollowData(user);
-      await fetchBadges(user);
-      setLoading(false);
-    };
-    init();
-  }, [username]);
-
-  const fetchBadges = async (user) => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    try {
-      const res = await fetch("/api/badges/list", {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
-      const data = await res.json();
-      if (data.earned) setBadgesData(data);
-    } catch (e) {
-      // silently fail
-    }
-  };
-
-  const loadProfileData = async () => {
-    const { data: postsData } = await supabase
-      .from("posts")
-      .select("*")
-      .eq("username", username)
-      .order("created_at", { ascending: false });
-    if (postsData) setPosts(postsData);
-
-    if (postsData && postsData.length > 0) {
-      const userId = postsData[0].user_id;
-      const { data: tradesData } = await supabase
-        .from("trades").select("*").eq("user_id", userId)
-        .order("traded_at", { ascending: false });
-      if (tradesData) setTrades(tradesData);
-
-      const { data: checkinsData } = await supabase
-        .from("checkins").select("*").eq("user_id", userId)
-        .order("checked_in_at", { ascending: false });
-      if (checkinsData) setCheckins(checkinsData);
-    }
-  };
-
-  const startEdit = (post) => {
-    setEditingPostId(post.id);
-    setEditForm({ content: post.content, pair_tag: post.pair_tag || "", post_type: post.post_type });
-  };
-
-  const cancelEdit = () => {
-    setEditingPostId(null);
-    setEditForm({ content: "", pair_tag: "", post_type: "" });
-  };
-
-  const saveEdit = async (postId) => {
-    setSaving(true);
-    await supabase.from("posts").update({
-      content: editForm.content,
-      pair_tag: editForm.pair_tag,
-      post_type: editForm.post_type,
-    }).eq("id", postId);
-    setEditingPostId(null);
-    await loadProfileData();
-    setSaving(false);
-  };
-
-  const executeDelete = async (postId) => {
-    await supabase.from("posts").delete().eq("id", postId);
-    setDeleteConfirm(null);
-    await loadProfileData();
-  };
-
-  const loadFollowData = async (user) => {
-    const { data: followersData } = await supabase
-      .from("follows")
-      .select("*")
-      .eq("following_username", username);
-    if (followersData) setFollowers(followersData);
-
-    const { data: followingData } = await supabase
-      .from("follows")
-      .select("*")
-      .eq("follower_username", username);
-    if (followingData) setFollowing(followingData);
-
-    const currentUsername = user.user_metadata?.username || user.email;
-    const alreadyFollowing = followersData?.some(f => f.follower_username === currentUsername);
-    setIsFollowing(alreadyFollowing || false);
-  };
 
   const handleFollow = async () => {
     if (!currentUser) return;
@@ -283,7 +161,6 @@ export default function Profile({ params }) {
       <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
         <a href="/dashboard" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
         <div className="hidden md:flex items-center gap-4">
-          <InboxIcon username={currentUser?.user_metadata?.username} />
           <ThemeToggle />
           <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
            <a href="/education" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Learn</a>
@@ -296,7 +173,6 @@ export default function Profile({ params }) {
           )}
         </div>
         <div className="md:hidden">
-          <InboxIcon username={currentUser?.user_metadata?.username} />
           <ThemeToggle />
         </div>
       </nav>
@@ -333,13 +209,6 @@ export default function Profile({ params }) {
               </a>
             ) : (
               <div className="flex items-center gap-2">
-                <button
-                  onClick={handleMessage}
-                  disabled={messaging}
-                  className="border border-[var(--border)] text-[var(--text-muted)] text-xs font-semibold px-4 py-2 rounded-full hover:border-[var(--accent-blue)] hover:text-[var(--accent-blue)] transition-colors disabled:opacity-50"
-                >
-                  {messaging ? "..." : "Message"}
-                </button>
                 <button
                   onClick={handleFollow}
                   disabled={followLoading}
