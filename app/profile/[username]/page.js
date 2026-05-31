@@ -46,13 +46,22 @@ export default function Profile({ params }) {
 
         setProfileRow(profile)
 
-        // Find the correct user_id from posts (matches trades user_id)
-        let targetUserId = profile.user_id
-        const { data: postUser } = await supabase
-          .from("posts").select("user_id").eq("username", username).maybeSingle()
-        if (postUser?.user_id) targetUserId = postUser.user_id
+        // Get user_id from posts (same approach as original working code)
+        let targetUserId = null
+        const { data: postsForUser } = await supabase
+          .from("posts").select("user_id").ilike("username", username).limit(1)
+        if (postsForUser?.length) {
+          targetUserId = postsForUser[0].user_id
+        }
+
+        // Fallback: try profile.user_id if posts query returned nothing
+        if (!targetUserId && profile.user_id) {
+          targetUserId = profile.user_id
+        }
 
         if (!targetUserId) { setLoading(false); return }
+
+        console.log("Profile fetch: targetUserId =", targetUserId)
 
         const [tradesRes, postsRes, checkinsRes, followersRes, followingRes] = await Promise.all([
           supabase.from("trades").select("*").eq("user_id", targetUserId),
@@ -62,7 +71,6 @@ export default function Profile({ params }) {
           supabase.from("follows").select("*").eq("follower_username", user?.user_metadata?.username || user.email),
         ])
 
-        if (tradesRes.error) console.error("trades error:", tradesRes.error)
         if (tradesRes.data) setTrades(tradesRes.data)
         if (postsRes.data) setPosts(postsRes.data)
         if (checkinsRes.data) setCheckins(checkinsRes.data)
