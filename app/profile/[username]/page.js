@@ -61,17 +61,25 @@ export default function Profile({ params }) {
 
         if (!targetUserId) { setLoading(false); return }
 
-        console.log("Profile fetch: targetUserId =", targetUserId)
+        console.log("Profile fetch: targetUserId =", targetUserId, typeof targetUserId)
 
-        const [tradesRes, postsRes, checkinsRes, followersRes, followingRes] = await Promise.all([
-          supabase.from("trades").select("*").eq("user_id", targetUserId),
+        // Try both as-is and as string
+        const { data: tradesExact } = await supabase
+          .from("trades").select("*").eq("user_id", targetUserId)
+        const { data: tradesString } = await supabase
+          .from("trades").select("*").eq("user_id", String(targetUserId))
+
+        console.log("tradesExact:", tradesExact?.length, "tradesString:", tradesString?.length)
+
+        const [postsRes, checkinsRes, followersRes, followingRes] = await Promise.all([
           supabase.from("posts").select("*").eq("user_id", targetUserId).order("created_at", { ascending: false }),
           supabase.from("checkins").select("*").eq("user_id", targetUserId).order("checked_in_at", { ascending: false }),
           supabase.from("follows").select("*").eq("following_username", username),
           supabase.from("follows").select("*").eq("follower_username", user?.user_metadata?.username || user.email),
         ])
 
-        if (tradesRes.data) setTrades(tradesRes.data)
+        const tradesData = tradesExact.length ? tradesExact : tradesString
+        if (tradesData?.length) setTrades(tradesData)
         if (postsRes.data) setPosts(postsRes.data)
         if (checkinsRes.data) setCheckins(checkinsRes.data)
         if (followersRes.data) setFollowers(followersRes.data)
