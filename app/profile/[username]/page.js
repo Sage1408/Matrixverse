@@ -45,16 +45,24 @@ export default function Profile({ params }) {
         }
 
         setProfileRow(profile)
-        const userId = profile.user_id
+
+        // Find the correct user_id from posts (matches trades user_id)
+        let targetUserId = profile.user_id
+        const { data: postUser } = await supabase
+          .from("posts").select("user_id").eq("username", username).maybeSingle()
+        if (postUser?.user_id) targetUserId = postUser.user_id
+
+        if (!targetUserId) { setLoading(false); return }
 
         const [tradesRes, postsRes, checkinsRes, followersRes, followingRes] = await Promise.all([
-          supabase.from("trades").select("*").eq("user_id", userId).order("traded_at", { ascending: false }),
-          supabase.from("posts").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
-          supabase.from("checkins").select("*").eq("user_id", userId).order("checked_in_at", { ascending: false }),
+          supabase.from("trades").select("*").eq("user_id", targetUserId),
+          supabase.from("posts").select("*").eq("user_id", targetUserId).order("created_at", { ascending: false }),
+          supabase.from("checkins").select("*").eq("user_id", targetUserId).order("checked_in_at", { ascending: false }),
           supabase.from("follows").select("*").eq("following_username", username),
           supabase.from("follows").select("*").eq("follower_username", user?.user_metadata?.username || user.email),
         ])
 
+        if (tradesRes.error) console.error("trades error:", tradesRes.error)
         if (tradesRes.data) setTrades(tradesRes.data)
         if (postsRes.data) setPosts(postsRes.data)
         if (checkinsRes.data) setCheckins(checkinsRes.data)
@@ -67,7 +75,7 @@ export default function Profile({ params }) {
         try {
           const res = await fetch("/api/badges/list")
           const badgeData = await res.json()
-          const badgesRes = await fetch("/api/badges/list?user_id=" + userId)
+          const badgesRes = await fetch("/api/badges/list?user_id=" + targetUserId)
           const badgeUserData = await badgesRes.json()
           setBadgesData({ earned: badgeUserData.badges || badgeUserData || [], all: badgeData.badges || badgeData || [] })
         } catch (e) {}
@@ -233,7 +241,7 @@ export default function Profile({ params }) {
 
         {/* DEBUG - remove after fixing */}
         <div className="text-xs text-[var(--text-muted)] mb-4 p-3 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border)]">
-          username: {username} | profileRow: {profileRow ? "found" : "null"} | userId: {profileRow?.user_id || "none"} | trades: {trades.length} | loading: {loading ? "true" : "false"}
+          username: {username} | profileRow: {profileRow ? "found" : "null"} | trades: {trades.length} | loading: {loading ? "true" : "false"}
         </div>
 
         <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-6 mb-6">
