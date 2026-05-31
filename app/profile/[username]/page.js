@@ -29,43 +29,41 @@ export default function Profile({ params }) {
 
   useEffect(() => {
     const load = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) { router.push("/login"); return }
-      setCurrentUser(user)
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) { router.push("/login"); return }
+        setCurrentUser(user)
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("username", username)
-        .single()
-      if (profile) {
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("username", username)
+          .single()
+        if (profileError || !profile) {
+          setLoading(false)
+          return
+        }
+
         setProfileRow(profile)
         const userId = profile.user_id
 
-        const { data: tradesData } = await supabase
-          .from("trades").select("*").eq("user_id", userId).order("traded_at", { ascending: false })
-        if (tradesData) setTrades(tradesData)
+        const [tradesRes, postsRes, checkinsRes, followersRes, followingRes] = await Promise.all([
+          supabase.from("trades").select("*").eq("user_id", userId).order("traded_at", { ascending: false }),
+          supabase.from("posts").select("*").eq("user_id", userId).order("created_at", { ascending: false }),
+          supabase.from("checkins").select("*").eq("user_id", userId).order("checked_in_at", { ascending: false }),
+          supabase.from("follows").select("*").eq("following_username", username),
+          supabase.from("follows").select("*").eq("follower_username", user?.user_metadata?.username || user.email),
+        ])
 
-        const { data: postsData } = await supabase
-          .from("posts").select("*").eq("user_id", userId).order("created_at", { ascending: false })
-        if (postsData) setPosts(postsData)
-
-        const { data: checkinsData } = await supabase
-          .from("checkins").select("*").eq("user_id", userId).order("checked_in_at", { ascending: false })
-        if (checkinsData) setCheckins(checkinsData)
-
-        const { data: followersData } = await supabase
-          .from("follows").select("*").eq("following_username", username)
-        if (followersData) setFollowers(followersData)
-
-        const { data: followingData } = await supabase
-          .from("follows").select("*").eq("follower_username", user?.user_metadata?.username || user.email)
-        if (followingData) {
-          setFollowing(followingData)
-          setIsFollowing(followingData.some(f => f.following_username === username))
+        if (tradesRes.data) setTrades(tradesRes.data)
+        if (postsRes.data) setPosts(postsRes.data)
+        if (checkinsRes.data) setCheckins(checkinsRes.data)
+        if (followersRes.data) setFollowers(followersRes.data)
+        if (followingRes.data) {
+          setFollowing(followingRes.data)
+          setIsFollowing(followingRes.data.some(f => f.following_username === username))
         }
 
-        // Load badges
         try {
           const res = await fetch("/api/badges/list")
           const badgeData = await res.json()
@@ -73,8 +71,9 @@ export default function Profile({ params }) {
           const badgeUserData = await badgesRes.json()
           setBadgesData({ earned: badgeUserData.badges || badgeUserData || [], all: badgeData.badges || badgeData || [] })
         } catch (e) {}
+      } catch (e) {
+        console.error("Profile load error:", e)
       }
-
       setLoading(false)
     }
     load()
