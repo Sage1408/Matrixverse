@@ -41,7 +41,7 @@ export default function SearchClient() {
     }
   }, [allTraders, searchParams])
 
-  const fetchAllTraders = async (currentUser) => {
+  const fetchAllTraders = async (user) => {
     setLoading(true);
 
     // Get all unique usernames from posts
@@ -74,11 +74,11 @@ export default function SearchClient() {
     }
 
     // Add current user if not already there
-    const currentUsername = currentUser.user_metadata?.username || currentUser.email;
-    if (!tradersMap[currentUser.id]) {
-      tradersMap[currentUser.id] = {
-        user_id: currentUser.id,
-        username: currentUsername,
+    const username = user.user_metadata?.username || user.email;
+    if (!tradersMap[user.id]) {
+      tradersMap[user.id] = {
+        user_id: user.id,
+        username: username,
       };
     }
 
@@ -141,7 +141,7 @@ export default function SearchClient() {
       <nav className="bg-[var(--bg-secondary)] border-b border-[var(--border)] px-6 py-4 flex items-center justify-between">
         <a href="/dashboard" className="text-[var(--accent-blue)] font-bold text-xl">MatrixVerse</a>
         <div className="hidden md:flex items-center gap-4">
-          <InboxIcon username={currentUser?.user_metadata?.username} />
+          <InboxIcon username={user?.user_metadata?.username} />
           <ThemeToggle />
           <a href="/dashboard" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Dashboard</a>
           <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Community</a>
@@ -150,7 +150,7 @@ export default function SearchClient() {
            <a href="/glossary" className="text-[var(--text-muted)] hover:text-[var(--text-primary)] text-sm">Glossary</a>
         </div>
         <div className="md:hidden">
-          <InboxIcon username={currentUser?.user_metadata?.username} />
+          <InboxIcon username={user?.user_metadata?.username} />
           <ThemeToggle />
         </div>
       </nav>
