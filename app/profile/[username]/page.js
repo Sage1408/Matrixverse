@@ -61,12 +61,11 @@ export default function Profile({ params }) {
 
         if (!targetUserId) { setLoading(false); return }
 
-        console.log("Profile fetch: targetUserId =", targetUserId)
+        // Fetch ALL trades and filter client-side (same pattern as leaderboard)
+        const { data: allTrades } = await supabase.from("trades").select("*")
+        const userTrades = allTrades?.filter(t => String(t.user_id) === String(targetUserId)) || []
 
-        // Query trades separately to catch any errors
-        const { data: tradesFromDb, error: tradesError } = await supabase
-          .from("trades").select("*").eq("user_id", targetUserId)
-        console.log("trades data:", tradesFromDb, "trades error:", tradesError)
+        console.log("allTrades count:", allTrades?.length, "userTrades:", userTrades.length, "targetUserId:", targetUserId)
 
         const [postsRes, checkinsRes, followersRes, followingRes] = await Promise.all([
           supabase.from("posts").select("*").eq("user_id", targetUserId).order("created_at", { ascending: false }),
@@ -75,7 +74,7 @@ export default function Profile({ params }) {
           supabase.from("follows").select("*").eq("follower_username", user?.user_metadata?.username || user.email),
         ])
 
-        if (tradesFromDb?.length) setTrades(tradesFromDb)
+        setTrades(userTrades)
         if (postsRes.data) setPosts(postsRes.data)
         if (checkinsRes.data) setCheckins(checkinsRes.data)
         if (followersRes.data) setFollowers(followersRes.data)
