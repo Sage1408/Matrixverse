@@ -46,27 +46,19 @@ export default function Profile({ params }) {
 
         setProfileRow(profile)
 
-        // Get user_id from posts (same approach as original working code)
+        // Get user_id from posts
         let targetUserId = null
         const { data: postsForUser } = await supabase
           .from("posts").select("user_id").ilike("username", username).limit(1)
-        if (postsForUser?.length) {
-          targetUserId = postsForUser[0].user_id
-        }
-
-        // Fallback: try profile.user_id if posts query returned nothing
-        if (!targetUserId && profile.user_id) {
-          targetUserId = profile.user_id
-        }
-
+        if (postsForUser?.length) targetUserId = postsForUser[0].user_id
+        if (!targetUserId && profile.user_id) targetUserId = profile.user_id
         if (!targetUserId) { setLoading(false); return }
 
-        // Fetch ALL trades and filter client-side (same pattern as leaderboard)
+        // Fetch all trades and filter client-side (same pattern as leaderboard)
         const { data: allTrades } = await supabase.from("trades").select("*")
         const userTrades = allTrades?.filter(t => String(t.user_id) === String(targetUserId)) || []
 
-        console.log("allTrades count:", allTrades?.length, "userTrades:", userTrades.length, "targetUserId:", targetUserId)
-
+        // Fetch other profile data
         const [postsRes, checkinsRes, followersRes, followingRes] = await Promise.all([
           supabase.from("posts").select("*").eq("user_id", targetUserId).order("created_at", { ascending: false }),
           supabase.from("checkins").select("*").eq("user_id", targetUserId).order("checked_in_at", { ascending: false }),
@@ -74,7 +66,7 @@ export default function Profile({ params }) {
           supabase.from("follows").select("*").eq("follower_username", user?.user_metadata?.username || user.email),
         ])
 
-        setTrades(userTrades)
+        if (userTrades.length) setTrades(userTrades)
         if (postsRes.data) setPosts(postsRes.data)
         if (checkinsRes.data) setCheckins(checkinsRes.data)
         if (followersRes.data) setFollowers(followersRes.data)
