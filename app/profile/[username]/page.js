@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 export default function Profile({ params }) {
   const { username } = use(params);
   const [currentUser, setCurrentUser] = useState(null);
+  const [session, setSession] = useState(null);
   const [profileRow, setProfileRow] = useState(null);
   const [trades, setTrades] = useState([]);
   const [posts, setPosts] = useState([]);
@@ -33,6 +34,8 @@ export default function Profile({ params }) {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) { router.push("/login"); return }
         setCurrentUser(user)
+        const { data: { session: sess } } = await supabase.auth.getSession()
+        setSession(sess)
 
         const { data: profile, error: profileError } = await supabase
           .from("profiles")
@@ -54,11 +57,14 @@ export default function Profile({ params }) {
         if (!targetUserId && profile.user_id) targetUserId = profile.user_id
         if (!targetUserId) { setLoading(false); return }
 
-        // Fetch all trades and filter client-side (same pattern as leaderboard)
-        const { data: allTrades } = await supabase.from("trades").select("*")
-        const userTrades = allTrades?.filter(t => String(t.user_id) === String(targetUserId)) || []
+        // Fetch trades via API route (bypasses RLS with service role key)
+        const authToken = sess?.access_token
+        const tradesRes = await fetch("/api/trades/user?user_id=" + targetUserId, {
+          headers: authToken ? { Authorization: "Bearer " + authToken } : {}
+        })
+        const tradesData = await tradesRes.json()
+        if (tradesData.trades) setTrades(tradesData.trades)
 
-        // Fetch other profile data
         const [postsRes, checkinsRes, followersRes, followingRes] = await Promise.all([
           supabase.from("posts").select("*").eq("user_id", targetUserId).order("created_at", { ascending: false }),
           supabase.from("checkins").select("*").eq("user_id", targetUserId).order("checked_in_at", { ascending: false }),
@@ -66,7 +72,6 @@ export default function Profile({ params }) {
           supabase.from("follows").select("*").eq("follower_username", user?.user_metadata?.username || user.email),
         ])
 
-        if (userTrades.length) setTrades(userTrades)
         if (postsRes.data) setPosts(postsRes.data)
         if (checkinsRes.data) setCheckins(checkinsRes.data)
         if (followersRes.data) setFollowers(followersRes.data)
@@ -76,9 +81,13 @@ export default function Profile({ params }) {
         }
 
         try {
-          const res = await fetch("/api/badges/list")
+          const res = await fetch("/api/badges/list", {
+            headers: authToken ? { Authorization: "Bearer " + authToken } : {}
+          })
           const badgeData = await res.json()
-          const badgesRes = await fetch("/api/badges/list?user_id=" + targetUserId)
+          const badgesRes = await fetch("/api/badges/list?user_id=" + targetUserId, {
+            headers: authToken ? { Authorization: "Bearer " + authToken } : {}
+          })
           const badgeUserData = await badgesRes.json()
           setBadgesData({ earned: badgeUserData.badges || badgeUserData || [], all: badgeData.badges || badgeData || [] })
         } catch (e) {}
