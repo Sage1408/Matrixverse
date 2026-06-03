@@ -27,7 +27,14 @@ export default function LeaderboardClient() {
   }, []);
 
   const fetchLeaderboard = async () => {
-    const { data: trades } = await supabase.from("trades").select("*");
+    const { data: { session } } = await supabase.auth.getSession()
+    const authToken = session?.access_token
+    if (!authToken) return
+
+    const res = await fetch("/api/trades/all", {
+      headers: { Authorization: "Bearer " + authToken }
+    })
+    const { trades } = await res.json()
     if (!trades) return;
 
     const userMap = {};
