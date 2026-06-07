@@ -55,6 +55,25 @@ export default function EcoCalendarClient() {
     return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
   };
 
+  const formatDate = (dateStr) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" });
+  };
+
+  const getDateKey = (dateStr) => {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("en-US", { year: "numeric", month: "2-digit", day: "2-digit" });
+  };
+
+  const groupedByDate = filtered.reduce((acc, e) => {
+    const key = getDateKey(e.date);
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(e);
+    return acc;
+  }, {});
+
+  const sortedDates = Object.keys(groupedByDate).sort();
+
   const inputClass = "bg-[var(--bg-primary)] border border-[var(--border)] text-[var(--text-primary)] rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[var(--accent-blue)] transition-colors";
 
   if (!user || loading) return (
@@ -118,47 +137,54 @@ export default function EcoCalendarClient() {
           </div>
         </div>
 
-        <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-[var(--border)] bg-[var(--bg-tertiary)]">
-                  {["Time","Currency","Pairs","Event","Impact","Forecast","Previous"].map(h => (
-                    <th key={h} className="text-[var(--text-muted)] text-xs font-semibold px-4 py-3 text-left whitespace-nowrap">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-6 py-16 text-center text-[var(--text-muted)] text-sm">No events found</td>
-                  </tr>
-                ) : filtered.map((e, i) => (
-                  <tr key={i} className="border-b border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors">
-                    <td className="px-4 py-3 text-[var(--text-primary)] text-sm whitespace-nowrap">{formatTime(e.date)}</td>
-                    <td className="px-4 py-3">
-                      <span className="text-[var(--accent-blue)] font-bold text-sm">{e.currency}</span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex flex-wrap gap-1">
-                        {e.pairs?.length > 0 ? e.pairs.slice(0, 3).map((p, j) => (
-                          <span key={j} className="text-[10px] bg-[var(--accent-blue-bg)] text-[var(--accent-blue)] font-semibold px-1.5 py-0.5 rounded-full">{p}</span>
-                        )) : <span className="text-[var(--text-muted)] text-xs">-</span>}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-[var(--text-secondary)] text-sm max-w-xs truncate">{e.title}</td>
-                    <td className="px-4 py-3">
-                      <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${getImpactPill(e.impact)}`}>
-                        {e.impact || "-"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-[var(--text-muted)] text-sm">{e.forecast || "-"}</td>
-                    <td className="px-4 py-3 text-[var(--text-muted)] text-sm">{e.previous || "-"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        <div className="flex flex-col gap-6">
+          {filtered.length === 0 ? (
+            <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl p-16 text-center">
+              <p className="text-[var(--text-muted)] text-sm">No events found</p>
+            </div>
+          ) : sortedDates.map(dateKey => (
+            <div key={dateKey}>
+              <h3 className="text-[var(--text-primary)] font-bold text-lg mb-3">{formatDate(dateKey)}</h3>
+              <div className="bg-[var(--bg-secondary)] border border-[var(--border)] rounded-2xl overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b border-[var(--border)] bg-[var(--bg-tertiary)]">
+                        {["Time","Currency","Pairs","Event","Impact","Forecast","Previous"].map(h => (
+                          <th key={h} className="text-[var(--text-muted)] text-xs font-semibold px-4 py-3 text-left whitespace-nowrap">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {groupedByDate[dateKey].map((e, i) => (
+                        <tr key={i} className="border-b border-[var(--border)] hover:bg-[var(--bg-tertiary)] transition-colors">
+                          <td className="px-4 py-3 text-[var(--text-primary)] text-sm whitespace-nowrap">{formatTime(e.date)}</td>
+                          <td className="px-4 py-3">
+                            <span className="text-[var(--accent-blue)] font-bold text-sm">{e.currency}</span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <div className="flex flex-wrap gap-1">
+                              {e.pairs?.length > 0 ? e.pairs.slice(0, 3).map((p, j) => (
+                                <span key={j} className="text-[10px] bg-[var(--accent-blue-bg)] text-[var(--accent-blue)] font-semibold px-1.5 py-0.5 rounded-full">{p}</span>
+                              )) : <span className="text-[var(--text-muted)] text-xs">-</span>}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-[var(--text-secondary)] text-sm max-w-xs truncate">{e.title}</td>
+                          <td className="px-4 py-3">
+                            <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${getImpactPill(e.impact)}`}>
+                              {e.impact || "-"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-[var(--text-muted)] text-sm">{e.forecast || "-"}</td>
+                          <td className="px-4 py-3 text-[var(--text-muted)] text-sm">{e.previous || "-"}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
