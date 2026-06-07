@@ -584,7 +584,7 @@ export default function DashboardClient() {
             <div className="flex flex-col gap-3">
               <a href="/journal" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">📓 Trading Journal</a>
               <a href="/analytics" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">📊 Analytics</a>
-              <a href="/ai-analyzer" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🤖 AI Analyzer</a>
+              <a href="/ai-analyzer" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🤖 AI Coach</a>
               <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">👥 Community</a>
               <a href="/leaderboard" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🏆 Leaderboard</a>
               <a href="/psychology" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🧠 Psychology</a>
