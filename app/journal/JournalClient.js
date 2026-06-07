@@ -113,6 +113,48 @@ export default function JournalClient() {
 
     const rr = calculateRR();
 
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (token) {
+        const gr = await fetch("/api/guardrails", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const grData = await gr.json();
+        if (grData.success && grData.guardrails && grData.guardrails.enabled) {
+          const g = grData.guardrails;
+          const todayTrades = trades.filter(t =>
+            new Date(t.traded_at).toDateString() === new Date().toDateString()
+          );
+          const todayPnL = todayTrades.reduce((sum, t) => sum + (t.pnl || 0), 0);
+
+          if (g.maxDailyLoss > 0 && Math.abs(todayPnL) >= g.maxDailyLoss) {
+            alert("🚫 Daily loss limit reached. Take a break!");
+            setLoading(false);
+            return;
+          }
+          if (g.maxTradesPerDay > 0 && todayTrades.length >= g.maxTradesPerDay) {
+            alert("🚫 Max trades for today reached!");
+            setLoading(false);
+            return;
+          }
+          if (g.maxConsecutiveLosses > 0) {
+            const sorted = [...trades].sort((a, b) => new Date(b.traded_at) - new Date(a.traded_at));
+            let streak = 0;
+            for (const t of sorted) {
+              if (t.pnl < 0) streak++;
+              else break;
+            }
+            if (streak >= g.maxConsecutiveLosses) {
+              alert("🧊 Cool-down activated. Take a break!");
+              setLoading(false);
+              return;
+            }
+          }
+        }
+      }
+    } catch (e) {}
+
     const { error } = await supabase.from("trades").insert([{
       user_id: user.id,
       pair: form.pair,

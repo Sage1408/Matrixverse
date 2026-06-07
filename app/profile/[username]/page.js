@@ -81,15 +81,11 @@ export default function Profile({ params }) {
         }
 
         try {
-          const res = await fetch("/api/badges/list", {
-            headers: authToken ? { Authorization: "Bearer " + authToken } : {}
-          })
-          const badgeData = await res.json()
           const badgesRes = await fetch("/api/badges/list?user_id=" + targetUserId, {
             headers: authToken ? { Authorization: "Bearer " + authToken } : {}
           })
-          const badgeUserData = await badgesRes.json()
-          setBadgesData({ earned: badgeUserData.badges || badgeUserData || [], all: badgeData.badges || badgeData || [] })
+          const data = await badgesRes.json()
+          setBadgesData({ earned: data.earned || [], all: data.all || [] })
         } catch (e) {}
       } catch (e) {
         console.error("Profile load error:", e)

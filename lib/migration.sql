@@ -132,3 +132,22 @@ $$;
 
 -- 4. Assign admin roles
 UPDATE profiles SET role = 'admin' WHERE username IN ('Sage', 'Joseph');
+
+-- 5. Add guardrails column to profiles
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS guardrails JSONB DEFAULT '{"enabled": false, "maxDailyLoss": 0, "maxTradesPerDay": 0, "maxConsecutiveLosses": 0}';
+
+-- 6. Create trade_plans table
+CREATE TABLE IF NOT EXISTS trade_plans (
+  id BIGSERIAL PRIMARY KEY,
+  user_id UUID NOT NULL,
+  name TEXT NOT NULL,
+  pair TEXT,
+  direction TEXT,
+  entry_criteria TEXT,
+  stop_loss_plan TEXT,
+  take_profit_plan TEXT,
+  invalidation TEXT,
+  management_notes TEXT,
+  is_active BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);

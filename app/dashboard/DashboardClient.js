@@ -585,6 +585,10 @@ export default function DashboardClient() {
               <a href="/journal" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">📓 Trading Journal</a>
               <a href="/analytics" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">📊 Analytics</a>
               <a href="/ai-analyzer" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🤖 AI Coach</a>
+              <a href="/economic-calendar" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">📰 News</a>
+              <a href="/sanctuary" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🧘 Sanctuary</a>
+              <a href="/trade-plans" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">📋 Trade Plans</a>
+              <a href="/guardrails" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🛡️ Guardrails</a>
               <a href="/community" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">👥 Community</a>
               <a href="/leaderboard" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🏆 Leaderboard</a>
               <a href="/psychology" className="text-[var(--text-muted)] hover:text-[var(--accent-blue)] text-sm transition-colors">🧠 Psychology</a>

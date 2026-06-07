@@ -18,6 +18,9 @@ export default function MobileNav({ username }) {
   const moreItems = [
     { href: "/education", icon: "📚", label: "Learn" },
     { href: "/analytics", icon: "📈", label: "Analytics" },
+    { href: "/ai-analyzer", icon: "🤖", label: "AI Coach" },
+    { href: "/economic-calendar", icon: "📰", label: "News" },
+    { href: "/sanctuary", icon: "🧘", label: "Sanctuary" },
     { href: "/leaderboard", icon: "🏆", label: "Leaderboard" },
     { href: "/settings", icon: "⚙️", label: "Settings" },
   ];
