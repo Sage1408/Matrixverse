@@ -40,7 +40,7 @@ export default function EcoCalendarClient() {
     if (imp === "medium" && !impactFilter.medium) return false;
     if (imp === "low" && !impactFilter.low) return false;
     return true;
-  });
+  }).slice(0, 100);
 
   const getImpactPill = (impact) => {
     const i = (impact || "").toLowerCase();
@@ -123,7 +123,7 @@ export default function EcoCalendarClient() {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-[var(--border)] bg-[var(--bg-tertiary)]">
-                  {["Time","Currency","Event","Impact","Actual","Forecast","Previous"].map(h => (
+                  {["Time","Currency","Pairs","Event","Impact","Forecast","Previous"].map(h => (
                     <th key={h} className="text-[var(--text-muted)] text-xs font-semibold px-4 py-3 text-left whitespace-nowrap">{h}</th>
                   ))}
                 </tr>
@@ -139,13 +139,19 @@ export default function EcoCalendarClient() {
                     <td className="px-4 py-3">
                       <span className="text-[var(--accent-blue)] font-bold text-sm">{e.currency}</span>
                     </td>
-                    <td className="px-4 py-3 text-[var(--text-secondary)] text-sm max-w-xs truncate">{e.event}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap gap-1">
+                        {e.pairs?.length > 0 ? e.pairs.slice(0, 3).map((p, j) => (
+                          <span key={j} className="text-[10px] bg-[var(--accent-blue-bg)] text-[var(--accent-blue)] font-semibold px-1.5 py-0.5 rounded-full">{p}</span>
+                        )) : <span className="text-[var(--text-muted)] text-xs">-</span>}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-[var(--text-secondary)] text-sm max-w-xs truncate">{e.title}</td>
                     <td className="px-4 py-3">
                       <span className={`text-[10px] font-bold px-2 py-1 rounded-full ${getImpactPill(e.impact)}`}>
                         {e.impact || "-"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-[var(--text-primary)] text-sm">{e.actual || "-"}</td>
                     <td className="px-4 py-3 text-[var(--text-muted)] text-sm">{e.forecast || "-"}</td>
                     <td className="px-4 py-3 text-[var(--text-muted)] text-sm">{e.previous || "-"}</td>
                   </tr>
